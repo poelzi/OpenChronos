@@ -5,10 +5,11 @@ CC  = msp430-gcc
 LD  = msp430-ld
 
 PROJ_DIR	=.
-DEBUG_DIR	=debug/
-RELEASE_DIR =release/
+DEBUG_DIR	=debug
+RELEASE_DIR =release
+BUILD_DIR = build
 CFLAGS_PRODUCTION = -B -s -Os # -O optimizes
-CFLAGS_DEBUG= -g -O0 # -g enables debugging symbol table, -O0 for NO optimization
+CFLAGS_DEBUG= -g -O0 # -g enables debugging symbol table, -Os optimize for size, -O0 for NO optimization
 CC_CMACH	= -mmcu=cc430x6137
 CC_DMACH	= -D__MSP430_6137__  -DISM_US -DMRFI_CC430 -D__CC430F6137__ #-DCC__MSPGCC didn't need mspgcc defines __GNUC__
 CC_DOPT		= -DELIMINATE_BLUEROBIN
@@ -29,11 +30,11 @@ MAIN_SOURCE = even_in_range.o ezchronos.c  intrinsics.c
 
 main:	even_in_range
 	@echo "Compiling $@ in one step for $(CPU)..."
-	$(CC) $(CFLAGS_PRODUCTION) $(CC_COPT) $(CC_LINK) $(MAIN_SOURCE)  $(SIMPLICICTI_SOURCE) $(LOGIC_SOURCE) $(DRIVER_SOURCE)	-o $(RELEASE_DIR)eZChronos.elf 
+	$(CC) $(CFLAGS_PRODUCTION) $(CC_COPT) $(CC_LINK) $(MAIN_SOURCE)  $(SIMPLICICTI_SOURCE) $(LOGIC_SOURCE) $(DRIVER_SOURCE)	-o $(BUILD_DIR)\eZChronos.elf 
 	
 debug:	even_in_range
 	@echo "Assembling $@ in one step for $(CPU)..."
-	$(CC) $(CFLAGS_DEBUG) $(CC_COPT) $(CC_LINK) $(MAIN_SOURCE)  $(SIMPLICICTI_SOURCE) $(LOGIC_SOURCE) $(DRIVER_SOURCE)	-o $(DEBUG_DIR)eZChronos.elf 
+	$(CC) $(CFLAGS_DEBUG) $(CC_COPT) $(CC_LINK) $(MAIN_SOURCE)  $(SIMPLICICTI_SOURCE) $(LOGIC_SOURCE) $(DRIVER_SOURCE)	-o $(BUILD_DIR)\eZChronos.dbg.elf 
 
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
@@ -42,9 +43,7 @@ even_in_range:
 	
 clean: 
 	@echo "Removing files..."
-	del *.o debug\*.* release\*.* driver\*.o logic\*.o
-#rm *.o $(BUILD_DIR)*
-
+	del $(BUILD_DIR)\*.*
 	
 	
 #
