@@ -28,7 +28,7 @@ void __delay_cycles(unsigned long __cycles)
 		: [src] "=r" (__cycles) 
 		: "[src]" (__cycles) );
 	asm("DelayLoop:");
-	asm("nop");	// ad nops to increase loop to eight clock cycles
+	asm("nop");	// add nops to increase loop to eight clock cycles
 	asm("nop");
 	asm("nop");
 	asm("nop");
