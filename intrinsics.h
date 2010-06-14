@@ -9,6 +9,8 @@
 extern "C"
 {
 #endif
+        typedef unsigned short istate_t;
+
 	unsigned short __get_interrupt_state(void);
 	void     __set_interrupt_state(unsigned short);
 	
