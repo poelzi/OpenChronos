@@ -4,6 +4,8 @@ CPU	= MSP430
 CC  = msp430-gcc
 LD  = msp430-ld
 
+MKDIR = mkdir
+
 PROJ_DIR	=.
 DEBUG_DIR	=debug/
 RELEASE_DIR =release/
@@ -29,10 +31,12 @@ MAIN_SOURCE = even_in_range.o ezchronos.c  intrinsics.c
 
 main:	even_in_range
 	@echo "Compiling $@ in one step for $(CPU)..."
+	$(MKDIR) -p $(RELEASE_DIR)
 	$(CC) $(CFLAGS_PRODUCTION) $(CC_COPT) $(CC_LINK) $(MAIN_SOURCE)  $(SIMPLICICTI_SOURCE) $(LOGIC_SOURCE) $(DRIVER_SOURCE)	-o $(RELEASE_DIR)eZChronos.elf 
 	
 debug:	even_in_range
 	@echo "Assembling $@ in one step for $(CPU)..."
+	$(MKDIR) -p $(DEBUG_DIR)
 	$(CC) $(CFLAGS_DEBUG) $(CC_COPT) $(CC_LINK) $(MAIN_SOURCE)  $(SIMPLICICTI_SOURCE) $(LOGIC_SOURCE) $(DRIVER_SOURCE)	-o $(DEBUG_DIR)eZChronos.elf 
 
 even_in_range:
