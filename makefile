@@ -38,7 +38,7 @@ debug:	even_in_range
 
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
-	msp430-gcc -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o even_in_range.o
+	msp430-gcc -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o $(BUILD_DIR)/even_in_range.o
 
 	
 clean: 
