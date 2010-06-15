@@ -30,7 +30,7 @@ SIMPLICICTI_SOURCE = $(SIMPLICICTI_SOURCE_ODD) simpliciti/Components/bsp/bsp.c s
 
 SIMPLICICTI_O = $(addsuffix .o,$(basename $(SIMPLICICTI_SOURCE)))
 
-MAIN_SOURCE = even_in_range.o ezchronos.c intrinsics.c 
+MAIN_SOURCE = $(BUILD_DIR)/even_in_range.o ezchronos.c  intrinsics.c 
 
 MAIN_O = even_in_range.o ezchronos.o intrinsics.o 
 
@@ -56,7 +56,7 @@ debug:	even_in_range $(ALL_O)
 
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
-	msp430-gcc -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o even_in_range.o
+	msp430-gcc -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o $(BUILD_DIR)/even_in_range.o
 
 	
 clean: 
