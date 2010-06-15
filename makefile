@@ -25,7 +25,7 @@ SIMPLICICTI_SOURCE_ODD = simpliciti/Applications/application/End_Device/main_ED_
 
 SIMPLICICTI_SOURCE = $(SIMPLICICTI_SOURCE_ODD) simpliciti/Components/bsp/bsp.c simpliciti/Components/mrfi/mrfi.c simpliciti/Components/nwk/nwk.c simpliciti/Components/nwk/nwk_api.c simpliciti/Components/nwk/nwk_frame.c simpliciti/Components/nwk/nwk_globals.c simpliciti/Components/nwk/nwk_QMgmt.c simpliciti/Components/nwk_applications/nwk_freq.c simpliciti/Components/nwk_applications/nwk_ioctl.c simpliciti/Components/nwk_applications/nwk_join.c simpliciti/Components/nwk_applications/nwk_link.c simpliciti/Components/nwk_applications/nwk_mgmt.c simpliciti/Components/nwk_applications/nwk_ping.c simpliciti/Components/nwk_applications/nwk_security.c 
 
-MAIN_SOURCE = even_in_range.o ezchronos.c  intrinsics.c 
+MAIN_SOURCE = $(BUILD_DIR)/even_in_range.o ezchronos.c  intrinsics.c 
 
 
 main:	even_in_range
