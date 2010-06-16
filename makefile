@@ -3,6 +3,7 @@
 CPU	= MSP430
 CC  = msp430-gcc
 LD  = msp430-ld
+PYTHON = python
 
 PROJ_DIR	=.
 BUILD_DIR = build
@@ -41,6 +42,8 @@ USE_CFLAGS = $(CFLAGS_PRODUCTION)
 main:	even_in_range $(ALL_O)
 	@echo "Compiling $@ for $(CPU)..."
 	$(CC) $(CC_CMACH) $(CFLAGS_PRODUCTION) -o $(BUILD_DIR)/eZChronos.elf $(ALL_O) 
+	@echo "Convert to TI Hex file"
+	$(PYTHON) tools/memory.py -i build/eZChronos.elf -o build/eZChronos.txt
 
 #debug:	foo
 #	@echo USE_CFLAGS = $(CFLAGS_DEBUG)
