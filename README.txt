@@ -2,10 +2,10 @@
 
     2010-06-15 - Project now compiles and links without errors.  This 
     was accomplished by compiling and linking in separate steps.
-    Thanks go to Daniel Poelzleitherner this contribution.  Daniel also 
-    contributed Python scripts that convert the build's elf file to a 
-    TI txt file.  This function is incorporated into the makeefile and 
-    is done automatically by at the end of the build.
+    Thanks go to Daniel Poelzleitherner for this contribution.  
+    Daniel also contributed Python scripts that convert the build's elf 
+    file to a TI txt file.  This function is incorporated into the 
+    makefile and is done automatically by at the end of the build.
     
     
     ITEMS NEEDING TESTING: (as of 2010-06-14
