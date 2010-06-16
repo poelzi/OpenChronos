@@ -5,7 +5,7 @@
     Thanks go to Daniel Poelzleitherner for this contribution.  
     Daniel also contributed Python scripts that convert the build's elf 
     file to a TI txt file.  This function is incorporated into the 
-    makefile and is done automatically by at the end of the build.
+    makefile and is done automatically at the end of the build.
     
     
     ITEMS NEEDING TESTING: (as of 2010-06-14
