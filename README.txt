@@ -1,5 +1,10 @@
 
-
+    2010-06-16 (2:30 AM CDT) - IT WORKS!!!
+    I just completed building the project.  I then flashed my watch, 
+    and all the functions I have tested work.  Hour and Minutes,
+    Seconds, Month and Day, Day of the Week, and YES! even sync.
+    
+    
     2010-06-15 - Project now compiles and links without errors.  This 
     was accomplished by compiling and linking in separate steps.
     Thanks go to Daniel Poelzleitherner for this contribution.  
@@ -87,3 +92,4 @@
     
     Paul F. Sehorne
     2010-06-14
+    
