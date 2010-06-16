@@ -1,4 +1,13 @@
 
+
+    2010-06-15 - Project now compiles and links without errors.  This 
+    was accomplished by compiling and linking in separate steps.
+    Thanks go to Daniel Poelzleitherner this contribution.  Daniel also 
+    contributed Python scripts that convert the build's elf file to a 
+    TI txt file.  This function is incorporated into the makeefile and 
+    is done automatically by at the end of the build.
+    
+    
     ITEMS NEEDING TESTING: (as of 2010-06-14
     
     1) four intrinsic functions had to be written.
@@ -14,7 +23,8 @@
     warnings.  The one macro I am not sure about, haven't looked
     into what it means, is __bsp_QUOTED_PRAGMA__(x)
     
-    3) With MSPgcc4 this project compiles cleanly (see minor warning
+    3) FIXED: (see note on 2010-06-15)
+    With MSPgcc4 this project compiles cleanly (see minor warning
     in "Before you build the first time:") but there are linking errors 
     "warning: internal error: unsupported relocation error"
     
