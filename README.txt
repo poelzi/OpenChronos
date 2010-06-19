@@ -16,7 +16,7 @@
     once again with the BM Firmware Flash Tool via the USB FET.
     
     So a little research is in order to determine how to incorporate the
-    USB BSL into this project.
+    USB BSL into this project. 
     
     
 
