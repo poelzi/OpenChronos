@@ -1,4 +1,26 @@
 
+    2010-06-18 - DO NOT FLASH YOUR WATCH WITH THIS BUILD!!
+    Since flashing the watch with this build a couple of days ago
+    it has been working fine, until I tried to flash it again with
+    the USB FET and the BM Firmware Flash Tool , the same tool that 
+    worked before I flashed the watch with this build.  
+    
+    Although I was not able to flash the device with the USB FET
+    I was able to flash it with the RFBSL.  But even after reflashing
+    it with the factory TI firmware I still could not flash it with 
+    the USB FET.
+
+    However, using the IAR Workbench debug process I was able to flash 
+    it with the USB FET, and after flashing it this way with the original 
+    TI firmware, the USB FET capability is back.  I am able to flash it 
+    once again with the BM Firmware Flash Tool via the USB FET.
+    
+    So a little research is in order to determine how to incorporate the
+    USB BSL into this project.
+    
+    
+
+    
     2010-06-16 (2:30 AM CDT) - IT WORKS!!!
     I just completed building the project.  I then flashed my watch, 
     and all the functions I have tested work.  Hour and Minutes,
