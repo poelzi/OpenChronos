@@ -1,4 +1,8 @@
 
+    2010-06-18 - DO NOT FLASH YOUR WATCH WITH THIS BUILD!!
+    Although the watch works fine, I can't flash it now.
+    More reasearch has to be done.
+    
     2010-06-16 (2:30 AM CDT) - IT WORKS!!!
     I just completed building the project.  I then flashed my watch, 
     and all the functions I have tested work.  Hour and Minutes,
