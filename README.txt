@@ -1,4 +1,16 @@
+    2010-06-20 - OKAY TO FLASH THE WATCH WITH THIS PROJECT
+    It turns out there was never a problem with the build.  
+    I discovered later that I had a Windows 7 problem that 
+    prevented the BM Firmware Update Tool and also TI's
+    BSL_Scripter tool from accessing the the USB FET.
 
+    I've since rebooted my machine and have repeated flashed
+    the watch with mspgcc4 project with not problems.
+
+    Paul
+
+    
+    ============ FIXED 2010-06-20 ========================
     2010-06-18 - DO NOT FLASH YOUR WATCH WITH THIS BUILD!!
     Since flashing the watch with this build a couple of days ago
     it has been working fine, until I tried to flash it again with
