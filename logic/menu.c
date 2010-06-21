@@ -63,6 +63,10 @@
 #include "acceleration.h"
 #include "rfbsl.h"
 
+#ifdef CONFIG_PHASE_CLOCK
+#include "phase_clock.h"
+#endif
+
 
 // *************************************************************************************************
 // Defines section
@@ -215,8 +219,22 @@ const struct menu menu_L2_Battery =
 	FUNCTION(dummy),					// sub menu function
 	FUNCTION(display_battery_V),		// display function
 	FUNCTION(update_battery_voltage),	// new display data
+#ifndef CONFIG_PHASE_CLOCK
 	&menu_L2_Rf,
 };
+#else
+	&menu_L2_Phase,
+};
+// Line2 - ACC (acceleration data + button events via SimpliciTI)
+const struct menu menu_L2_Phase =
+{
+	FUNCTION(sx_phase),				// direct function
+	FUNCTION(dummy),				// sub menu function
+	FUNCTION(display_phase_clock),	// display function
+	FUNCTION(update_time),			// new display data
+	&menu_L2_Rf,
+};
+#endif
 // Line2 - ACC (acceleration data + button events via SimpliciTI)
 const struct menu menu_L2_Rf =
 {

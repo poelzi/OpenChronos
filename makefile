@@ -17,7 +17,7 @@ CC_INCLUDE = -I$(PROJ_DIR)/ -I$(PROJ_DIR)/include/ -I$(PROJ_DIR)/driver/ -I$(PRO
 
 CC_COPT		=  $(CC_CMACH) $(CC_DMACH) $(CC_DOPT)  $(CC_INCLUDE) 
 
-LOGIC_SOURCE = logic/acceleration.c logic/alarm.c logic/altitude.c logic/battery.c  logic/clock.c logic/date.c logic/menu.c logic/rfbsl.c logic/rfsimpliciti.c logic/stopwatch.c logic/temperature.c logic/test.c logic/user.c 
+LOGIC_SOURCE = logic/acceleration.c logic/alarm.c logic/altitude.c logic/battery.c  logic/clock.c logic/date.c logic/menu.c logic/rfbsl.c logic/rfsimpliciti.c logic/stopwatch.c logic/temperature.c logic/test.c logic/user.c logic/phase_clock.c
 
 LOGIC_O = $(addsuffix .o,$(basename $(LOGIC_SOURCE)))
 
@@ -31,17 +31,21 @@ SIMPLICICTI_SOURCE = $(SIMPLICICTI_SOURCE_ODD) simpliciti/Components/bsp/bsp.c s
 
 SIMPLICICTI_O = $(addsuffix .o,$(basename $(SIMPLICICTI_SOURCE)))
 
-MAIN_SOURCE = even_in_range.o ezchronos.c  intrinsics.c 
+MAIN_SOURCE = ezchronos.c  intrinsics.c 
 
-MAIN_O = even_in_range.o ezchronos.o intrinsics.o 
+MAIN_O = ezchronos.o intrinsics.o 
 
 ALL_O = $(LOGIC_O) $(DRIVER_O) $(SIMPLICICTI_O) $(MAIN_O)
 
+EXTRA_O = even_in_range.o 
+
+ALL_C = $(LOGIC_SOURCE) $(DRIVER_SOURCE) $(SIMPLICICTI_SOURCE) $(MAIN_SOURCE)
+
 USE_CFLAGS = $(CFLAGS_PRODUCTION)
 
-main:	even_in_range $(ALL_O)
+main: config.h even_in_range $(ALL_O) $(EXTRA_O) build
 	@echo "Compiling $@ for $(CPU)..."
-	$(CC) $(CC_CMACH) $(CFLAGS_PRODUCTION) -o $(BUILD_DIR)/eZChronos.elf $(ALL_O) 
+	$(CC) $(CC_CMACH) $(CFLAGS_PRODUCTION) -o $(BUILD_DIR)/eZChronos.elf $(ALL_O) $(EXTRA_O)
 	@echo "Convert to TI Hex file"
 	$(PYTHON) tools/memory.py -i build/eZChronos.elf -o build/eZChronos.txt
 
@@ -49,22 +53,35 @@ main:	even_in_range $(ALL_O)
 #	@echo USE_CFLAGS = $(CFLAGS_DEBUG)
 #	call call_debug
 
-$(ALL_O):
-	$(CC) $(CC_COPT) $(USE_CFLAGS) -c $(basename $@).c -o $@
+#$(ALL_O): config.h project/project.h $(addsuffix .o,$(basename $@))
+#	$(CC) $(CC_COPT) $(USE_CFLAGS) -c $(basename $@).c -o $@
+
+$(ALL_O): %.o: %.c config.h include/project.h 
+	$(CC) $(CC_COPT) $(USE_CFLAGS) -c $< -o $@
+#             $(CC) -c $(CFLAGS) $< -o $@
+
 
 debug:	even_in_range $(ALL_O)
 	@echo "Assembling $@ for $(CPU)..."
 	USE_CFLAGS = $(CFLAGS_DEBUG)
-	$(CC) $(CC_CMACH) $(CFLAGS_DEBUG) -o $(BUILD_DIR)/eZChronos.dbg.elf $(ALL_O) 
+	$(CC) $(CC_CMACH) $(CFLAGS_DEBUG) -o $(BUILD_DIR)/eZChronos.dbg.elf $(ALL_O) $(EXTRA_O)
 
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
 	msp430-gcc -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o even_in_range.o
 
-	
 clean: 
 	@echo "Removing files..."
 	rm -f $(ALL_O)
+
+build:
+	mkdir build
+
+config.h:
+	python tools/config.py
+
+config:
+	python tools/config.py
 #rm *.o $(BUILD_DIR)*
 
 	

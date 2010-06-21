@@ -62,7 +62,10 @@ typedef enum
   SIMPLICITI_OFF = 0,       // Not connected
   SIMPLICITI_ACCELERATION,	// Transmitting acceleration data and button events
   SIMPLICITI_BUTTONS,		// Transmitting button events
-  SIMPLICITI_SYNC			// Syncing
+  SIMPLICITI_SYNC,			// Syncing
+#ifdef CONFIG_PHASE_CLOCK
+  SIMPLICITI_PHASE_CLOCK,	// Phase Clock is running
+#endif
 } simpliciti_mode_t;
 
 // Stop SimpliciTI transmission after 60 minutes to save power
@@ -76,7 +79,7 @@ typedef enum
 // SimpliciTI mode flag
 #define SIMPLICITI_MOUSE_EVENTS			(0x01)
 #define SIMPLICITI_KEY_EVENTS			(0x02)
-
+#define SIMPLICITI_PHASE_CLOCK_EVENTS	(0x03)
 
 // *************************************************************************************************
 // Global Variable section

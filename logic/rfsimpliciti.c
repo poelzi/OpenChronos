@@ -40,6 +40,7 @@
 // Include section
 
 // system
+#include <string.h>
 #include "project.h"
 
 // driver
@@ -63,6 +64,10 @@
 #include "temperature.h"
 #include "vti_ps.h"
 #include "altitude.h"
+
+#ifdef CONFIG_PHASE_CLOCK
+#include "phase_clock.h"
+#endif
 
 
 // *************************************************************************************************
@@ -354,6 +359,7 @@ u8 is_rf(void)
 void simpliciti_get_ed_data_callback(void)
 {
 	static u8 packet_counter = 0;
+    u8 i;
 
 	if (sRFsmpl.mode == SIMPLICITI_ACCELERATION)
 	{
@@ -384,8 +390,46 @@ void simpliciti_get_ed_data_callback(void)
 				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
 			}
 		}
-	}
-	else // transmit only button events
+#ifdef CONFIG_PHASE_CLOCK
+	} else if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK)
+	{
+		// Wait for next sample
+		Timer0_A4_Delay(CONV_MS_TO_TICKS(10));	
+		// Read from sensor if DRDY pin indicates new data (set in PORT2 ISR)
+		if (request.flag.acceleration_measurement && ((AS_INT_IN & AS_INT_PIN) == AS_INT_PIN))
+		{
+			// Clear flag
+			request.flag.acceleration_measurement = 0;
+			
+			// Get data from sensor
+			as_get_data(sAccel.xyz);
+			
+			// push messured data onto the stack
+            if (sPhase.data_nr == SLEEP_BUFFER-1) {
+                phase_clock_calcpoint();
+            
+            } else {
+                // copy current value onto the stack
+                memcpy(&sPhase.data[sPhase.data_nr][0], &sAccel.xyz, sizeof(u8)*3);
+                sPhase.data_nr++;
+            
+            }
+            sPhase.out_nr += sizeof(u16);
+			if (sPhase.out_nr >= PHASE_CLOCK_SEND_LENGTH)
+			{
+				// Reset counter
+				sPhase.out_nr = 1;
+	
+				// copy out buffer into the simplicti out buffer skip prefix
+                memcpy(&simpliciti_data+sizeof(u8), &sPhase.out, PHASE_CLOCK_SEND_LENGTH);
+                simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_EVENTS;
+				// Trigger packet sending
+				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
+			}
+		}
+
+#endif
+    } else // transmit only button events
 	{
 		// New button event is stored in data
 		if ((packet_counter == 0) && (simpliciti_data[0] & 0xF0) != 0)

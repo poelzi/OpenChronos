@@ -138,4 +138,7 @@ extern volatile s_message_flags message;
 // Global Variable section
 
 
+// include firmware image
+#include "../config.h"
+
 #endif /*PROJECT_H_*/

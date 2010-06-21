@@ -84,6 +84,9 @@ extern const struct menu menu_L2_Date;
 extern const struct menu menu_L2_Stopwatch;
 extern const struct menu menu_L2_Battery;
 extern const struct menu menu_L2_Rf;
+#ifdef CONFIG_PHASE_CLOCK
+extern const struct menu menu_L2_Phase;
+#endif
 extern const struct menu menu_L2_Ppt;
 extern const struct menu menu_L2_Sync;
 extern const struct menu menu_L2_CalDist;
