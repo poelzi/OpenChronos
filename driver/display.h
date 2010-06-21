@@ -96,6 +96,7 @@ extern volatile s_display_flags display;
 // Definitions for line view style
 #define DISPLAY_DEFAULT_VIEW			(0u)
 #define DISPLAY_ALTERNATIVE_VIEW		(1u)
+#define DISPLAY_ALTERNATIVE2_VIEW		(2u)
  
 // Definitions for line access
 #define LINE1							(1u)
