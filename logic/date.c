@@ -281,8 +281,14 @@ void mx_date(u8 line)
 void sx_date(u8 line)
 {
 	// Toggle display items
-	if (sDate.display == DISPLAY_DEFAULT_VIEW) 	sDate.display = DISPLAY_ALTERNATIVE_VIEW;
-	else 										sDate.display = DISPLAY_DEFAULT_VIEW;
+	if (sDate.display == DISPLAY_DEFAULT_VIEW)
+        sDate.display = DISPLAY_ALTERNATIVE_VIEW;
+#ifdef CONFIG_DAY_OF_WEEK
+	else if (sDate.display == DISPLAY_ALTERNATIVE_VIEW)
+        sDate.display = DISPLAY_ALTERNATIVE2_VIEW;
+#endif
+	else
+        sDate.display = DISPLAY_DEFAULT_VIEW;
 }
 
 
@@ -326,7 +332,8 @@ void display_date(u8 line, u8 update)
 			// Display "." to separate day and month
 			display_symbol(switch_seg(line, LCD_SEG_L1_DP1, LCD_SEG_L2_DP), SEG_ON);
 		}
-		else
+#ifdef CONFIG_DAY_OF_WEEK
+		else if(sDate.display == DISPLAY_ALTERNATIVE2_VIEW)
 		{
 			//pfs BEGIN replace year display with day of week
 			//pfs algorith from http://klausler.com/new-dayofweek.html           
@@ -365,11 +372,30 @@ void display_date(u8 line, u8 update)
 				break;
 			}
 			skew = skew%7;
-			str = itoa(skew,4,0);
+            switch (skew) {
+                case 0: str = " SUN"; break;
+                case 1: str = " MON"; break;
+                case 2: str = " TUE"; break;
+                case 3: str = "VVEN"; break;
+                case 4: str = " THU"; break;
+                case 5: str = " FRI"; break;
+                case 6: str = " SAT"; break;
+            }
+			//str = itoa(skew,4,0);
 			// pfs END of day of week addendum
             
 			// Convert year to string
 			//pfs str = itoa(sDate.year, 4, 0);            
+			display_chars(switch_seg(line, LCD_SEG_L1_3_0, LCD_SEG_L2_3_0), str, SEG_ON);
+
+			// Clear "." 
+			display_symbol(switch_seg(line, LCD_SEG_L1_DP1, LCD_SEG_L2_DP), SEG_OFF);
+		}
+#endif //CONFIG_DAY_OF_WEEK
+		else
+		{
+			// Convert year to string
+			str = itoa(sDate.year, 4, 0);
 			display_chars(switch_seg(line, LCD_SEG_L1_3_0, LCD_SEG_L2_3_0), str, SEG_ON);
 
 			// Clear "." 

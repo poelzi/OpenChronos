@@ -45,6 +45,10 @@ DATA = {
         "name": "Date",
         "depends": [],
         "default": True},
+"CONFIG_DAY_OF_WEEK": {
+        "name": "Date: Day of Week",
+        "depends": [],
+        "default": True},
 "CONFIG_PHASE_CLOCK": {
         "name": "Phase Clock",
         "depends": [],
