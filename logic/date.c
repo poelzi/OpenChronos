@@ -376,7 +376,7 @@ void display_date(u8 line, u8 update)
                 case 0: str = " SUN"; break;
                 case 1: str = " MON"; break;
                 case 2: str = " TUE"; break;
-                case 3: str = "VVEN"; break;
+                case 3: str = "VVED"; break;
                 case 4: str = " THU"; break;
                 case 5: str = " FRI"; break;
                 case 6: str = " SAT"; break;
