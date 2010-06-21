@@ -7,7 +7,7 @@ PYTHON = python
 
 PROJ_DIR	=.
 BUILD_DIR = build
-CFLAGS_PRODUCTION = -s -Os # -O optimizes
+CFLAGS_PRODUCTION = -Os # -O optimizes
 CFLAGS_DEBUG= -g -O0 # -g enables debugging symbol table, -O0 for NO optimization
 
 CC_CMACH	= -mmcu=cc430x6137
