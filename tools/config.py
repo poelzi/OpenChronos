@@ -9,9 +9,9 @@ DATA = {
 "CONFIG_FREQUENCY": {
         "name": "Frequency",
         "depends": [],
-        "default": 911,
+        "default": 902,
         "type": "choices",
-        "values": [911, 868, 433]},
+        "values": [902, 869, 433]},
 
 "CONFIG_METRIC_ONLY": {
         "name": "Metric only code (saves space)",

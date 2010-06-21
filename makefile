@@ -11,7 +11,7 @@ CFLAGS_PRODUCTION = -Os # -O optimizes
 CFLAGS_DEBUG= -g -O0 # -g enables debugging symbol table, -O0 for NO optimization
 
 CC_CMACH	= -mmcu=cc430x6137
-CC_DMACH	= -D__MSP430_6137__  -DISM_US -DMRFI_CC430 -D__CC430F6137__ #-DCC__MSPGCC didn't need mspgcc defines __GNUC__
+CC_DMACH	= -D__MSP430_6137__ -DMRFI_CC430 -D__CC430F6137__ #-DCC__MSPGCC didn't need mspgcc defines __GNUC__
 CC_DOPT		= -DELIMINATE_BLUEROBIN
 CC_INCLUDE = -I$(PROJ_DIR)/ -I$(PROJ_DIR)/include/ -I$(PROJ_DIR)/driver/ -I$(PROJ_DIR)/logic/ -I$(PROJ_DIR)/bluerobin/ -I$(PROJ_DIR)/simpliciti/ -I$(PROJ_DIR)/simpliciti/Components/bsp -I$(PROJ_DIR)/simpliciti/Components/bsp/drivers -I$(PROJ_DIR)/simpliciti/Components/bsp/boards/CC430EM -I$(PROJ_DIR)/simpliciti/Components/mrfi -I$(PROJ_DIR)/simpliciti/Components/nwk -I$(PROJ_DIR)/simpliciti/Components/nwk_applications
 
@@ -43,6 +43,8 @@ ALL_C = $(LOGIC_SOURCE) $(DRIVER_SOURCE) $(SIMPLICICTI_SOURCE) $(MAIN_SOURCE)
 
 USE_CFLAGS = $(CFLAGS_PRODUCTION)
 
+CONFIG_FLAGS ?= $(shell cat config.h | grep CONFIG_FREQUENCY | sed 's/.define CONFIG_FREQUENCY //' | sed 's/902/-DISM_US/' | sed 's/433/-DISM_LF/' | sed 's/869/-DISM_EU/')
+
 main: config.h even_in_range $(ALL_O) $(EXTRA_O) build
 	@echo "Compiling $@ for $(CPU)..."
 	$(CC) $(CC_CMACH) $(CFLAGS_PRODUCTION) -o $(BUILD_DIR)/eZChronos.elf $(ALL_O) $(EXTRA_O)
@@ -57,7 +59,7 @@ main: config.h even_in_range $(ALL_O) $(EXTRA_O) build
 #	$(CC) $(CC_COPT) $(USE_CFLAGS) -c $(basename $@).c -o $@
 
 $(ALL_O): %.o: %.c config.h include/project.h 
-	$(CC) $(CC_COPT) $(USE_CFLAGS) -c $< -o $@
+	$(CC) $(CC_COPT) $(USE_CFLAGS) $(CONFIG_FLAGS) -c $< -o $@
 #             $(CC) -c $(CFLAGS) $< -o $@
 
 
