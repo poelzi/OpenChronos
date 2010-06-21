@@ -80,10 +80,12 @@ void conv_24H_to_12H(u8 * hours24, u8 * hours12, u8 * timeAMorPM);
 struct time sTime;
 
 // Display values for time format selection
+#ifdef CONFIG_METRIC_ONLY
 const u8 selection_Timeformat[][4] =
 {
 	"24H", "12H"
 };
+#endif
 
 
 // *************************************************************************************************
@@ -192,7 +194,6 @@ u8 is_hour_am(u8 hour)
 	else  			return (0);
 }
 
-#endif // CONFIG_METRIC_ONLY
 
 // *************************************************************************************************
 // @fn          display_selection_Timeformat
@@ -207,6 +208,8 @@ void display_selection_Timeformat1(u8 segments, u32 index, u8 digits, u8 blanks)
 {
 	if (index < 2) display_chars(segments, (u8 *)selection_Timeformat[index], SEG_ON_BLINK_ON);
 }
+
+#endif // CONFIG_METRIC_ONLY
 
 
 // *************************************************************************************************
@@ -280,7 +283,7 @@ void mx_time(u8 line)
 
 		switch (select)
 		{
-#ifdef CONFIG_METRIC_ONLY
+#ifndef CONFIG_METRIC_ONLY
 			case 0:		// Clear LINE1 and LINE2 and AM icon - required when coming back from set_value(seconds)
 						clear_display();
 						display_symbol(LCD_SYMB_AM, SEG_OFF);
