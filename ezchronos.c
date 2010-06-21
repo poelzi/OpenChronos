@@ -321,8 +321,13 @@ void init_global_variables(void)
 	display.flag.full_update = 1;
 
 #ifndef ISM_US
+
 	// Use metric units when displaying values
+    sys.flag.use_metric_units = 1;
+#else 
+#ifdef CONFIG_METRIC_ONLY
 	sys.flag.use_metric_units = 1;
+#endif
 #endif
 	
 	// Read calibration values from info memory

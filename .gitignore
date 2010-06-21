@@ -1,3 +1,5 @@
 *.[oa]
 *.pyc
 *.*~
+.pida-metadata
+config.h

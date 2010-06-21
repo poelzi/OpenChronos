@@ -13,6 +13,14 @@ DATA = {
         "type": "choices",
         "values": [911, 868, 433]},
 
+"CONFIG_METRIC_ONLY": {
+        "name": "Metric only code (saves space)",
+        "depends": [],
+        "default": False
+},
+
+# modules
+
 "CONFIG_ACCEL": {
         "name": "Accleration",
         "depends": [],
@@ -106,7 +114,6 @@ class OpenChronosApp(npyscreen.NPSApp):
 
         # This lets the user play with the Form.
         F.edit()
-        print "done", F
 
     def save_config(self):
         for key,field in self.fields.iteritems():
@@ -116,6 +123,7 @@ class OpenChronosApp(npyscreen.NPSApp):
             DATA[key]["value"] = value
 
         fp = open("config.h", "w")
+        fp.write("// !!!! DO NOT EDIT !!!, use: make config\n")
         for key,dat in DATA.iteritems():
             if isinstance(dat["value"], bool):
                 if dat["value"]:
@@ -129,7 +137,7 @@ class OpenChronosApp(npyscreen.NPSApp):
     def load_config(self):
         def set_default():
             for key,dat in DATA.iteritems():
-                print dat
+                #print dat
                 if not "value" in dat:
                     dat["value"] = dat["default"]
 
@@ -141,9 +149,7 @@ class OpenChronosApp(npyscreen.NPSApp):
         match = re.compile('^[\t ]*#[\t ]*define[\t ]+([a-zA-Z0-9_]+)[\t ]*(.*)$')
         match2 = re.compile('^// ([a-zA-Z0-9_]+) is not set$')
         for line in fp:
-            print line
             m = match.search(line)
-            print m
             if m:
                 m = m.groups()
                 if not m[0] in DATA:

@@ -322,8 +322,11 @@ void display_value1(u8 segments, u32 value, u8 digits, u8 blanks)
 // *************************************************************************************************
 void display_hours1(u8 segments, u32 value, u8 digits, u8 blanks)
 {
+#ifdef CONFIG_METRIC_ONLY	
+	display_value1(segments, (u16) value, digits, blanks);
+#else
 	u8 hours;
-	
+
 	if (sys.flag.use_metric_units)
 	{
 		// Display hours in 24H time format 
@@ -338,6 +341,7 @@ void display_hours1(u8 segments, u32 value, u8 digits, u8 blanks)
 		display_value1(segments, hours, digits, blanks);
 		display_am_pm_symbol(value);
 	}
+#endif
 }
 
 
@@ -347,6 +351,7 @@ void display_hours1(u8 segments, u32 value, u8 digits, u8 blanks)
 // @param       u8 hour		24H internal time format
 // @return      none
 // *************************************************************************************************
+#ifndef CONFIG_METRIC_ONLY
 void display_am_pm_symbol(u8 hour)
 {
 	// Display AM/PM symbol
@@ -361,7 +366,7 @@ void display_am_pm_symbol(u8 hour)
 		display_symbol(LCD_SYMB_PM, SEG_ON);
 	}
 }
-
+#endif
 
 // *************************************************************************************************
 // @fn          display_symbol

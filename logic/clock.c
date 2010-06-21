@@ -167,6 +167,7 @@ void clock_tick(void)
 // @param       u8 hour		Hour in 24H format
 // @return      u8				Hour in 12H format
 // *************************************************************************************************
+#ifndef CONFIG_METRIC_ONLY
 u8 convert_hour_to_12H_format(u8 hour)
 {
 	// 00:00 .. 11:59 --> AM 12:00 .. 11:59
@@ -191,6 +192,7 @@ u8 is_hour_am(u8 hour)
 	else  			return (0);
 }
 
+#endif // CONFIG_METRIC_ONLY
 
 // *************************************************************************************************
 // @fn          display_selection_Timeformat
@@ -278,6 +280,7 @@ void mx_time(u8 line)
 
 		switch (select)
 		{
+#ifdef CONFIG_METRIC_ONLY
 			case 0:		// Clear LINE1 and LINE2 and AM icon - required when coming back from set_value(seconds)
 						clear_display();
 						display_symbol(LCD_SYMB_AM, SEG_OFF);
@@ -290,7 +293,9 @@ void mx_time(u8 line)
 						else								sys.flag.use_metric_units = 0;
 						select = 1;
 						break;
-			
+#else
+            case 0:
+#endif
 			case 1:		// Display HH:MM (LINE1) and .SS (LINE2)
 						str = itoa(hours, 2, 0);
 						display_chars(LCD_SEG_L1_3_2, str, SEG_ON);
@@ -359,7 +364,11 @@ void display_time(u8 line, u8 update)
 			{
 				switch(sTime.drawFlag) 
 				{
-					case 3: if (sys.flag.use_metric_units)
+					case 3:
+#ifdef CONFIG_METRIC_ONLY
+							display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(sTime.hour, 2, 0), SEG_ON);
+#else
+                            if (sys.flag.use_metric_units)
 							{
 								// Display 24H time "HH" 
 								display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(sTime.hour, 2, 0), SEG_ON);
@@ -371,7 +380,7 @@ void display_time(u8 line, u8 update)
 								display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(hour12, 2, 0), SEG_ON); 
 								display_am_pm_symbol(sTime.hour);
 							}
-							
+#endif							
 					case 2: display_chars(switch_seg(line, LCD_SEG_L1_1_0, LCD_SEG_L2_1_0), itoa(sTime.minute, 2, 0), SEG_ON); 
 				}
 			}
@@ -388,6 +397,9 @@ void display_time(u8 line, u8 update)
 		if (sTime.line1ViewStyle == DISPLAY_DEFAULT_VIEW)
 		{	
 			// Display 24H/12H time
+#ifdef CONFIG_METRIC_ONLY
+				display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(sTime.hour, 2, 0), SEG_ON);
+#else
 			if (sys.flag.use_metric_units)
 			{
 				// Display 24H time "HH" 
@@ -404,7 +416,7 @@ void display_time(u8 line, u8 update)
 					display_am_pm_symbol(sTime.hour);
 				}
 			}
-							
+#endif							
 			// Display minute
 			display_chars(switch_seg(line, LCD_SEG_L1_1_0, LCD_SEG_L2_1_0), itoa(sTime.minute, 2, 0), SEG_ON); 
 			display_symbol(switch_seg(line, LCD_SEG_L1_COL, LCD_SEG_L2_COL0), SEG_ON_BLINK_ON);

@@ -246,6 +246,9 @@ void display_alarm(u8 line, u8 update)
 	
 	if (update == DISPLAY_LINE_UPDATE_FULL)			
 	{
+#ifdef CONFIG_METRIC_ONLY
+		display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(sAlarm.hour, 2, 0), SEG_ON); 
+#else
 		if (sys.flag.use_metric_units)
 		{
 			// Display 24H alarm time "HH:MM"
@@ -260,6 +263,7 @@ void display_alarm(u8 line, u8 update)
 			// Display AM/PM symbol
 			display_am_pm_symbol(sAlarm.hour);		
 		}
+#endif
 		display_chars(switch_seg(line, LCD_SEG_L1_1_0, LCD_SEG_L2_1_0), itoa(sAlarm.minute, 2, 0), SEG_ON); 
 		display_symbol(switch_seg(line, LCD_SEG_L1_COL, LCD_SEG_L2_COL0), SEG_ON);
 
