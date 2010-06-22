@@ -1,0 +1,24 @@
+== Requirements ==
+
+msp430-gcc4 http://mspgcc4.sourceforge.net/
+make
+python http://python.org
+
+
+== HOWTO ==
+
+To configure your image, run:
+
+   make config
+
+which will generate a config.h file that contains the settings for your build.
+
+To compile the image run:
+
+   make
+
+
+It is HIGHLY suggested to make a clean build befor you flash the image with:
+
+   make clean main
+
