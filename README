@@ -1,8 +1,18 @@
+== Status ==
+
+Works, but in development :-)
+
 == Requirements ==
 
 msp430-gcc4 http://mspgcc4.sourceforge.net/
 make
 python http://python.org
+
+== Supported Compilers ==
+
+msp430-gcc4
+
+Patches for more (more efficient) compilers are welcome :-)
 
 
 == HOWTO ==
@@ -21,4 +31,14 @@ To compile the image run:
 It is HIGHLY suggested to make a clean build befor you flash the image with:
 
    make clean main
+
+
+== Difference to the TI Firmware ==
+
+ * More Features that can be configured with make config
+ * Day of week
+ * Disable 12h support (saves space)
+ * Sleep Phase Clock
+ * The wireless flashing starts differently:
+   Select RFBSL, Press DOWN to unlock, Press # long to start
 
