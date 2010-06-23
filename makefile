@@ -37,6 +37,9 @@ MAIN_O = ezchronos.o intrinsics.o
 
 ALL_O = $(LOGIC_O) $(DRIVER_O) $(SIMPLICICTI_O) $(MAIN_O)
 
+ALL_S = $(addsuffix .s,$(basename $(LOGIC_SOURCE))) $(addsuffix .s,$(basename $(DRIVER_SOURCE))) $(addsuffix .s,$(basename $(SIMPLICICTI_SOURCE)))  \
+        $(addsuffix .s,$(basename $(MAIN_SOURCE)))  
+
 EXTRA_O = even_in_range.o 
 
 ALL_C = $(LOGIC_SOURCE) $(DRIVER_SOURCE) $(SIMPLICICTI_SOURCE) $(MAIN_SOURCE)
@@ -45,7 +48,12 @@ USE_CFLAGS = $(CFLAGS_PRODUCTION)
 
 CONFIG_FLAGS ?= $(shell cat config.h | grep CONFIG_FREQUENCY | sed 's/.define CONFIG_FREQUENCY //' | sed 's/902/-DISM_US/' | sed 's/433/-DISM_LF/' | sed 's/869/-DISM_EU/')
 
+ifeq (debug,$(findstring debug,$(MAKECMDGOALS)))
+USE_CFLAGS = $(CFLAGS_DEBUG)
+endif
+
 main: config.h even_in_range $(ALL_O) $(EXTRA_O) build
+	@echo $(findstring debug,$(MAKEFLAGS))
 	@echo "Compiling $@ for $(CPU)..."
 	$(CC) $(CC_CMACH) $(CFLAGS_PRODUCTION) -o $(BUILD_DIR)/eZChronos.elf $(ALL_O) $(EXTRA_O)
 	@echo "Convert to TI Hex file"
@@ -58,15 +66,23 @@ main: config.h even_in_range $(ALL_O) $(EXTRA_O) build
 #$(ALL_O): config.h project/project.h $(addsuffix .o,$(basename $@))
 #	$(CC) $(CC_COPT) $(USE_CFLAGS) -c $(basename $@).c -o $@
 
-$(ALL_O): %.o: %.c config.h include/project.h 
+$(ALL_O): %.o: %.c config.h include/project.h
 	$(CC) $(CC_COPT) $(USE_CFLAGS) $(CONFIG_FLAGS) -c $< -o $@
 #             $(CC) -c $(CFLAGS) $< -o $@
 
 
+$(ALL_S): %.s: %.o config.h include/project.h
+	msp430-objdump -D $< > $@
+#             $(CC) -c $(CFLAGS) $< -o $@
+
+
 debug:	even_in_range $(ALL_O)
-	@echo "Assembling $@ for $(CPU)..."
-	USE_CFLAGS = $(CFLAGS_DEBUG)
-	$(CC) $(CC_CMACH) $(CFLAGS_DEBUG) -o $(BUILD_DIR)/eZChronos.dbg.elf $(ALL_O) $(EXTRA_O)
+	@echo "Compiling $@ for $(CPU) in debug"
+	$(CC) $(CC_CMACH) $(CFLAGS_DEBUG) -o $(BUILD_DIR)/eZChronos.dbg.o $(ALL_O) $(EXTRA_O)
+
+debug_asm: $(ALL_S)
+	@echo "Compiling $@ for $(CPU) in debug"
+
 
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
