@@ -2,8 +2,16 @@
 # encoding: utf-8
 
 import npyscreen
-import re, sys
+import re, sys, random
 #npyscreen.disableColor()
+
+# {0x79, 0x56, 0x34, 0x12}
+def rand_hw():
+    res = ["0xFF"]
+    for i in range(3):
+        res.append(hex(random.randint(0, 255)))
+    return "{" + ",".join(res) + "}"
+
 
 DATA = {
 "CONFIG_FREQUENCY": {
@@ -17,6 +25,12 @@ DATA = {
         "name": "Metric only code (saves space)",
         "depends": [],
         "default": False
+},
+
+"THIS_DEVICE_ADDRESS": {
+        "name": "Hardware address",
+        "type": "text",
+        "default": rand_hw()
 },
 
 # modules
@@ -68,7 +82,15 @@ DATA = {
 }
 
 
+HEADER = """
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
 
+"""
+
+FOOTER = """
+#endif // _CONFIG_H_
+"""
 
 
 #load_config()
@@ -110,8 +132,13 @@ class OpenChronosApp(npyscreen.NPSApp):
                     value = field["values"].index(field["value"])
                 except ValueError:
                     value = field["values"].index(field["default"])
-                f = F.add(npyscreen.TitleSelectOne, max_height=4, value=value, name="Frequency", 
+                f = F.add(npyscreen.TitleSelectOne, max_height=4, value=value, name=field["name"], 
                         values = field["values"], scroll_exit=True)
+                f._key = key
+                self.fields[key] = f
+            elif field["type"] == "text":
+                f = F.add(npyscreen.TitleText, max_height=1, value=field["value"], name=field["name"], 
+                        values = field["value"])
                 f._key = key
                 self.fields[key] = f
 
@@ -128,6 +155,7 @@ class OpenChronosApp(npyscreen.NPSApp):
 
         fp = open("config.h", "w")
         fp.write("// !!!! DO NOT EDIT !!!, use: make config\n")
+        fp.write(HEADER)
         for key,dat in DATA.iteritems():
             if isinstance(dat["value"], bool):
                 if dat["value"]:
@@ -136,6 +164,7 @@ class OpenChronosApp(npyscreen.NPSApp):
                     fp.write("// %s is not set\n" %key)
             else:
                 fp.write("#define %s %s\n" %(key, dat["value"]))
+        fp.write(FOOTER)
 
 
     def load_config(self):

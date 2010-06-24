@@ -33,6 +33,8 @@
   contact Texas Instruments Incorporated at www.TI.com.
 **************************************************************************************************/
 
+#include "config.h"
+
 #ifndef SMPL_CONFIG
 #define SMPL_CONFIG
 
@@ -70,7 +72,10 @@
  * necessary below unless the spaces are removed.
  */
 // pfs removed double quotes around {0x79, 0x56, 0x34, 0x12}
+#ifndef THIS_DEVICE_ADDRESS
 #define THIS_DEVICE_ADDRESS  {0x79, 0x56, 0x34, 0x12}
+#warning no hardware adress set
+#endif
 
 /* device type */
 #define END_DEVICE
