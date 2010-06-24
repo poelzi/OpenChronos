@@ -58,6 +58,7 @@ extern uint8_t sInit_done;
 // SimpliciTI has no low power delay function, so we have to use ours
 extern void Timer0_A4_Delay(u16 ticks);
 
+extern unsigned char simpliciti_payload_length;
 
 // *************************************************************************************************
 // Global Variable section
@@ -78,6 +79,7 @@ unsigned char simpliciti_link(void)
   addr_t lAddr;
   uint8_t i;
   uint8_t pwr;
+  uint8_t phase = 0;
   
   // Configure timer
   BSP_InitBoard();
@@ -96,6 +98,48 @@ unsigned char simpliciti_link(void)
    * successful. Toggle LEDS to indicate that joining has not occurred.
    */
   timeout = 0;
+#if 1
+  while (1)
+  {
+    if (phase == 0) {
+        if(SMPL_SUCCESS == SMPL_Init(0)) {
+            phase = 1;
+            pwr = IOCTL_LEVEL_2;
+            SMPL_Ioctl(IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_SETPWR, &pwr);
+
+            /* Unconditional link to AP which is listening due to successful join. */
+            timeout = 0;
+        }
+    } else {
+        if (SMPL_SUCCESS == SMPL_Link(&sLinkID1))
+            break;
+    }
+            
+    NWK_DELAY(1000);
+
+    // Service watchdog
+	WDTCTL = WDTPW + WDTIS__512K + WDTSSEL__ACLK + WDTCNTCL;
+    
+    // Stop connecting after defined numbers of seconds (15)
+    if (timeout++ > TIMEOUT) 
+    {
+		// Clean up SimpliciTI stack to enable restarting
+  		sInit_done = 0;
+	    simpliciti_flag = SIMPLICITI_STATUS_ERROR;
+  		return (0);
+    }
+    
+    // Break when flag bit SIMPLICITI_TRIGGER_STOP is set
+    if (getFlag(simpliciti_flag, SIMPLICITI_TRIGGER_STOP)) 
+    {
+		// Clean up SimpliciTI stack to enable restarting
+    	sInit_done = 0;
+    	return (0);
+	}
+  }
+#endif
+#if 0
+  // old larger code
   while (SMPL_SUCCESS != SMPL_Init(0))
   {
     NWK_DELAY(1000);
@@ -151,6 +195,7 @@ unsigned char simpliciti_link(void)
     	return (0); 
 	}
   }
+#endif
   simpliciti_flag = SIMPLICITI_STATUS_LINKED;
   
   return (1);
@@ -178,7 +223,7 @@ void simpliciti_main_tx_only(void)
       SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_AWAKE, 0);
       
       // Acceleration / button events packets are 4 bytes long
-      SMPL_SendOpt(sLinkID1, simpliciti_data, 4, SMPL_TXOPTION_NONE);
+      SMPL_SendOpt(sLinkID1, simpliciti_data, simpliciti_payload_length, SMPL_TXOPTION_NONE);
       
       // Put radio back to SLEEP state
       SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_SLEEP, 0);
