@@ -39,6 +39,7 @@
 // *************************************************************************************************
 // Prototypes section
 extern void sx_rfbsl(u8 line);
+extern void mx_rfbsl(u8 line);
 extern void display_rfbsl(u8 line, u8 update);
 
 

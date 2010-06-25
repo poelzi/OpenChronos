@@ -54,17 +54,22 @@
 #endif
 #include "rfsimpliciti.h"
 
-
+u8 locked = 1;
 // *************************************************************************************************
-// @fn          sx_rfbsl
+// @fn          mx_rfbsl
 // @brief       This functions starts the RFBSL
 // @param       line		LINE1, LINE2
 // @return      none
 // *************************************************************************************************
-void sx_rfbsl(u8 line)
+void mx_rfbsl(u8 line)
 {
-	// Exit if battery voltage is too low for radio operation
 	if (sys.flag.low_battery) return;
+
+    if (locked) {
+        message.flag.prepare = 1;
+        message.flag.type_locked = 1;
+        return;
+    }
 	
 	// Exit if BlueRobin stack is active
 	//pfs
@@ -85,6 +90,26 @@ void sx_rfbsl(u8 line)
 	
 	// Call RFBSL
 	CALL_RFSBL();
+
+
+}
+
+// *************************************************************************************************
+// @fn          sx_rfbsl
+// @brief       This functions locks/unlocks the RFBSL
+// @param       line		LINE1, LINE2
+// @return      none
+// *************************************************************************************************
+void sx_rfbsl(u8 line)
+{
+    message.flag.prepare = 1;
+    if(locked) {
+        message.flag.type_unlocked = 1;
+        locked = 0;
+    } else {
+        message.flag.type_locked = 1;
+        locked = 1;
+    }
 }
 
 
