@@ -7,10 +7,12 @@ import re, sys, random
 
 # {0x79, 0x56, 0x34, 0x12}
 def rand_hw():
-    res = ["0xFF"]
-    for i in range(3):
-        res.append(hex(random.randint(0, 255)))
-    return "{" + ",".join(res) + "}"
+    res = []
+    for i in range(4):
+        res.append(random.randint(1, 254))
+    #res.insert(0, random.randint(1, 254))
+    res.sort(reverse=True)
+    return "{" + ",".join([hex(x) for x in res]) + "}"
 
 
 DATA = {
