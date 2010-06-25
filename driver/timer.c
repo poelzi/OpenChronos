@@ -257,6 +257,7 @@ __interrupt void TIMER0_A0_ISR(void)
 #endif
 {
 	static u8 button_lock_counter = 0;
+	static u8 button_beep_counter = 0;
 	
 	// Disable IE 
 	TA0CCTL0 &= ~CCIE;
@@ -403,9 +404,23 @@ __interrupt void TIMER0_A0_ISR(void)
 	
 	// -------------------------------------------------------------------
 	// Detect continuous button high states
+
+	if (BUTTON_STAR_IS_PRESSED && BUTTON_UP_IS_PRESSED)
+	{
+		if (button_beep_counter++ > LEFT_BUTTON_LONG_TIME)
+		{
+			// Toggle no_beep buttons flag
+			sys.flag.no_beep = ~sys.flag.no_beep;
 	
-	// Trying to lock/unlock buttons?
-	if (BUTTON_NUM_IS_PRESSED && BUTTON_DOWN_IS_PRESSED)
+			// Show "beep / nobeep" message synchronously with next second tick
+			message.flag.prepare = 1;
+			if (sys.flag.no_beep)	message.flag.type_no_beep_on   = 1;
+			else					message.flag.type_no_beep_off  = 1;
+			
+			// Reset button beep counter
+			button_beep_counter = 0;
+		}
+	} else if (BUTTON_NUM_IS_PRESSED && BUTTON_DOWN_IS_PRESSED) // Trying to lock/unlock buttons?
 	{
 		if (button_lock_counter++ > LEFT_BUTTON_LONG_TIME)
 		{

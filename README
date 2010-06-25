@@ -17,6 +17,8 @@ Patches for more (more efficient) compilers are welcome :-)
 
 == HOWTO ==
 
+Copy intrinsic.h into [msp430-gcc-path]/msp430/include/intrinsics.h
+
 To configure your image, run:
 
    make config
@@ -32,6 +34,18 @@ It is HIGHLY suggested to make a clean build befor you flash the image with:
 
    make clean main
 
+== Problems ==
+
+ * Compile / Link problems:
+   If you get error messages like this one:
+
+     msp430/bin/ld: build/eZChronos.elf section `.text' will not fit in region `text'
+     .../msp430/bin/ld: section .vectors loaded at [000000000000ff80,000000000000ffff] overlaps section .text loaded at [0000000000008000,0000000000013343]
+     .../msp430/bin/ld: region `text' overflowed by 13250 bytes
+     collect2: ld returned 1 exit status
+
+   Your image is simply to large and will not fit into the flash. Try to disable some code with make config and try again :-)
+
 
 == Difference to the TI Firmware ==
 
@@ -41,4 +55,6 @@ It is HIGHLY suggested to make a clean build befor you flash the image with:
  * Sleep Phase Clock
  * The wireless flashing starts differently:
    Select RFBSL, Press DOWN to unlock, Press # long to start
-
+ * No BlueRobin support. BlueRobin is a closed source binary blob.
+   We don't have a compatible object file for that
+ * Pressing STAR and UP long sets silent mode (no beep)

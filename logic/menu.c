@@ -282,7 +282,7 @@ const struct menu menu_L2_CalDist =
 const struct menu menu_L2_RFBSL =
 {
 	FUNCTION(sx_rfbsl),				// direct function
-	FUNCTION(dummy),				// sub menu function
+	FUNCTION(mx_rfbsl),				// sub menu function
 	FUNCTION(display_rfbsl),		// display function
 	FUNCTION(update_time),			// new display data
 	&menu_L2_Date,

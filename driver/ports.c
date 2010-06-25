@@ -273,7 +273,7 @@ __interrupt void PORT2_ISR(void)
 	}
 	
 	// Trying to lock/unlock buttons?
-	if (button.flag.num && button.flag.down)
+	if (button.flag.num && button.flag.down || button.flag.star && button.flag.up)
 	{
 		// No buzzer output
 		buzzer = 0;
@@ -289,7 +289,7 @@ __interrupt void PORT2_ISR(void)
 			stop_alarm();
 			button.all_flags = 0;
 		}
-		else if (!sys.flag.up_down_repeat_enabled)
+		else if (!sys.flag.up_down_repeat_enabled && !sys.flag.no_beep)
 		{
 			start_buzzer(1, CONV_MS_TO_TICKS(20), CONV_MS_TO_TICKS(150));
 		}

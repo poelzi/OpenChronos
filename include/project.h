@@ -93,6 +93,7 @@ typedef union
     u16 low_battery      		: 1;    // 1 = Battery is low
     u16 use_metric_units		: 1;    // 1 = Use metric units, 0 = use English units
     u16 delay_over     			: 1;    // 1 = Timer delay over
+    u16 no_beep                 : 1;    // Don't beep on key press
   } flag;
   u16 all_flags;            // Shortcut to all display flags (for reset)
 } s_system_flags;
@@ -128,6 +129,8 @@ typedef union
     u16 type_lobatt			: 1;	// 1 = Show "lobatt" text in Line2
     u16 type_alarm_on		: 1;	// 1 = Show "  on" text in Line1
     u16 type_alarm_off		: 1;	// 1 = Show " off" text in Line1
+    u16 type_no_beep_on     : 1;	// 1 = Show " beep" text in Line2
+    u16 type_no_beep_off    : 1;	// 1 = Show "nobeep" text in Line2
  } flag;
   u16 all_flags;            // Shortcut to all message flags (for reset)
 } s_message_flags;

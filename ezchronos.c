@@ -321,7 +321,6 @@ void init_global_variables(void)
 	display.flag.full_update = 1;
 
 #ifndef ISM_US
-
 	// Use metric units when displaying values
     sys.flag.use_metric_units = 1;
 #else 
@@ -573,6 +572,8 @@ void display_update(void)
 		if (message.flag.type_locked)			memcpy(string, "  LO?T", 6);
 		else if (message.flag.type_unlocked)	memcpy(string, "  OPEN", 6);
 		else if (message.flag.type_lobatt)		memcpy(string, "LOBATT", 6);
+		else if (message.flag.type_no_beep_on)  memcpy(string, " SILNC", 6);
+		else if (message.flag.type_no_beep_off) memcpy(string, "  BEEP", 6);
 		else if (message.flag.type_alarm_on)	
 		{
 			memcpy(string, "  ON", 4);
@@ -583,6 +584,7 @@ void display_update(void)
 			memcpy(string, " OFF", 4);
 			line = LINE1;
 		}
+        
 		
 		// Clear previous content
 		clear_line(line);
