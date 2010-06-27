@@ -1,6 +1,7 @@
 // *************************************************************************************************
 //
 //	Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/ 
+//	Copyright (C) 2010 Daniel Poelzleithner
 //	 
 //	 
 //	  Redistribution and use in source and binary forms, with or without 
@@ -81,7 +82,7 @@ typedef enum
 // collect n samples of data before tranmitting (saves energy)
 
 #define SLEEP_BUFFER                   30
-#define SLEEP_COLLECT                  1
+#define SLEEP_OUT_BUFFER               10
 
 // how often should a the clock be searched again
 #define SEARCH_CLOCK                         (60*10)
@@ -90,8 +91,10 @@ typedef enum
 #define SLEEP_ACC_PREFIX                     0x82cf // prefix when transmitting acceleration data
 #define SLEEP_TIME_PREFIX                    0x82aa // prefix when setting the clock
 
-#define PHASE_CLOCK_SEND_LENGTH (SIMPLICITI_MAX_PAYLOAD_LENGTH-2)
-#define PHASE_CLOCK_BUFFER ((SIMPLICITI_MAX_PAYLOAD_LENGTH-2)/sizeof(u16))
+//#define PHASE_CLOCK_SEND_LENGTH (SIMPLICITI_MAX_PAYLOAD_LENGTH-2)
+#define PHASE_CLOCK_SEND_LENGTH 2
+#define PHASE_CLOCK_BUFFER 2
+//#define PHASE_CLOCK_BUFFER ((SIMPLICITI_MAX_PAYLOAD_LENGTH-2)/sizeof(u16))
 
 // Button flags for SimpliciTI data
 //#define SIMPLICITI_BUTTON_STAR			(0x10)
@@ -119,7 +122,8 @@ struct SPhase
     // 
 	u8                  data[SLEEP_BUFFER][3];
     u8                  data_nr;
-    u16                 out[PHASE_CLOCK_BUFFER];
+    //u8                  out[PHASE_CLOCK_BUFFER];
+    u16                 out[SLEEP_OUT_BUFFER];
     u8                  out_nr;
 };
 extern struct SPhase sPhase;

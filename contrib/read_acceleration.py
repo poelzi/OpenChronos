@@ -60,7 +60,8 @@ while True:
     ser.write(accDataRequest())
     accel = ser.read(7)
 
-
+    if len(accel) < 3:
+        continue
     if ord(accel[0]) != 0 and ord(accel[1]) != 0 and ord(accel[2]) != 0:
          print "x: " + str(ord(accel[0])) + " y: " + str(ord(accel[1])) + " z: " + str(ord(accel[2]))
 

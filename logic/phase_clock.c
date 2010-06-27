@@ -94,9 +94,6 @@ unsigned char phase_clock_data[SIMPLICITI_MAX_PAYLOAD_LENGTH];
 // 4 byte device address overrides SimpliciTI end device address set in "smpl_config.dat"
 unsigned char phase_clock_ed_address[4];
 
-// Length of data 
-unsigned char phase_clock_payload_length;
-
 // 1 = send one or more reply packets, 0 = no need to reply
 //unsigned char simpliciti_reply;
 unsigned char phase_clock_reply_count;
@@ -151,13 +148,16 @@ void sx_phase(u8 line)
 	if (is_bluerobin()) return;
 #endif
   	// Start SimpliciTI in tx only mode
-	start_simpliciti_sleep();
+   	start_simpliciti_tx_only(SIMPLICITI_PHASE_CLOCK);
 }
 
-inline u8 diff(u8 x1, u8 x2) {
+u8 diff(u8 x1, u8 x2) {
     u8 b1 = x1 - x2;
-    if(b1 > 128)
+    if(b1 > 127)
         b1 = x2 - x1;
+    // high pass filter
+    if (b1 < 2)
+        return 0;
     return b1;
 }
 
@@ -170,102 +170,33 @@ inline u8 diff(u8 x1, u8 x2) {
 // *************************************************************************************************
 void phase_clock_calcpoint() {
     u16 x,y,z,res = 0;
+//    char *str;
     u8 i = 0;
-    for(i=1;i<SLEEP_BUFFER-1;i++) {
+    for(i=1;i<SLEEP_BUFFER;i++) {
         x += diff(sPhase.data[i-1][0], sPhase.data[i][0]);
         y += diff(sPhase.data[i-1][1], sPhase.data[i][1]);
-        z += diff(sPhase.data[i-1][1], sPhase.data[i][1]);
+        z += diff(sPhase.data[i-1][2], sPhase.data[i][2]);
     }
     // can't overflow when SLEEP_BUFFER is not larger then 171
     res = x + y + z;
-    memcpy(&sPhase.out + sPhase.data_nr, &res, sizeof(u16));
+	// Convert day to string
+//	str = itoa(x, 2, 0);
+//	display_chars(LCD_SEG_L2_5_0, str, SEG_ON);
+
+    //display_chars(LCD_SEG_L2_5_0, (u8 *)" SLEEP", SEG_ON);
+	
+    sPhase.out[sPhase.out_nr] = res;
+    sPhase.out_nr++;
+    //sPhase.out[1] =       res  & 0xFF;
+	//sPhase.out[0] = (res >> 8) & 0xFF;
+
+    //memcpy(&sPhase.out + sPhase.out_nr, &res, sizeof(u16));
     // reset stack index
-    sPhase.data_nr += sizeof(u16);
-
-}
-
-
-// *************************************************************************************************
-// @fn          start_simpliciti_tx_only
-// @brief       Start SimpliciTI (tx only). 
-// @param       simpliciti_state_t		SIMPLICITI_ACCELERATION, SIMPLICITI_BUTTONS
-// @return      none
-// *************************************************************************************************
-void start_simpliciti_sleep()
-{
-  	// Display time in line 1
-	clear_line(LINE1);  	
-	fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
-	display_time(LINE1, DISPLAY_LINE_UPDATE_FULL);
-
-	// Preset simpliciti_data with mode (key or mouse click) and clear other data bytes
-    simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_EVENTS;
-    /*
-	simpliciti_data[1] = 0;
-	simpliciti_data[2] = 0;
-	simpliciti_data[3] = 0;
-	*/
-    //memset(&simpliciti_data, 0, SIMPLICITI_MAX_PAYLOAD_LENGTH);
-
+    //sPhase.out_nr += 2;
     sPhase.data_nr = 0;
-    sPhase.out_nr = 0;
-    //memset(&simpliciti_data, 0, SIMPLICITI_MAX_PAYLOAD_LENGTH);
-    
-	// Turn on beeper icon to show activity
-	display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
-	display_symbol(LCD_ICON_BEEPER2, SEG_ON_BLINK_ON);
-	display_symbol(LCD_ICON_BEEPER3, SEG_ON_BLINK_ON);
 
-	// Debounce button event
-	Timer0_A4_Delay(CONV_MS_TO_TICKS(BUTTONS_DEBOUNCE_TIME_OUT));
-	
-	// Prepare radio for RF communication
-	open_radio();
-
-	// Set SimpliciTI mode
-	sRFsmpl.mode = SIMPLICITI_PHASE_CLOCK;
-	
-	// Set SimpliciTI timeout to save battery power
-	//sRFsmpl.timeout = SIMPLICITI_TIMEOUT; 
-		
-	// Start SimpliciTI stack. Try to link to access point.
-	// Exit with timeout or by a button DOWN press.
-	if (simpliciti_link())
-	{
-		// Start acceleration sensor
-		as_start();
-
-		// Enter TX only routine. This will transfer button events and/or acceleration data to access point.
-		simpliciti_main_tx_only();
-	}
-
-	// Set SimpliciTI state to OFF
-	sRFsmpl.mode = SIMPLICITI_OFF;
-
-	// Stop acceleration sensor
-	as_stop();
-
-	// Powerdown radio
-	close_radio();
-	
-	// Clear last button events
-	Timer0_A4_Delay(CONV_MS_TO_TICKS(BUTTONS_DEBOUNCE_TIME_OUT));
-	BUTTONS_IFG = 0x00;  
-	button.all_flags = 0;
-	
-	// Clear icons
-	display_symbol(LCD_ICON_BEEPER1, SEG_OFF_BLINK_OFF);
-	display_symbol(LCD_ICON_BEEPER2, SEG_OFF_BLINK_OFF);
-	display_symbol(LCD_ICON_BEEPER3, SEG_OFF_BLINK_OFF);
-	
- 	// Clean up line 1
-	clear_line(LINE1);  	
-	display_time(LINE1, DISPLAY_LINE_CLEAR);
-	
-	// Force full display update
-	display.flag.full_update = 1;	
-	
 }
+
 
 // *************************************************************************************************
 // @fn          display_phase_clock
@@ -282,7 +213,7 @@ void display_phase_clock(u8 line, u8 update)
 	}
 }
 // *************************************************************************************************
-// @fn          is_rf
+// @fn          is_sleep
 // @brief       Returns TRUE if SimpliciTI receiver is connected. 
 // @param       none
 // @return      u8

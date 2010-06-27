@@ -211,6 +211,7 @@ void sx_sync(u8 line)
 void start_simpliciti_tx_only(simpliciti_mode_t mode)
 {
   	// Display time in line 1
+    u8 start_as = 0;
 	clear_line(LINE1);  	
 	fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
 	display_time(LINE1, DISPLAY_LINE_UPDATE_FULL);
@@ -219,7 +220,17 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
 	if (mode == SIMPLICITI_ACCELERATION)
 	{
 		simpliciti_data[0] = SIMPLICITI_MOUSE_EVENTS;
+        start_as = 1;
 	}
+#ifdef CONFIG_PHASE_CLOCK
+    else if (mode == SIMPLICITI_PHASE_CLOCK)
+    {
+        simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_EVENTS;
+        start_as = 1;
+    	display_symbol(LCD_ICON_RECORD, SEG_ON_BLINK_ON);
+
+    }
+#endif
 	else
 	{
 		simpliciti_data[0] = SIMPLICITI_KEY_EVENTS;
@@ -249,7 +260,7 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
 	// Exit with timeout or by a button DOWN press.
 	if (simpliciti_link())
 	{
-		if (mode == SIMPLICITI_ACCELERATION)
+		if (start_as)
 		{
 			// Start acceleration sensor
 			as_start();
@@ -277,6 +288,14 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
 	display_symbol(LCD_ICON_BEEPER1, SEG_OFF_BLINK_OFF);
 	display_symbol(LCD_ICON_BEEPER2, SEG_OFF_BLINK_OFF);
 	display_symbol(LCD_ICON_BEEPER3, SEG_OFF_BLINK_OFF);
+
+#ifdef CONFIG_PHASE_CLOCK
+    if (mode == SIMPLICITI_PHASE_CLOCK)
+    {
+        display_symbol(LCD_ICON_RECORD, SEG_OFF_BLINK_OFF);
+
+    }
+#endif
 	
  	// Clean up line 1
 	clear_line(LINE1);  	
@@ -360,6 +379,8 @@ void simpliciti_get_ed_data_callback(void)
 {
 	static u8 packet_counter = 0;
     u8 i;
+    u16 res;
+    char *str;
 
 	if (sRFsmpl.mode == SIMPLICITI_ACCELERATION)
 	{
@@ -394,7 +415,7 @@ void simpliciti_get_ed_data_callback(void)
 	} else if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK)
 	{
 		// Wait for next sample
-		Timer0_A4_Delay(CONV_MS_TO_TICKS(10));	
+		Timer0_A4_Delay(CONV_MS_TO_TICKS(20));	
 		// Read from sensor if DRDY pin indicates new data (set in PORT2 ISR)
 		if (request.flag.acceleration_measurement && ((AS_INT_IN & AS_INT_PIN) == AS_INT_PIN))
 		{
@@ -405,27 +426,64 @@ void simpliciti_get_ed_data_callback(void)
 			as_get_data(sAccel.xyz);
 			
 			// push messured data onto the stack
-            if (sPhase.data_nr == SLEEP_BUFFER-1) {
+            if (sPhase.data_nr > SLEEP_BUFFER-1) {
                 phase_clock_calcpoint();
-            
+
+				/*simpliciti_data[1] = sPhase.out[0];
+				simpliciti_data[2] = sPhase.out[1];
+				simpliciti_data[3] = packet_counter++; //8>>sPhase.out[1]&&0xFF;
+                simpliciti_payload_length = 4;
+
+				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
+                */
             } else {
                 // copy current value onto the stack
-                memcpy(&sPhase.data[sPhase.data_nr][0], &sAccel.xyz, sizeof(u8)*3);
+                //memcpy(&sPhase.data[sPhase.data_nr][0], &sAccel.xyz, sizeof(u8)*3);
+                sPhase.data[sPhase.data_nr][0] = sAccel.xyz[0];
+				sPhase.data[sPhase.data_nr][1] = sAccel.xyz[1];
+                sPhase.data[sPhase.data_nr][2] = sAccel.xyz[2];
+				//simpliciti_data[3] = sAccel.xyz[2];
                 sPhase.data_nr++;
-            
             }
-            sPhase.out_nr += sizeof(u16);
-			if (sPhase.out_nr >= PHASE_CLOCK_SEND_LENGTH)
+//str = itoa(accel_data, 3, 0);
+
+			if (sPhase.out_nr > SLEEP_OUT_BUFFER-1)
 			{
 				// Reset counter
-				sPhase.out_nr = 1;
+				sPhase.out_nr = 0;
 	
 				// copy out buffer into the simplicti out buffer skip prefix
-                memcpy(&simpliciti_data+sizeof(u8), &sPhase.out, PHASE_CLOCK_SEND_LENGTH);
-                simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_EVENTS;
+                //memcpy(&simpliciti_data+sizeof(u8), &sPhase.out, PHASE_CLOCK_SEND_LENGTH);
+                for(i=0; i < SLEEP_OUT_BUFFER; i++) {
+                    //if (((2**17)-1)
+                    // FIXME: overflow detection ?
+                    res += sPhase.out[i];
+                }
+                simpliciti_data[3] =  packet_counter++;
+                simpliciti_data[2] =       res  & 0xFF;
+            	simpliciti_data[1] = (res >> 8) & 0xFF;
+
+                simpliciti_payload_length = 4;
+
+                //simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_EVENTS;
 				// Trigger packet sending
+            //    str = itoa(simpliciti_data[2], 2, 0);
+            //   	clear_line(LINE1);  	
+            //    display_chars(LCD_SEG_L2_5_0, str, SEG_ON);
+                // Force full display update
+                //display.flag.full_update = 1;	
+                //str = itoa(simpliciti_data[1], 2, 0);
+    //            display_chars(LCD_SEG_L2_5_2, str, SEG_ON);
+                //display_chars(LCD_SEG_L1_3_0, str, SEG_ON);
+                //str = itoa(simpliciti_data[2], 2, 0);
+                //display_chars(LCD_SEG_L1_1_0, str, SEG_ON);
+
+
 				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
 			}
+
+            sRFsmpl.timeout = SIMPLICITI_TIMEOUT; 
+
 		}
 
 #endif
