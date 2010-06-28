@@ -414,7 +414,9 @@ void simpliciti_get_ed_data_callback(void)
 #ifdef CONFIG_PHASE_CLOCK
 	} else if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK)
 	{
+    	//display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
 		// Wait for next sample
+        display_symbol(LCD_ICON_RECORD, SEG_ON);
 		Timer0_A4_Delay(CONV_MS_TO_TICKS(20));	
 		// Read from sensor if DRDY pin indicates new data (set in PORT2 ISR)
 		if (request.flag.acceleration_measurement && ((AS_INT_IN & AS_INT_PIN) == AS_INT_PIN))
@@ -428,7 +430,9 @@ void simpliciti_get_ed_data_callback(void)
 			// push messured data onto the stack
             if (sPhase.data_nr > SLEEP_BUFFER-1) {
                 phase_clock_calcpoint();
-
+                display_symbol(LCD_ICON_BEEPER1, SEG_OFF);
+                display_symbol(LCD_ICON_BEEPER2, SEG_OFF);
+                display_symbol(LCD_ICON_BEEPER3, SEG_OFF);
 				/*simpliciti_data[1] = sPhase.out[0];
 				simpliciti_data[2] = sPhase.out[1];
 				simpliciti_data[3] = packet_counter++; //8>>sPhase.out[1]&&0xFF;
@@ -478,9 +482,14 @@ void simpliciti_get_ed_data_callback(void)
                 //str = itoa(simpliciti_data[2], 2, 0);
                 //display_chars(LCD_SEG_L1_1_0, str, SEG_ON);
 
+                //display_symbol(LCD_ICON_RECORD, SEG_ON);
+                simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
+                display_symbol(LCD_ICON_BEEPER1, SEG_ON);
+                display_symbol(LCD_ICON_BEEPER2, SEG_ON);
+                display_symbol(LCD_ICON_BEEPER3, SEG_ON);
 
-				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
-			}
+			} 
+
 
             sRFsmpl.timeout = SIMPLICITI_TIMEOUT; 
 
