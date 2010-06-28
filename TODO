@@ -1,5 +1,9 @@
 * modularise more code
 * try to free more space
+* countdown alarm clock
+* autosync before/after flash
+* use bulk transfer in sleep clock mode
+* make buttons lock while sleep mode active
 
 
 === DONE ===
