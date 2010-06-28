@@ -78,7 +78,7 @@
 #define BUTTONS_DEBOUNCE_TIME_LEFT	(50u)
 
 // Detect if STAR / NUM button is held low continuously  
-#define LEFT_BUTTON_LONG_TIME		(2u)
+#define LEFT_BUTTON_LONG_TIME		(1u)
 
 // Leave set_value() function after some seconds of user inactivity
 #define INACTIVITY_TIME			(30u)
