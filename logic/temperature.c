@@ -136,6 +136,7 @@ void temperature_measurement(u8 filter)
 // @param       s16 value		Temperature in °C
 // @return      s16 			Temperature in °F
 // *************************************************************************************************
+#ifdef CONFIG_METRIC_ONLY
 s16 convert_C_to_F(s16 value)
 {
 	s16 DegF;
@@ -162,7 +163,10 @@ s16 convert_F_to_C(s16 value)
     
 	return (DegC);
 }
-
+#else
+//#define convert_C_to_F(value) (value)
+//#define convert_F_to_C(value) (value)
+#endif
 
 // *************************************************************************************************
 // @fn          is_temp_measurement
@@ -193,6 +197,10 @@ void mx_temperature(u8 line)
 	clear_display_all();
 
 	// When using English units, convert internal °C to °F before handing over value to set_value function
+#ifdef CONFIG_METRIC_ONLY
+	temperature  = sTemp.degrees;
+	temperature0 = temperature;
+#else
 	if (!sys.flag.use_metric_units)
 	{
 		// Convert global variable to local variable
@@ -205,6 +213,7 @@ void mx_temperature(u8 line)
 		temperature  = sTemp.degrees;
 		temperature0 = temperature;
 	}
+#endif
 
 	// Loop values until all are set or user breaks	set
 	while(1) 
@@ -274,8 +283,12 @@ void display_temperature(u8 line, u8 update)
 		// Display °C / °F
 		display_symbol(LCD_SEG_L1_DP1, SEG_ON);
 		display_symbol(LCD_UNIT_L1_DEGREE, SEG_ON);
+#ifdef CONFIG_METRIC_ONLY
+        display_char(LCD_SEG_L1_0, 'C', SEG_ON);
+#else
 		if (sys.flag.use_metric_units)	display_char(LCD_SEG_L1_0, 'C', SEG_ON);
 		else							display_char(LCD_SEG_L1_0, 'F', SEG_ON);
+#endif 
 		
 		// Perform one temperature measurement with disabled filter
 		temperature_measurement(FILTER_OFF);
@@ -286,6 +299,9 @@ void display_temperature(u8 line, u8 update)
 	else if (update == DISPLAY_LINE_UPDATE_PARTIAL)
 	{
 		// When using English units, convert °C to °F (temp*1.8+32)
+#ifdef CONFIG_METRIC_ONLY
+		temperature = sTemp.degrees;
+#else
 		if (!sys.flag.use_metric_units)
 		{
 		    temperature = convert_C_to_F(sTemp.degrees);              
@@ -294,6 +310,7 @@ void display_temperature(u8 line, u8 update)
 		{
 			temperature = sTemp.degrees;
 		}
+#endif 
 		
 		// Indicate temperature sign through arrow up/down icon
 		if (temperature < 0) 
