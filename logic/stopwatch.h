@@ -57,7 +57,7 @@ extern void display_stopwatch(u8 line, u8 update);
 // *************************************************************************************************
 // Defines section
 #define STOPWATCH_1HZ_TICK			(32768/1)
-#define STOPWATCH_100HZ_TICK		(32768/100)
+#define STOPWATCH_100HZ_TICK		328 // PFS corrected(32768/100)
 #define STOPWATCH_STOP				(0u)
 #define STOPWATCH_RUN				(1u)
 #define STOPWATCH_HIDE				(2u)
