@@ -35,6 +35,10 @@ DATA = {
         "default": rand_hw()
 },
 
+"DEBUG": {
+        "name": "Debug",
+        "default": False},
+
 # modules
 
 "CONFIG_ACCEL": {
