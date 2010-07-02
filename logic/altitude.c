@@ -109,7 +109,7 @@ void reset_altitude_measurement(void)
 	}
 }
 
-
+#ifndef CONFIG_METRIC_ONLY
 // *************************************************************************************************
 // @fn          conv_m_to_ft
 // @brief       Convert meters to feet
@@ -133,6 +133,7 @@ s16 convert_ft_to_m(s16 ft)
 	return (((s32)ft*61)/200);
 }
 
+#endif
 
 // *************************************************************************************************
 // @fn          is_altitude_measurement
@@ -272,6 +273,16 @@ void mx_altitude(u8 line)
 	clear_display_all();
 
 	// Set lower and upper limits for offset correction
+#ifdef CONFIG_METRIC_ONLY
+	display_symbol(LCD_UNIT_L1_M, SEG_ON);
+
+	// Convert global variable to local variable
+	altitude  = sAlt.altitude; 
+
+	// Limits for set_value function
+	limit_low = -100;
+	limit_high = 4000;
+#else
 	if (sys.flag.use_metric_units)
 	{
 		// Display "m" symbol
@@ -299,7 +310,7 @@ void mx_altitude(u8 line)
 		limit_low = -500;
 		limit_high = 9999;
 	}
-
+#endif
 	// Loop values until all are set or user breaks	set
 	while(1) 
 	{
@@ -310,7 +321,9 @@ void mx_altitude(u8 line)
 		if (button.flag.star) 
 		{
 			// When using English units, convert ft back to m before updating pressure table
+#ifndef CONFIG_METRIC_ONLY
 			if (!sys.flag.use_metric_units) altitude = convert_ft_to_m((s16)altitude);
+#endif
 
 			// Update pressure table
 			update_pressure_table((s16)altitude, sAlt.pressure, sAlt.temperature);
@@ -350,7 +363,9 @@ void display_altitude(u8 line, u8 update)
 
 		// Start measurement
 		start_altitude_measurement();
-		
+#ifdef CONFIG_METRIC_ONLY
+			display_symbol(LCD_UNIT_L1_M, SEG_ON);
+#else		
 		if (sys.flag.use_metric_units)
 		{
 			// Display "m" symbol
@@ -361,7 +376,7 @@ void display_altitude(u8 line, u8 update)
 			// Display "ft" symbol
 			display_symbol(LCD_UNIT_L1_FT, SEG_ON);
 		}
-		
+#endif		
 		// Display altitude
 		display_altitude(LINE1, DISPLAY_LINE_UPDATE_PARTIAL);
 	}
@@ -370,8 +385,10 @@ void display_altitude(u8 line, u8 update)
 		// Update display only while measurement is active
 		if (sAlt.timeout > 0)
 		{
+#ifndef CONFIG_METRIC_ONLY
 			if (sys.flag.use_metric_units)
 			{
+#endif
 				// Display altitude in xxxx m format, allow 3 leading blank digits
 				if (sAlt.altitude >= 0)
 				{
@@ -385,6 +402,7 @@ void display_altitude(u8 line, u8 update)
 					display_symbol(LCD_SYMB_ARROW_UP, SEG_OFF);
 					display_symbol(LCD_SYMB_ARROW_DOWN, SEG_ON);
 				}
+#ifndef CONFIG_METRIC_ONLY
 			}
 			else
 			{
@@ -408,6 +426,7 @@ void display_altitude(u8 line, u8 update)
 					display_symbol(LCD_SYMB_ARROW_DOWN, SEG_ON);
 				}				
 			}
+#endif
 			display_chars(LCD_SEG_L1_3_0, str, SEG_ON);
 		}
 	}
