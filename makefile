@@ -7,7 +7,7 @@ PYTHON = python
 
 PROJ_DIR	=.
 BUILD_DIR = build
-CFLAGS_PRODUCTION = -Os #-Wl,--gc-sections # -ffunction-sections # -fdata-sections  -fno-inline-functions# -O optimizes
+CFLAGS_PRODUCTION = -Os -Wall#-Wl,--gc-sections # -ffunction-sections # -fdata-sections  -fno-inline-functions# -O optimizes
 # more optimizion flags
 CFLAGS_PRODUCTION +=  -fomit-frame-pointer -fno-force-addr -finline-limit=1 -fno-schedule-insns 
 CFLAGS_DEBUG= -g -O0 # -g enables debugging symbol table, -O0 for NO optimization
@@ -15,7 +15,7 @@ CFLAGS_DEBUG= -g -O0 # -g enables debugging symbol table, -O0 for NO optimizatio
 CC_CMACH	= -mmcu=cc430x6137
 CC_DMACH	= -D__MSP430_6137__ -DMRFI_CC430 -D__CC430F6137__ #-DCC__MSPGCC didn't need mspgcc defines __GNUC__
 CC_DOPT		= -DELIMINATE_BLUEROBIN
-CC_INCLUDE = -I$(PROJ_DIR)/ -I$(PROJ_DIR)/include/ -I$(PROJ_DIR)/driver/ -I$(PROJ_DIR)/logic/ -I$(PROJ_DIR)/bluerobin/ -I$(PROJ_DIR)/simpliciti/ -I$(PROJ_DIR)/simpliciti/Components/bsp -I$(PROJ_DIR)/simpliciti/Components/bsp/drivers -I$(PROJ_DIR)/simpliciti/Components/bsp/boards/CC430EM -I$(PROJ_DIR)/simpliciti/Components/mrfi -I$(PROJ_DIR)/simpliciti/Components/nwk -I$(PROJ_DIR)/simpliciti/Components/nwk_applications
+CC_INCLUDE = -I$(PROJ_DIR)/ -I$(PROJ_DIR)/include/ -I$(PROJ_DIR)/gcc/ -I$(PROJ_DIR)/driver/ -I$(PROJ_DIR)/logic/ -I$(PROJ_DIR)/bluerobin/ -I$(PROJ_DIR)/simpliciti/ -I$(PROJ_DIR)/simpliciti/Components/bsp -I$(PROJ_DIR)/simpliciti/Components/bsp/drivers -I$(PROJ_DIR)/simpliciti/Components/bsp/boards/CC430EM -I$(PROJ_DIR)/simpliciti/Components/mrfi -I$(PROJ_DIR)/simpliciti/Components/nwk -I$(PROJ_DIR)/simpliciti/Components/nwk_applications
 
 CC_COPT		=  $(CC_CMACH) $(CC_DMACH) $(CC_DOPT)  $(CC_INCLUDE) 
 
@@ -33,9 +33,9 @@ SIMPLICICTI_SOURCE = $(SIMPLICICTI_SOURCE_ODD) simpliciti/Components/bsp/bsp.c s
 
 SIMPLICICTI_O = $(addsuffix .o,$(basename $(SIMPLICICTI_SOURCE)))
 
-MAIN_SOURCE = ezchronos.c  intrinsics.c 
+MAIN_SOURCE = ezchronos.c  gcc/intrinsics.c 
 
-MAIN_O = ezchronos.o intrinsics.o 
+MAIN_O = ezchronos.o gcc/intrinsics.o 
 
 ALL_O = $(LOGIC_O) $(DRIVER_O) $(SIMPLICICTI_O) $(MAIN_O)
 
@@ -85,6 +85,8 @@ debug:	even_in_range $(ALL_O)
 debug_asm: $(ALL_S)
 	@echo "Compiling $@ for $(CPU) in debug"
 
+source_index: $(ALL_S)
+	for i in $(ALL_S); do echo analyze $$i && m4s init < $$i; done
 
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
@@ -102,6 +104,13 @@ config.h:
 
 config:
 	python tools/config.py
+
+help:
+	@echo "Valid targets are"
+	@echo "    main"
+	@echo "    debug"
+	@echo "    clean"
+	@echo "    debug_asm"
 #rm *.o $(BUILD_DIR)*
 
 	
