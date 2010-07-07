@@ -32,7 +32,8 @@ DATA = {
 "THIS_DEVICE_ADDRESS": {
         "name": "Hardware address",
         "type": "text",
-        "default": rand_hw()
+        "default": rand_hw(),
+        "ifndef": True
 },
 
 "DEBUG": {
@@ -40,6 +41,18 @@ DATA = {
         "default": False},
 
 # modules
+
+"CONFIG_DAY_OF_WEEK": {
+        "name": "Date: Day of Week",
+        "depends": [],
+        "default": True},
+
+"CONFIG_TEST": {
+        "name": "Test Mode",
+        "depends": [],
+        "default": True},
+
+# not yet working
 
 "CONFIG_ACCEL": {
         "name": "Accleration",
@@ -65,10 +78,6 @@ DATA = {
         "name": "Date",
         "depends": [],
         "default": True},
-"CONFIG_DAY_OF_WEEK": {
-        "name": "Date: Day of Week",
-        "depends": [],
-        "default": True},
 "CONFIG_PHASE_CLOCK": {
         "name": "Phase Clock",
         "depends": [],
@@ -81,7 +90,7 @@ DATA = {
         "name": "Stop Watch",
         "depends": [],
         "default": True},
-"CONFIG_STOP_TEMP": {
+"CONFIG_TEMP": {
         "name": "Temperature",
         "depends": [],
         "default": True},
@@ -163,6 +172,8 @@ class OpenChronosApp(npyscreen.NPSApp):
         fp.write("// !!!! DO NOT EDIT !!!, use: make config\n")
         fp.write(HEADER)
         for key,dat in DATA.iteritems():
+            if DATA[key].get("ifndef", False):
+                fp.write("#ifndef %s\n" %key)
             if isinstance(dat["value"], bool):
                 if dat["value"]:
                     fp.write("#define %s\n" %key)
@@ -170,6 +181,8 @@ class OpenChronosApp(npyscreen.NPSApp):
                     fp.write("// %s is not set\n" %key)
             else:
                 fp.write("#define %s %s\n" %(key, dat["value"]))
+            if DATA[key].get("ifndef", False):
+                fp.write("#endif // %s\n" %key)
         fp.write(FOOTER)
 
 

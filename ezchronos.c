@@ -70,7 +70,9 @@
 #endif
 #include "rfsimpliciti.h"
 #include "simpliciti.h"
+#ifdef CONFIG_TEST
 #include "test.h"
+#endif
 
 
 // *************************************************************************************************
@@ -136,9 +138,11 @@ int main(void)
 
 	// Assign initial value to global variables
 	init_global_variables();
-	
+
+#if CONFIG_TEST
 	// Branch to welcome screen
 	test_mode();
+#endif
 	
 	// Main control loop: wait in low power mode until some event needs to be processed
 	while(1)
