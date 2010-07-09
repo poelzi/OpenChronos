@@ -142,6 +142,8 @@ int main(void)
 #if CONFIG_TEST
 	// Branch to welcome screen
 	test_mode();
+#else
+	display_all_off();
 #endif
 	
 	// Main control loop: wait in low power mode until some event needs to be processed

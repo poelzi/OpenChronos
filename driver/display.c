@@ -573,3 +573,21 @@ void set_blink_rate(u8 bits)
 	LCDBBLKCTL |= bits;	
 }
 
+
+// *************************************************************************************************
+// @fn          display_all_off
+// @brief       Sets everything of on the display
+// @param       none
+// @return      none
+// *************************************************************************************************
+void display_all_off(void)
+{
+	u8 * lcdptr = (u8*)0x0A20;
+	u8 i;
+	
+	for (i=1; i<=12; i++) 
+	{
+		*lcdptr = 0x00; 
+		lcdptr++;
+	}
+}

@@ -346,4 +346,6 @@ extern u8 * itoa(u32 n, u8 digits, u8 blanks);
 // Segment index helper function
 extern u8 switch_seg(u8 line, u8 index1, u8 index2);
 
+void display_all_off(void);
+
 #endif // __DISPLAY_
