@@ -353,7 +353,9 @@ void mx_altitude(u8 line)
 void display_altitude(u8 line, u8 update)
 {
 	u8 * str;
+#ifndef CONFIG_METRIC_ONLY
 	s16 ft;
+#endif
 	
 	// redraw whole screen
 	if (update == DISPLAY_LINE_UPDATE_FULL)	
