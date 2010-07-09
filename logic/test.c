@@ -280,16 +280,4 @@ void display_all_on(void)
 }
 
 
-void display_all_off(void)
-{
-	u8 * lcdptr = (u8*)0x0A20;
-	u8 i;
-	
-	for (i=1; i<=12; i++) 
-	{
-		*lcdptr = 0x00; 
-		lcdptr++;
-	}
-}
-
 #endif // CONFIG_TEST
