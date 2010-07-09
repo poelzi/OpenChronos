@@ -242,7 +242,9 @@ void mx_alarm(u8 line)
 // *************************************************************************************************
 void display_alarm(u8 line, u8 update)
 {
+#ifndef CONFIG_METRIC_ONLY 
 	u8 hour12;
+#endif
 	
 	if (update == DISPLAY_LINE_UPDATE_FULL)			
 	{
