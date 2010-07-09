@@ -301,7 +301,7 @@ void sx_date(u8 line)
 // *************************************************************************************************
 void display_date(u8 line, u8 update)
 {
-	u8 * str;
+	u8 *str;
 	
 	if (update == DISPLAY_LINE_UPDATE_FULL)			
 	{
@@ -373,13 +373,20 @@ void display_date(u8 line, u8 update)
 			}
 			skew = skew%7;
             switch (skew) {
-                case 0: str = " SUN"; break;
-                case 1: str = " MON"; break;
-                case 2: str = " TUE"; break;
-                case 3: str = "VVED"; break;
-                case 4: str = " THU"; break;
-                case 5: str = " FRI"; break;
-                case 6: str = " SAT"; break;
+                case 0: 
+                    str = (u8*)" SUN"; break;
+                case 1: 
+                    str = (u8*)" MON"; break;
+                case 2: 
+                    str = (u8*)" TUE"; break;
+                case 3: 
+                    str = (u8*)"VVED"; break;
+                case 4: 
+                    str = (u8*)" THU"; break;
+                case 5: 
+                    str = (u8*)" FRI"; break;
+                default:
+                    str = (u8*)" SAT"; break;
             }
 			//str = itoa(skew,4,0);
 			// pfs END of day of week addendum
