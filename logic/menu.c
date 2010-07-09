@@ -67,6 +67,10 @@
 #include "phase_clock.h"
 #endif
 
+#ifdef CONFIG_EGGTIMER
+#include "eggtimer.h"
+#endif
+
 
 // *************************************************************************************************
 // Defines section
@@ -210,8 +214,22 @@ const struct menu menu_L2_Stopwatch =
 	FUNCTION(mx_stopwatch),		// sub menu function
 	FUNCTION(display_stopwatch),// display function
 	FUNCTION(update_stopwatch),	// new display data
+#ifndef CONFIG_EGGTIMER
 	&menu_L2_Battery,
 };
+#else
+	&menu_L2_Eggtimer,
+};
+//  Line2 - Eggtimer (Counts down from set time)
+const struct menu menu_L2_Eggtimer =
+{
+        FUNCTION(sx_eggtimer),          // direct function
+        FUNCTION(mx_eggtimer),          // sub menu function
+        FUNCTION(display_eggtimer),// display function
+        FUNCTION(update_eggtimer),      // new display data
+        &menu_L2_Date,
+};
+#endif
 // Line2 - Battery 
 const struct menu menu_L2_Battery =
 {

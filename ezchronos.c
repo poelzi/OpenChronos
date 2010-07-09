@@ -73,6 +73,9 @@
 #ifdef CONFIG_TEST
 #include "test.h"
 #endif
+#ifdef CONFIG_EGGTIMER
+#include "eggtimer.h"
+#endif
 
 
 // *************************************************************************************************
@@ -364,6 +367,12 @@ void init_global_variables(void)
 	#ifndef ELIMINATE_BLUEROBIN 
 	reset_bluerobin();
 	#endif
+
+#ifdef CONFIG_EGGTIMER
+	//Set Eggtimer to a 5 minute default
+	memcpy(seggtimer.defaultTime, "00010000", sizeof(seggtimer.time));
+	reset_eggtimer();
+#endif
 
 	// Reset SimpliciTI stack
 	reset_rf();

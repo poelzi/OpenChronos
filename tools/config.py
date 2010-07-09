@@ -52,6 +52,11 @@ DATA = {
         "depends": [],
         "default": True},
 
+"CONFIG_EGGTIMER": {
+        "name": "Eggtimer",
+        "depends": [],
+        "default": False},
+
 # not yet working
 
 "CONFIG_ACCEL": {
