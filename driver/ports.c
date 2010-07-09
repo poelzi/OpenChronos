@@ -273,7 +273,7 @@ __interrupt void PORT2_ISR(void)
 	}
 	
 	// Trying to lock/unlock buttons?
-	if (button.flag.num && button.flag.down || button.flag.star && button.flag.up)
+	if ((button.flag.num && button.flag.down) || (button.flag.star && button.flag.up))
 	{
 		// No buzzer output
 		buzzer = 0;
