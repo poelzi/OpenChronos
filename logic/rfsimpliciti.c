@@ -549,6 +549,7 @@ int simpliciti_get_rvc_callback(u8 len)
 
 	switch (simpliciti_data[0])
 	{
+#ifdef CONFIG_PHASE_CLOCK
         case SIMPLICITI_PHASE_CLOCK_START_RESPONSE:	// Send watch parameters
             sPhase.session = simpliciti_data[1];
             sRFsmpl.mode = SIMPLICITI_PHASE_CLOCK;
@@ -556,6 +557,7 @@ int simpliciti_get_rvc_callback(u8 len)
             simpliciti_data[1] = 0x00;
             simpliciti_data[2] = 0x00;
             return 1;
+#endif
     }
     return 0;
 }
