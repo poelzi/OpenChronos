@@ -68,6 +68,10 @@
 
 #include "temperature.h"
 
+#ifdef CONFIG_EGGTIMER
+#include "eggtimer.h"
+#endif
+
 
 // *************************************************************************************************
 // Prototypes section
@@ -519,10 +523,16 @@ __interrupt void TIMER0_A1_5_ISR(void)
 					TA0CCTL2 &= ~CCIFG;  
 					// Load CCR register with next capture point
 					update_stopwatch_timer();
+#ifdef CONFIG_EGGTIMER
+					update_eggtimer_timer();
+#endif
 					// Enable timer interrupt    
 					TA0CCTL2 |= CCIE; 	
 					// Increase stopwatch counter
 					stopwatch_tick();
+#ifdef CONFIG_EGGTIMER
+					eggtimer_tick();
+#endif
 					break;
 					
 		// Timer0_A3	Configurable periodic IRQ (used by button_repeat and buzzer)			
