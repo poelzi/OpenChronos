@@ -11,6 +11,7 @@ python http://python.org
 == Supported Compilers ==
 
 msp430-gcc4
+IAR msp430
 
 Patches for more (more efficient) compilers are welcome :-)
 
@@ -52,9 +53,16 @@ It is HIGHLY suggested to make a clean build befor you flash the image with:
  * More Features that can be configured with make config
  * Day of week
  * Disable 12h support (saves space)
- * Sleep Phase Clock
+ * Sleep Phase Clock - primary designed for http://github.com/poelzi/uberclock
  * The wireless flashing starts differently:
    Select RFBSL, Press DOWN to unlock, Press # long to start
  * No BlueRobin support. BlueRobin is a closed source binary blob.
    We don't have a compatible object file for that
  * Pressing STAR and UP long sets silent mode (no beep)
+
+== Usefull Tools ==
+ * mspdebug - debugger, proxy for gdb, flasher, ...  
+     http://mspdebug.sourceforge.net
+ * msp430static - static analyzer for sourcecode
+     http://msp430static.sourceforge.net/
+   run 'make source_index' to index all source files

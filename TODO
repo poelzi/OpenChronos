@@ -1,10 +1,12 @@
 * modularise more code
 * try to free more space
-* countdown alarm clock
 * autosync before/after flash
 * use bulk transfer in sleep clock mode
 * make buttons lock while sleep mode active
+* better compilition depending on config file. someone with more make knowledge please ;-)
+* fix warnings in simplicti code
 
 
 === DONE ===
 * make frequency selector work
+* countdown alarm clock
