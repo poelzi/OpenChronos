@@ -52,7 +52,6 @@ extern void display_sync(u8 line, u8 update);
 extern void send_smpl_data(u16 data);
 extern u8 is_rf(void);
 
-
 // *************************************************************************************************
 // Defines section
 
@@ -64,6 +63,7 @@ typedef enum
   SIMPLICITI_BUTTONS,		// Transmitting button events
   SIMPLICITI_SYNC,			// Syncing
 #ifdef CONFIG_PHASE_CLOCK
+  SIMPLICITI_PHASE_CLOCK_START,	// Start new phase
   SIMPLICITI_PHASE_CLOCK,	// Phase Clock is running
 #endif
 } simpliciti_mode_t;
@@ -77,9 +77,13 @@ typedef enum
 #define SIMPLICITI_BUTTON_UP			(0x30)
 
 // SimpliciTI mode flag
-#define SIMPLICITI_MOUSE_EVENTS			(0x01)
-#define SIMPLICITI_KEY_EVENTS			(0x02)
-#define SIMPLICITI_PHASE_CLOCK_EVENTS	(0x03)
+#define SIMPLICITI_MOUSE_EVENTS             (0x01)
+#define SIMPLICITI_KEY_EVENTS               (0x02)
+#define SIMPLICITI_PHASE_CLOCK_EVENTS   	(0x03)
+#define SIMPLICITI_PHASE_CLOCK_START_EVENTS	(0x04)
+
+
+#define SIMPLICITI_PHASE_CLOCK_START_RESPONSE	(0x54)
 
 // *************************************************************************************************
 // Global Variable section
@@ -97,5 +101,8 @@ extern unsigned char simpliciti_flag;
 
 // *************************************************************************************************
 // Extern section
+
+extern void start_simpliciti_tx_only(simpliciti_mode_t mode);
+
 
 #endif /*RFSIMPLICITI_H_*/

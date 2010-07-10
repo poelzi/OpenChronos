@@ -81,7 +81,13 @@ typedef enum
 
 // collect n samples of data before tranmitting (saves energy)
 
-#define SLEEP_BUFFER                   30
+// n bits in the couter byte which mark the session
+#define SLEEP_RF_ID_BIT_LENGHT 3
+// 5 bits + 1 so counter%SLEEP_MAX_PACKET_COUNTER does not overflow
+#define SLEEP_MAX_PACKET_COUNTER 32 
+
+
+#define SLEEP_DATA_BUFFER              30
 #define SLEEP_OUT_BUFFER               10
 
 // how often should a the clock be searched again
@@ -113,14 +119,13 @@ struct SPhase
 	// SIMPLICITI_OFF, SIMPLICITI_ACCELERATION, SIMPLICITI_BUTTONS
 	simpliciti_mode_t 	mode;
 
-    // clock to which the watch is paired
-    u16                 clock_id;
-	// Timeout until clock will be searched again
-	u16					timeout;
-
+	// current session id
+    u8                  session;
+	// sleep program to start
+	u8					program;
     // collected data
     // 
-	u8                  data[SLEEP_BUFFER][3];
+	u8                  data[SLEEP_DATA_BUFFER][3];
     u8                  data_nr;
     //u8                  out[PHASE_CLOCK_BUFFER];
     u16                 out[SLEEP_OUT_BUFFER];

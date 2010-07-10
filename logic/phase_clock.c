@@ -143,12 +143,16 @@ void sx_phase(u8 line)
 	// Exit if battery voltage is too low for radio operation
 	if (sys.flag.low_battery) return;
 
+    sPhase.session = 0;
+    sPhase.out_nr = 0;
+    sPhase.data_nr = 0;
+
 	// Exit if BlueRobin stack is active
 #ifndef ELIMINATE_BLUEROBIN
 	if (is_bluerobin()) return;
 #endif
   	// Start SimpliciTI in tx only mode
-   	start_simpliciti_tx_only(SIMPLICITI_PHASE_CLOCK);
+   	start_simpliciti_tx_only(SIMPLICITI_PHASE_CLOCK_START);
 }
 
 u8 diff(u8 x1, u8 x2) {
@@ -169,31 +173,23 @@ u8 diff(u8 x1, u8 x2) {
 // @return      none
 // *************************************************************************************************
 void phase_clock_calcpoint() {
-    u16 x,y,z,res = 0;
-//    char *str;
-    u8 i = 0;
-    for(i=1;i<SLEEP_BUFFER;i++) {
-        x += diff(sPhase.data[i-1][0], sPhase.data[i][0]);
-        y += diff(sPhase.data[i-1][1], sPhase.data[i][1]);
-        z += diff(sPhase.data[i-1][2], sPhase.data[i][2]);
-    }
-    // can't overflow when SLEEP_BUFFER is not larger then 171
-    res = x + y + z;
-	// Convert day to string
-//	str = itoa(x, 2, 0);
-//	display_chars(LCD_SEG_L2_5_0, str, SEG_ON);
+	u16 x,y,z,res;
+	x = y = z = res = 0;
 
-    //display_chars(LCD_SEG_L2_5_0, (u8 *)" SLEEP", SEG_ON);
-	
-    sPhase.out[sPhase.out_nr] = res;
-    sPhase.out_nr++;
-    //sPhase.out[1] =       res  & 0xFF;
-	//sPhase.out[0] = (res >> 8) & 0xFF;
+	u8 i = 0;
+	for(i=1;i<SLEEP_DATA_BUFFER;i++) {
+		x += diff(sPhase.data[i-1][0], sPhase.data[i][0]);
+		y += diff(sPhase.data[i-1][1], sPhase.data[i][1]);
+		z += diff(sPhase.data[i-1][2], sPhase.data[i][2]);
+	}
+	// can't overflow when SLEEP_BUFFER is not larger then 171
+	res = x + y + z;
 
-    //memcpy(&sPhase.out + sPhase.out_nr, &res, sizeof(u16));
-    // reset stack index
-    //sPhase.out_nr += 2;
-    sPhase.data_nr = 0;
+	// set the result into the out buffer
+	sPhase.out[sPhase.out_nr] = res;
+	sPhase.out_nr++;
+
+	sPhase.data_nr = 0;
 
 }
 

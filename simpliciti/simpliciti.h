@@ -106,6 +106,7 @@ extern unsigned char simpliciti_flag;
 #define SIMPLICITI_TRIGGER_SEND_DATA 	        (BIT3)
 #define SIMPLICITI_TRIGGER_RECEIVED_DATA 	    (BIT4)
 #define SIMPLICITI_TRIGGER_STOP		            (BIT5)
+#define SIMPLICITI_TRIGGER_RECEIVE_DATA 	    (BIT6)
 
 // Radio frequency offset read from calibration memory
 // Compensates crystal deviation from 26MHz nominal value

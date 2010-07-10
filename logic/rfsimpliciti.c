@@ -223,12 +223,11 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
         start_as = 1;
 	}
 #ifdef CONFIG_PHASE_CLOCK
-    else if (mode == SIMPLICITI_PHASE_CLOCK)
+    else if (mode == SIMPLICITI_PHASE_CLOCK_START)
     {
-        simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_EVENTS;
+        simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_START_EVENTS;
         start_as = 1;
     	display_symbol(LCD_ICON_RECORD, SEG_ON_BLINK_ON);
-
     }
 #endif
 	else
@@ -290,7 +289,7 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
 	display_symbol(LCD_ICON_BEEPER3, SEG_OFF_BLINK_OFF);
 
 #ifdef CONFIG_PHASE_CLOCK
-    if (mode == SIMPLICITI_PHASE_CLOCK)
+    if (mode == SIMPLICITI_PHASE_CLOCK || mode == SIMPLICITI_PHASE_CLOCK_START)
     {
         display_symbol(LCD_ICON_RECORD, SEG_OFF_BLINK_OFF);
 
@@ -380,8 +379,7 @@ void simpliciti_get_ed_data_callback(void)
 	static u8 packet_counter = 0;
     u8 i;
     u16 res;
-    char *str;
-
+WDTCTL = WDTPW + WDTHOLD;
 	if (sRFsmpl.mode == SIMPLICITI_ACCELERATION)
 	{
 		// Wait for next sample
@@ -412,11 +410,32 @@ void simpliciti_get_ed_data_callback(void)
 			}
 		}
 #ifdef CONFIG_PHASE_CLOCK
-	} else if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK)
+	} else if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK_START)
 	{
-    	//display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
+		/* Initialisation phase. Get a Session id and send the
+		   program wanted */
+		if(packet_counter == 30) {
+			simpliciti_flag |= SIMPLICITI_TRIGGER_STOP;
+			packet_counter = 0;
+			return;
+		}
+		display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
+		display_symbol(LCD_ICON_BEEPER2, SEG_ON_BLINK_ON);
+
+		// send hw address so he recognices us and we will get a session id
+		simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_START_EVENTS;
+		simpliciti_data[1] = simpliciti_ed_address[0] ^ simpliciti_ed_address[1];
+		simpliciti_data[2] = simpliciti_ed_address[2] ^ simpliciti_ed_address[3];
+		// FIXME: TODO set program 
+		simpliciti_data[3] = sPhase.program;
+		simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA | SIMPLICITI_TRIGGER_RECEIVE_DATA;
+		packet_counter ++;
+	}
+	else if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK)
+	{
+		//display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
 		// Wait for next sample
-        display_symbol(LCD_ICON_RECORD, SEG_ON);
+		display_symbol(LCD_ICON_RECORD, SEG_ON);
 		Timer0_A4_Delay(CONV_MS_TO_TICKS(20));	
 		// Read from sensor if DRDY pin indicates new data (set in PORT2 ISR)
 		if (request.flag.acceleration_measurement && ((AS_INT_IN & AS_INT_PIN) == AS_INT_PIN))
@@ -428,66 +447,47 @@ void simpliciti_get_ed_data_callback(void)
 			as_get_data(sAccel.xyz);
 			
 			// push messured data onto the stack
-            if (sPhase.data_nr > SLEEP_BUFFER-1) {
-                phase_clock_calcpoint();
-                display_symbol(LCD_ICON_BEEPER1, SEG_OFF);
-                display_symbol(LCD_ICON_BEEPER2, SEG_OFF);
-                display_symbol(LCD_ICON_BEEPER3, SEG_OFF);
-				/*simpliciti_data[1] = sPhase.out[0];
-				simpliciti_data[2] = sPhase.out[1];
-				simpliciti_data[3] = packet_counter++; //8>>sPhase.out[1]&&0xFF;
-                simpliciti_payload_length = 4;
+			if (sPhase.data_nr > SLEEP_DATA_BUFFER-1) {
+				phase_clock_calcpoint();
+				display_symbol(LCD_ICON_BEEPER1, SEG_OFF);
+				display_symbol(LCD_ICON_BEEPER2, SEG_OFF);
+				display_symbol(LCD_ICON_BEEPER3, SEG_OFF);
 
-				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
-                */
-            } else {
-                // copy current value onto the stack
-                //memcpy(&sPhase.data[sPhase.data_nr][0], &sAccel.xyz, sizeof(u8)*3);
-                sPhase.data[sPhase.data_nr][0] = sAccel.xyz[0];
+			} else {
+				// copy current value onto the stack
+				//memcpy(&sPhase.data[sPhase.data_nr][0], &sAccel.xyz, sizeof(u8)*3);
+				sPhase.data[sPhase.data_nr][0] = sAccel.xyz[0];
 				sPhase.data[sPhase.data_nr][1] = sAccel.xyz[1];
-                sPhase.data[sPhase.data_nr][2] = sAccel.xyz[2];
+				sPhase.data[sPhase.data_nr][2] = sAccel.xyz[2];
 				//simpliciti_data[3] = sAccel.xyz[2];
-                sPhase.data_nr++;
-            }
+				sPhase.data_nr++;
+			}
 //str = itoa(accel_data, 3, 0);
 
-			if (sPhase.out_nr > SLEEP_OUT_BUFFER-1)
+			if ((sPhase.out_nr > SLEEP_OUT_BUFFER-1))
 			{
 				// Reset counter
 				sPhase.out_nr = 0;
-	
-				// copy out buffer into the simplicti out buffer skip prefix
-                //memcpy(&simpliciti_data+sizeof(u8), &sPhase.out, PHASE_CLOCK_SEND_LENGTH);
-                for(i=0; i < SLEEP_OUT_BUFFER; i++) {
-                    //if (((2**17)-1)
-                    // FIXME: overflow detection ?
-                    res += sPhase.out[i];
-                }
-                simpliciti_data[3] =  packet_counter++;
-                simpliciti_data[2] =       res  & 0xFF;
-            	simpliciti_data[1] = (res >> 8) & 0xFF;
+				res = 0;
 
-                simpliciti_payload_length = 4;
+				for(i=0; i < SLEEP_OUT_BUFFER; i++) {
+					//if (((2**17)-1))
+					// FIXME: overflow detection ?
+					res += sPhase.out[i];
+				}
+				packet_counter = (packet_counter+1)%SLEEP_MAX_PACKET_COUNTER;
+				simpliciti_data[3] =  (sPhase.session << (8-SLEEP_RF_ID_BIT_LENGHT)) | packet_counter;
+				simpliciti_data[2] =  res  & 0xFF;
+				simpliciti_data[1] =  (res >> 8) & 0xFF;
+				simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_EVENTS;
 
-                //simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_EVENTS;
-				// Trigger packet sending
-            //    str = itoa(simpliciti_data[2], 2, 0);
-            //   	clear_line(LINE1);  	
-            //    display_chars(LCD_SEG_L2_5_0, str, SEG_ON);
-                // Force full display update
-                //display.flag.full_update = 1;	
-                //str = itoa(simpliciti_data[1], 2, 0);
-    //            display_chars(LCD_SEG_L2_5_2, str, SEG_ON);
-                //display_chars(LCD_SEG_L1_3_0, str, SEG_ON);
-                //str = itoa(simpliciti_data[2], 2, 0);
-                //display_chars(LCD_SEG_L1_1_0, str, SEG_ON);
+				simpliciti_payload_length = 4;
 
-                //display_symbol(LCD_ICON_RECORD, SEG_ON);
-                simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
-                display_symbol(LCD_ICON_BEEPER1, SEG_ON);
-                display_symbol(LCD_ICON_BEEPER2, SEG_ON);
-                display_symbol(LCD_ICON_BEEPER3, SEG_ON);
+				display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
+				display_symbol(LCD_ICON_BEEPER2, SEG_ON_BLINK_ON);
+				display_symbol(LCD_ICON_BEEPER3, SEG_ON_BLINK_ON);
 
+				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
 			} 
 
 
@@ -538,6 +538,27 @@ void simpliciti_get_ed_data_callback(void)
 	}
 }
 
+// *************************************************************************************************
+// @fn          simpliciti_get_rvc_callback
+// @brief       Callback when data wher received
+// @param       u8 lenght
+// @return      none
+// *************************************************************************************************
+int simpliciti_get_rvc_callback(u8 len)
+{
+
+	switch (simpliciti_data[0])
+	{
+        case SIMPLICITI_PHASE_CLOCK_START_RESPONSE:	// Send watch parameters
+            sPhase.session = simpliciti_data[1];
+            sRFsmpl.mode = SIMPLICITI_PHASE_CLOCK;
+            simpliciti_data[0] = 0x00;
+            simpliciti_data[1] = 0x00;
+            simpliciti_data[2] = 0x00;
+            return 1;
+    }
+    return 0;
+}
 
 // *************************************************************************************************
 // @fn          start_simpliciti_sync

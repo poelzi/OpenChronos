@@ -76,6 +76,10 @@
 #ifdef CONFIG_EGGTIMER
 #include "eggtimer.h"
 #endif
+#ifdef CONFIG_PHASE_CLOCK
+#include "phase_clock.h"
+#endif
+
 
 
 // *************************************************************************************************
@@ -134,8 +138,6 @@ extern u8 ps_write_register(u8 address, u8 data);
 // *************************************************************************************************
 int main(void)
 {
-	volatile u8 ps;
-	
 	// Init MCU 
 	init_application();
 
@@ -372,6 +374,11 @@ void init_global_variables(void)
 	//Set Eggtimer to a 5 minute default
 	memcpy(seggtimer.defaultTime, "00010000", sizeof(seggtimer.time));
 	reset_eggtimer();
+#endif
+
+#ifdef CONFIG_PHASE_CLOCK
+	// default program
+	sPhase.program = 0;
 #endif
 
 	// Reset SimpliciTI stack
