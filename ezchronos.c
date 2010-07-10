@@ -80,6 +80,8 @@
 #include "phase_clock.h"
 #endif
 
+#include "mrfi.h"
+#include "nwk_types.h"
 
 
 // *************************************************************************************************
@@ -121,7 +123,6 @@ u8 rf_frequoffset;
 void (*fptr_lcd_function_line1)(u8 line, u8 update);
 void (*fptr_lcd_function_line2)(u8 line, u8 update);
 
-
 // *************************************************************************************************
 // Extern section
 
@@ -129,6 +130,9 @@ extern void start_simpliciti_sync(void);
 
 extern u16 ps_read_register(u8 address, u8 mode);
 extern u8 ps_write_register(u8 address, u8 data);
+
+// rf hardware address
+static const addr_t   sMyROMAddress = {THIS_DEVICE_ADDRESS};
 
 // *************************************************************************************************
 // @fn          main
@@ -711,10 +715,10 @@ void read_calibration_values(void)
 		rf_frequoffset	= 4;
 		sTemp.offset 	= -250;
 		sBatt.offset 	= -10;	
-		simpliciti_ed_address[0] = 0x79;
-		simpliciti_ed_address[1] = 0x56;
-		simpliciti_ed_address[2] = 0x34;
-		simpliciti_ed_address[3] = 0x12;
+		simpliciti_ed_address[0] = sMyROMAddress.addr[0];
+		simpliciti_ed_address[1] = sMyROMAddress.addr[1];
+		simpliciti_ed_address[2] = sMyROMAddress.addr[2];
+		simpliciti_ed_address[3] = sMyROMAddress.addr[3];
 		sAlt.altitude_offset	 = 0;
 	}
 	else
