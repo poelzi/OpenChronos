@@ -8,8 +8,9 @@
 #define MAX_APP_PAYLOAD  19 
 #define DEFAULT_LINK_TOKEN  0x01020304 
 #define DEFAULT_JOIN_TOKEN  0x05060708 
-#define APP_AUTO_ACK 
-#define EXTENDED_API 
+#define APP_AUTO_ACK
+// if a app needs EXTENDED_API it should enable it here 
+#define xEXTENDED_API 
 #define xSMPL_SECURE 
 #define xNVOBJECT_SUPPORT 
 #define SW_TIMER
