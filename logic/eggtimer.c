@@ -41,6 +41,9 @@
 
 // system
 #include "project.h"
+
+#ifdef CONFIG_EGGTIMER
+
 #include <string.h>
 
 // driver
@@ -377,7 +380,7 @@ void mx_eggtimer(u8 line)
 void sx_eggtimer(u8 line)
 {
 	// S2: RUN, STOP
-	if(button.flag.s2)
+	if(button.flag.down)
 	{
 		if (seggtimer.state == EGGTIMER_STOP)
 		{
@@ -503,7 +506,7 @@ extern void set_eggtimer(void){
 		if (sys.flag.idle_timeout) break;
 		
 		// M2 (short): save, then exit 
-		if (button.flag.m2) 
+		if (button.flag.num) 
 		{
 			// Store local variables in global Eggtimer default
 			//sAlarm.hour = hours;
@@ -542,3 +545,5 @@ extern void set_eggtimer(void){
 	button.all_flags = 0;
 	
 }
+
+#endif // CONFIG_EGGTIMER

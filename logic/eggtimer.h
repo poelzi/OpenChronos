@@ -54,6 +54,7 @@
 // Include section
 #include <project.h>
 
+#ifdef CONFIG_EGGTIMER
 
 // *************************************************************************************************
 // Prototypes section
@@ -113,5 +114,6 @@ extern struct eggtimer seggtimer;
 // *************************************************************************************************
 // Extern section
 
+#endif // CONFIG_EGGTIMER
 
 #endif /*eggtimer_H_*/

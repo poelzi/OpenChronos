@@ -116,6 +116,12 @@ u8 update_acceleration(void)
 {
 	return (display.flag.update_acceleration);
 }
+#ifdef CONFIG_EGGTIMER
+u8 update_eggtimer(void)
+{
+	return (display.flag.update_stopwatch);
+}
+#endif
 
 // *************************************************************************************************
 // User navigation ( [____] = default menu item after reset )
@@ -227,7 +233,7 @@ const struct menu menu_L2_Eggtimer =
         FUNCTION(mx_eggtimer),          // sub menu function
         FUNCTION(display_eggtimer),// display function
         FUNCTION(update_eggtimer),      // new display data
-        &menu_L2_Date,
+        &menu_L2_Battery,
 };
 #endif
 // Line2 - Battery 
