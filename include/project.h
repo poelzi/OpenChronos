@@ -49,11 +49,15 @@
 // *************************************************************************************************
 // Defines section
 
+// moved to config.h
 // Comment this to not use the LCD charge pump
 //#define USE_LCD_CHARGE_PUMP
 
 // Comment this define to build the application without watchdog support
-#define USE_WATCHDOG
+//#define USE_WATCHDOG
+
+// end of move
+
 
 // Use/not use filter when measuring physical values
 #define FILTER_OFF						(0u)

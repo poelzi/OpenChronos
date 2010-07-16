@@ -4,6 +4,7 @@
 import npyscreen
 import re, sys, random
 #npyscreen.disableColor()
+from sorteddict import SortedDict
 
 # {0x79, 0x56, 0x34, 0x12}
 def rand_hw():
@@ -14,92 +15,114 @@ def rand_hw():
     res.sort(reverse=True)
     return "{" + ",".join([hex(x) for x in res]) + "}"
 
+DATA = SortedDict()
 
-DATA = {
-"CONFIG_FREQUENCY": {
+DATA["CONFIG_FREQUENCY"] = {
         "name": "Frequency",
         "depends": [],
         "default": 902,
         "type": "choices",
-        "values": [902, 869, 433]},
+        "values": [902, 869, 433]}
 
-"CONFIG_METRIC_ONLY": {
+DATA["CONFIG_METRIC_ONLY"] = {
         "name": "Metric only code (saves space)",
         "depends": [],
         "default": False
-},
+}
 
-"THIS_DEVICE_ADDRESS": {
+DATA["THIS_DEVICE_ADDRESS"] = {
         "name": "Hardware address",
         "type": "text",
         "default": rand_hw(),
         "ifndef": True
-},
+}
 
-"DEBUG": {
+
+DATA["USE_LCD_CHARGE_PUMP"] = {
+        "name": "Use LCD Charge Pump",
+        "default": False,
+		"help": "Use the internal charge pump to make the display contrast same tho whole battery lifetime. But this increases currency",
+}
+
+DATA["USE_WATCHDOG"] = {
+        "name": "Use Watchdog",
+        "default": True,
+		"help": "Protects the clock against deadlocks by rebooting it.",
+}
+
+
+DATA["DEBUG"] = {
         "name": "Debug",
-        "default": False},
+        "default": False}
 
 # modules
 
-"CONFIG_DAY_OF_WEEK": {
-        "name": "Date: Day of Week",
+DATA["CONFIG_DAY_OF_WEEK"] = {
+        "name": "Date: Show Day of Week",
         "depends": [],
-        "default": True},
+        "default": True}
 
-"CONFIG_TEST": {
+DATA["CONFIG_TEST"] = {
         "name": "Test Mode",
         "depends": [],
-        "default": True},
+        "default": True}
 
-"CONFIG_EGGTIMER": {
+DATA["TEXT_MODULES"] = {
+        "name": "Modules",
+        "type": "info"
+}
+
+#### MODULES ####
+
+DATA["CONFIG_EGGTIMER"] = {
         "name": "Eggtimer",
         "depends": [],
-        "default": False},
+        "default": False}
+
+DATA["CONFIG_PHASE_CLOCK"] = {
+        "name": "Phase Clock",
+        "depends": [],
+        "default": False}
 
 # not yet working
 
-"CONFIG_ACCEL": {
+DATA["CONFIG_ACCEL"] = {
         "name": "Accleration",
         "depends": [],
-        "default": True},
-"CONFIG_ALARM": {
+        "default": True}
+DATA["CONFIG_ALARM"] = {
         "name": "Alarm",
         "depends": [],
-        "default": True},
-"CONFIG_ALTITUDE": {
+        "default": True}
+DATA["CONFIG_ALTITUDE"] = {
         "name": "Altitude",
         "depends": [],
-        "default": True},
-"CONFIG_BATTERY": {
+        "default": True}
+DATA["CONFIG_BATTERY"] = {
         "name": "Battery",
         "depends": [],
-        "default": True},
-"CONFIG_CLOCK": {
+        "default": True}
+DATA["CONFIG_CLOCK"] = {
         "name": "Clock",
         "depends": [],
-        "default": True},
-"CONFIG_DATE": {
+        "default": True}
+DATA["CONFIG_DATE"] = {
         "name": "Date",
         "depends": [],
-        "default": True},
-"CONFIG_PHASE_CLOCK": {
-        "name": "Phase Clock",
-        "depends": [],
-        "default": False},
-"CONFIG_RFBSL": {
+        "default": True}
+DATA["CONFIG_RFBSL"] = {
         "name": "Wireless Update",
         "depends": [],
-        "default": True},
-"CONFIG_STOP_WATCH": {
+        "default": True}
+DATA["CONFIG_STOP_WATCH"] = {
         "name": "Stop Watch",
         "depends": [],
-        "default": True},
-"CONFIG_TEMP": {
+        "default": True}
+DATA["CONFIG_TEMP"] = {
         "name": "Temperature",
         "depends": [],
-        "default": True},
-}
+        "default": True}
+
 
 
 HEADER = """
@@ -161,6 +184,8 @@ class OpenChronosApp(npyscreen.NPSApp):
                         values = field["value"])
                 f._key = key
                 self.fields[key] = f
+            elif field["type"] == "info":
+                f = F.add(npyscreen.TitleText, max_height=1, name=field["name"])
 
 
         # This lets the user play with the Form.
@@ -177,6 +202,8 @@ class OpenChronosApp(npyscreen.NPSApp):
         fp.write("// !!!! DO NOT EDIT !!!, use: make config\n")
         fp.write(HEADER)
         for key,dat in DATA.iteritems():
+            if not "value" in dat:
+               continue
             if DATA[key].get("ifndef", False):
                 fp.write("#ifndef %s\n" %key)
             if isinstance(dat["value"], bool):
@@ -195,7 +222,7 @@ class OpenChronosApp(npyscreen.NPSApp):
         def set_default():
             for key,dat in DATA.iteritems():
                 #print dat
-                if not "value" in dat:
+                if not "value" in dat and "default" in dat:
                     dat["value"] = dat["default"]
 
         try:
