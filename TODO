@@ -5,6 +5,7 @@
 * make buttons lock while sleep mode active
 * better compilition depending on config file. someone with more make knowledge please ;-)
 * fix warnings in simplicti code
+* use RTC of the msp430 instead of the interrupt code
 
 
 === DONE ===

@@ -224,7 +224,7 @@ void simpliciti_main_tx_only(void)
 
 		// Get radio ready. Wakes up in IDLE state.
 		if(getFlag(simpliciti_flag, SIMPLICITI_TRIGGER_SEND_DATA) || 
-		   getFlag(simpliciti_flag, SIMPLICITI_TRIGGER_RECEIVED_DATA)) {
+		   getFlag(simpliciti_flag, SIMPLICITI_TRIGGER_RECEIVE_DATA)) {
 
 			SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_AWAKE, 0);
 
