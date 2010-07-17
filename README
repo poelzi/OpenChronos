@@ -18,7 +18,7 @@ Patches for more (more efficient) compilers are welcome :-)
 
 == HOWTO ==
 
-Copy intrinsic.h into [msp430-gcc-path]/msp430/include/intrinsics.h
+Copy gcc/intrinsics.h into [msp430-gcc-path]/msp430/include/intrinsics.h
 
 To configure your image, run:
 
@@ -31,7 +31,7 @@ To compile the image run:
    make
 
 
-It is HIGHLY suggested to make a clean build befor you flash the image with:
+It is HIGHLY suggested to make a clean build before you flash the image with:
 
    make clean main
 
