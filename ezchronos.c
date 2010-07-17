@@ -148,7 +148,7 @@ int main(void)
 	// Assign initial value to global variables
 	init_global_variables();
 
-#if CONFIG_TEST
+#ifdef CONFIG_TEST
 	// Branch to welcome screen
 	test_mode();
 #else
