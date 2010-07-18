@@ -424,8 +424,8 @@ WDTCTL = WDTPW + WDTHOLD;
 
 		// send hw address so he recognices us and we will get a session id
 		simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_START_EVENTS;
-		simpliciti_data[1] = simpliciti_ed_address[0] ^ simpliciti_ed_address[1];
-		simpliciti_data[2] = simpliciti_ed_address[2] ^ simpliciti_ed_address[3];
+		// put 2 bytes of watch id into the package
+		WATCH_ID(simpliciti_data, 1);
 		// FIXME: TODO set program 
 		simpliciti_data[3] = sPhase.program;
 		simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA | SIMPLICITI_TRIGGER_RECEIVE_DATA;
@@ -436,7 +436,7 @@ WDTCTL = WDTPW + WDTHOLD;
 		//display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
 		// Wait for next sample
 		display_symbol(LCD_ICON_RECORD, SEG_ON);
-		Timer0_A4_Delay(CONV_MS_TO_TICKS(20));	
+		Timer0_A4_Delay(CONV_MS_TO_TICKS(60));	
 		// Read from sensor if DRDY pin indicates new data (set in PORT2 ISR)
 		if (request.flag.acceleration_measurement && ((AS_INT_IN & AS_INT_PIN) == AS_INT_PIN))
 		{
