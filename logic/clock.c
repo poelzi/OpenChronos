@@ -80,7 +80,7 @@ void conv_24H_to_12H(u8 * hours24, u8 * hours12, u8 * timeAMorPM);
 struct time sTime;
 
 // Display values for time format selection
-#ifdef CONFIG_METRIC_ONLY
+#ifndef CONFIG_METRIC_ONLY
 const u8 selection_Timeformat[][4] =
 {
 	"24H", "12H"

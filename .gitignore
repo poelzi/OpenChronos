@@ -4,3 +4,4 @@
 *.s
 .pida-metadata
 config.h
+build
