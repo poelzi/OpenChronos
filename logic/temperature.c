@@ -136,7 +136,7 @@ void temperature_measurement(u8 filter)
 // @param       s16 value		Temperature in °C
 // @return      s16 			Temperature in °F
 // *************************************************************************************************
-#ifdef CONFIG_METRIC_ONLY
+#ifndef CONFIG_METRIC_ONLY
 s16 convert_C_to_F(s16 value)
 {
 	s16 DegF;
