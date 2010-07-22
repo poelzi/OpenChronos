@@ -55,15 +55,7 @@ extern void send_data(void);
 extern void display_phase_clock(u8 line, u8 update);
 
 extern void sx_phase(u8 line);
-/*extern void sx_rf(u8 line);
-extern void sx_ppt(u8 line);
-extern void sx_sync(u8 line);
-extern void display_rf(u8 line, u8 update);
-extern void display_ppt(u8 line, u8 update);
-extern void display_sync(u8 line, u8 update);
-extern void send_smpl_data(u16 data);
-extern u8 is_rf(void);
-*/
+extern void mx_phase(u8 line);
 
 extern void phase_clock_calcpoint();
 
@@ -116,9 +108,7 @@ typedef enum
 // Global Variable section
 struct SPhase
 {
-	// SIMPLICITI_OFF, SIMPLICITI_ACCELERATION, SIMPLICITI_BUTTONS
-	simpliciti_mode_t 	mode;
-
+    u8                  bug;
 	// current session id
     u8                  session;
 	// sleep program to start

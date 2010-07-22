@@ -7,6 +7,10 @@
 * fix the eggtimer. it runs to slow (like 2 seconds per second...)
 * merge eggtimer into stopwatch. to much shared code that blow the firmware
 
+== OPEN BUG ==
+* very hard to debug: when the battery is quite low, the sleep init mode fails. only way currently working
+  is to set "bug 1" in the sleep settings and skip the init phase (very bad).
+
 == IN WORKS ==
 * autosync before/after flash
 

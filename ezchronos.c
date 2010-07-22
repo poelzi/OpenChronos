@@ -320,6 +320,7 @@ void init_global_variables(void)
 //	ptrMenu_L2 = &menu_L2_Distance;
 //	ptrMenu_L2 = &menu_L2_Calories;
 //	ptrMenu_L2 = &menu_L2_Battery;
+//	ptrMenu_L2 = &menu_L2_Phase;
 
 	// Assign LINE1 and LINE2 display functions
 	fptr_lcd_function_line1 = ptrMenu_L1->display_function;
