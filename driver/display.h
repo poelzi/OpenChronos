@@ -293,7 +293,7 @@ extern volatile s_display_flags display;
 #define LCD_UNIT_L1_K_MASK			(BIT6)
 #define LCD_UNIT_L1_M_MASK			(BIT1)
 #define LCD_UNIT_L1_I_MASK			(BIT0)
-#define LCD_UNIT_L1_PER_S_MASK		(BIT3)
+#define LCD_UNIT_L1_PER_S_MASK		(BIT7)
 #define LCD_UNIT_L1_PER_H_MASK		(BIT2)
 #define LCD_UNIT_L1_DEGREE_MASK		(BIT1)
 #define LCD_UNIT_L2_KCAL_MASK		(BIT4)
