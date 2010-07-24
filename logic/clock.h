@@ -43,7 +43,6 @@
 #define TIMEFORMAT_24H					(0u)
 #define TIMEFORMAT_12H					(1u)
 
-
 // *************************************************************************************************
 // Prototypes section
 extern void reset_clock(void);

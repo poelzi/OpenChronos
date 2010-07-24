@@ -322,24 +322,32 @@ void display_value1(u8 segments, u32 value, u8 digits, u8 blanks)
 // *************************************************************************************************
 void display_hours1(u8 segments, u32 value, u8 digits, u8 blanks)
 {
-#ifdef CONFIG_METRIC_ONLY	
-	display_value1(segments, (u16) value, digits, blanks);
-#else
-	u8 hours;
+#if (OPTION_TIME_DISPLAY > CLOCK_24HR)
+  u8 hours;
+#endif
 
-	if (sys.flag.use_metric_units)
-	{
-		// Display hours in 24H time format 
-		display_value1(segments, (u16) value, digits, blanks);
-	}
+#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
+	if (sys.flag.am_pm_time)
+  {
+#endif
+#if (OPTION_TIME_DISPLAY > CLOCK_24HR)
+    // convert internal 24H time format to 12H time format
+    hours = convert_hour_to_12H_format(value);
+
+    // display hours in 12H time format
+    display_value1(segments, hours, digits, blanks);
+    display_am_pm_symbol(value);
+#endif
+#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
+  }
 	else
 	{
-		// convert internal 24H time format to 12H time format
-		hours = convert_hour_to_12H_format(value);
-
-		// display hours in 12H time format		
-		display_value1(segments, hours, digits, blanks);
-		display_am_pm_symbol(value);
+#endif
+#if (OPTION_TIME_DISPLAY != CLOCK_AM_PM)
+		// Display hours in 24H time format 
+		display_value1(segments, (u16) value, digits, blanks);
+#endif
+#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
 	}
 #endif
 }
@@ -351,7 +359,7 @@ void display_hours1(u8 segments, u32 value, u8 digits, u8 blanks)
 // @param       u8 hour		24H internal time format
 // @return      none
 // *************************************************************************************************
-#ifndef CONFIG_METRIC_ONLY
+#if (OPTION_TIME_DISPLAY > CLOCK_24HR)
 void display_am_pm_symbol(u8 hour)
 {
 	// Display AM/PM symbol

@@ -42,6 +42,20 @@
 
 #include <project.h>
 
+/*
+ * Set some options at compile time for how the time is displayed
+ * The options are, in order of code space used-
+ * OPTION_TIME_DISPLAY == CLOCK_24HR
+ * OPTION_TIME_DISPLAY == CLOCK_AM_PM
+ * OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT
+ */
+
+#define CLOCK_24HR              0
+#define CLOCK_AM_PM             1
+#define CLOCK_DISPLAY_SELECT    2
+
+#define OPTION_TIME_DISPLAY     CLOCK_DISPLAY_SELECT
+
 
 
 // *************************************************************************************************
