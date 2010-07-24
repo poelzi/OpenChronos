@@ -60,7 +60,12 @@
 #include "rfsimpliciti.h"
 #include "simpliciti.h"
 #include "acceleration.h"
+
 #include "prout.h"
+
+#ifdef CONFIG_VARIO
+#include "vario.h"
+#endif
 
 //pfs
 #ifndef ELIMINATE_BLUEROBIN
@@ -334,6 +339,11 @@ __interrupt void TIMER0_A0_ISR(void)
 #ifdef CONFIG_PROUT
         if (is_prout()) prout_tick();
 #endif
+
+#ifdef CONFIG_VARIO
+        if(is_vario()) vario_tick();
+#endif
+
 	// Do a temperature measurement each second while menu item is active
 	if (is_temp_measurement()) request.flag.temperature_measurement = 1;
 	

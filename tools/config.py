@@ -85,6 +85,11 @@ DATA["CONFIG_PHASE_CLOCK"] = {
         "default": False}
 
 
+DATA["CONFIG_VARIO"] = {
+        "name": "Combined with alti, gives vertical speed",
+        "depends": [],
+        "default": False}
+
 DATA["CONFIG_PROUT"] = {
         "name": "Simple example that displays a text",
         "depends": [],

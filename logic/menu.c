@@ -75,6 +75,10 @@
 #include "prout.h"
 #endif
 
+#ifdef CONFIG_VARIO
+#include "vario.h"
+#endif
+
 // *************************************************************************************************
 // Defines section
 #define FUNCTION(function)  function
@@ -215,8 +219,23 @@ const struct menu menu_L2_Date =
 	FUNCTION(mx_date),			// sub menu function
 	FUNCTION(display_date),		// display function
 	FUNCTION(update_date),		// new display data
+#ifndef CONFIG_VARIO
 	&menu_L2_Stopwatch,
 };
+#else
+        &menu_L2_Vario,
+};
+//Line 2 - Vario
+const struct menu menu_L2_Vario = 
+  {
+	FUNCTION(sx_vario),			// direct function
+	FUNCTION(mx_vario),			// sub menu function
+	FUNCTION(display_vario),		// display function
+	FUNCTION(update_vario),		// new display data
+        &menu_L2_Stopwatch,
+};
+
+#endif
 // Line2 - Stopwatch
 const struct menu menu_L2_Stopwatch =
 {
