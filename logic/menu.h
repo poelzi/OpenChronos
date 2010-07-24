@@ -94,7 +94,9 @@ extern const struct menu menu_L2_Ppt;
 extern const struct menu menu_L2_Sync;
 extern const struct menu menu_L2_CalDist;
 extern const struct menu menu_L2_RFBSL;
-
+#ifdef CONFIG_VARIO
+extern const struct menu menu_L2_Vario;
+#endif
 // Pointers to current menu item
 extern const struct menu * ptrMenu_L1;
 extern const struct menu * ptrMenu_L2;

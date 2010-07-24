@@ -71,6 +71,9 @@
 #include "eggtimer.h"
 #endif
 
+#ifdef CONFIG_VARIO
+#include "vario.h"
+#endif
 
 // *************************************************************************************************
 // Defines section
@@ -122,6 +125,7 @@ u8 update_eggtimer(void)
 	return (display.flag.update_stopwatch);
 }
 #endif
+
 
 // *************************************************************************************************
 // User navigation ( [____] = default menu item after reset )
@@ -309,5 +313,19 @@ const struct menu menu_L2_RFBSL =
 	FUNCTION(mx_rfbsl),				// sub menu function
 	FUNCTION(display_rfbsl),		// display function
 	FUNCTION(update_time),			// new display data
-	&menu_L2_Date,
+#ifdef CONFIG_VARIO
+        &menu_L2_Vario,
 };
+// Line2 - VARIO
+const struct menu menu_L2_Vario =
+{
+	FUNCTION(sx_vario),				// direct function
+	FUNCTION(mx_vario),				// sub menu function
+	FUNCTION(display_vario),		// display function
+	FUNCTION(update_time),			// new display data
+	&menu_L2_Date,
+#else
+	&menu_L2_Date,
+#endif
+};
+

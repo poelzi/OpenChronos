@@ -84,6 +84,12 @@ DATA["CONFIG_PHASE_CLOCK"] = {
         "depends": [],
         "default": False}
 
+
+DATA["CONFIG_VARIO"] = {
+        "name": "Variometer (in fact, simple test)",
+        "depends": [],
+        "default": False}
+
 # not yet working
 
 DATA["CONFIG_ACCEL"] = {
