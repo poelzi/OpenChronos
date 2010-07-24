@@ -61,7 +61,9 @@
 #include "simpliciti.h"
 #include "acceleration.h"
 
+#ifdef CONFIG_PROUT
 #include "prout.h"
+#endif
 
 #ifdef CONFIG_VARIO
 #include "vario.h"
@@ -540,9 +542,6 @@ __interrupt void TIMER0_A1_5_ISR(void)
 #ifdef CONFIG_EGGTIMER
 					update_eggtimer_timer();
 #endif
-#ifdef CONFIG_PROUT
-                                        update_prout_timer();
-#endif
 					// Enable timer interrupt    
 					TA0CCTL2 |= CCIE; 	
 					// Increase stopwatch counter
@@ -550,10 +549,6 @@ __interrupt void TIMER0_A1_5_ISR(void)
 #ifdef CONFIG_EGGTIMER
 					eggtimer_tick();
 #endif
-#ifdef CONFIG_PROUT
-                                        prout_tick();
-#endif
-
 					break;
 					
 		// Timer0_A3	Configurable periodic IRQ (used by button_repeat and buzzer)			

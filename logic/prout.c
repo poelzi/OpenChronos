@@ -52,6 +52,7 @@
 
 #include "project.h"
 
+#ifdef CONFIG_PROUT
 
 // driver
 #include "altitude.h"
@@ -152,3 +153,5 @@ void reset_prout(void)
   sprouttimer.pos = 0;
   sprouttimer.state = PROUT_STOP;
 }
+
+#endif /* CONFIG_PROUT */
