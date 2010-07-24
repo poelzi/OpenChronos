@@ -128,12 +128,9 @@ void mx_vario(u8 line)
 
 void display_vario(u8 line, u8 update)
 {
-  if (svario.state != VARIO_RUN) {
+  if (svario.state == VARIO_STOP) {
     display_chars(LCD_SEG_L2_5_0, (u8*) " idle", SEG_ON);
-    return;
-  }
-
-  if (is_altitude_measurement()){ 
+  } else if (is_altitude_measurement()){ 
     u8 *str;
 
     s16 diff = svario.current_alt - svario.previous_alt;
@@ -145,7 +142,7 @@ void display_vario(u8 line, u8 update)
       diff = diff*(-1);
     }
 
-    str = itoa(diff, 3, 7);
+    str = itoa(diff, 6, 7);
 
     for (i=0; i<7; i++){
       if (str[i] == '0' || str[i] == ' '){
@@ -160,7 +157,6 @@ void display_vario(u8 line, u8 update)
     display_chars(LCD_SEG_L2_5_0, str, SEG_ON);
   } else {
     display_chars(LCD_SEG_L2_5_0, (u8*) " NOALT", SEG_ON);
-  //  display_chars(LCD_SEG_L2_5_0, cur, SEG_ON);
   }
 }
 
