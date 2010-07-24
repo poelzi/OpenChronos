@@ -381,8 +381,8 @@ void init_global_variables(void)
 	reset_eggtimer();
 #endif
 
-#ifdef CONFIG_VARIO
-        reset_vario();
+#ifdef CONFIG_PROUT
+        reset_prout();
 #endif
 
 #ifdef CONFIG_PHASE_CLOCK

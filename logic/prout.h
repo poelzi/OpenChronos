@@ -51,23 +51,23 @@
 //
 
 
-#ifndef VARIO_H_
-#define VARIO_H_
+#ifndef PROUT_H_
+#define PROUT_H_
 
 // menu functions
-extern void sx_vario(u8 line);
-extern void mx_vario(u8 line);
-extern void display_vario(u8 line, u8 update);
+extern void sx_prout(u8 line);
+extern void mx_prout(u8 line);
+extern void display_prout(u8 line, u8 update);
 
-extern void reset_vario(void);
-extern void vario_tick(void);
-extern void update_vario_timer(void);
-extern u8 is_vario(void);
+extern void reset_prout(void);
+extern void prout_tick(void);
+extern void update_prout_timer(void);
+extern u8 is_prout(void);
 
-#define VARIO_STOP	(0u)
-#define VARIO_RUN	(1u)
+#define PROUT_STOP	(0u)
+#define PROUT_RUN	(1u)
 
-struct variotimer
+struct prouttimer
 {
   u8 state;
   u8 pos;
@@ -75,5 +75,5 @@ struct variotimer
   u8 time[8];
 };
 
-extern struct variotimer svariotimer;
+extern struct prouttimer sprouttimer;
 #endif

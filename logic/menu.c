@@ -71,8 +71,8 @@
 #include "eggtimer.h"
 #endif
 
-#ifdef CONFIG_VARIO
-#include "vario.h"
+#ifdef CONFIG_PROUT
+#include "prout.h"
 #endif
 
 // *************************************************************************************************
@@ -313,15 +313,15 @@ const struct menu menu_L2_RFBSL =
 	FUNCTION(mx_rfbsl),				// sub menu function
 	FUNCTION(display_rfbsl),		// display function
 	FUNCTION(update_time),			// new display data
-#ifdef CONFIG_VARIO
-        &menu_L2_Vario,
+#ifdef CONFIG_PROUT
+        &menu_L2_Prout,
 };
-// Line2 - VARIO
-const struct menu menu_L2_Vario =
+// Line2 - PROUT
+const struct menu menu_L2_Prout =
 {
-	FUNCTION(sx_vario),				// direct function
-	FUNCTION(mx_vario),				// sub menu function
-	FUNCTION(display_vario),		// display function
+	FUNCTION(sx_prout),				// direct function
+	FUNCTION(mx_prout),				// sub menu function
+	FUNCTION(display_prout),		// display function
 	FUNCTION(update_time),			// new display data
 	&menu_L2_Date,
 #else

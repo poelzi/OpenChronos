@@ -60,7 +60,7 @@
 #include "rfsimpliciti.h"
 #include "simpliciti.h"
 #include "acceleration.h"
-#include "vario.h"
+#include "prout.h"
 
 //pfs
 #ifndef ELIMINATE_BLUEROBIN
@@ -331,8 +331,8 @@ __interrupt void TIMER0_A0_ISR(void)
 		}
 	}
 
-#ifdef CONFIG_VARIO
-        if (is_vario()) vario_tick();
+#ifdef CONFIG_PROUT
+        if (is_prout()) prout_tick();
 #endif
 	// Do a temperature measurement each second while menu item is active
 	if (is_temp_measurement()) request.flag.temperature_measurement = 1;
@@ -530,8 +530,8 @@ __interrupt void TIMER0_A1_5_ISR(void)
 #ifdef CONFIG_EGGTIMER
 					update_eggtimer_timer();
 #endif
-#ifdef CONFIG_VARIO
-                                        update_vario_timer();
+#ifdef CONFIG_PROUT
+                                        update_prout_timer();
 #endif
 					// Enable timer interrupt    
 					TA0CCTL2 |= CCIE; 	
@@ -540,8 +540,8 @@ __interrupt void TIMER0_A1_5_ISR(void)
 #ifdef CONFIG_EGGTIMER
 					eggtimer_tick();
 #endif
-#ifdef CONFIG_VARIO
-                                        vario_tick();
+#ifdef CONFIG_PROUT
+                                        prout_tick();
 #endif
 
 					break;

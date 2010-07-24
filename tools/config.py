@@ -85,8 +85,8 @@ DATA["CONFIG_PHASE_CLOCK"] = {
         "default": False}
 
 
-DATA["CONFIG_VARIO"] = {
-        "name": "Variometer (in fact, simple test)",
+DATA["CONFIG_PROUT"] = {
+        "name": "Simple example that displays a text",
         "depends": [],
         "default": False}
 

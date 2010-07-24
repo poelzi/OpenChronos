@@ -64,41 +64,41 @@
 
 // logic
 #include "user.h"
-#include "vario.h"
+#include "prout.h"
 
 #include "menu.h"
 
-struct variotimer svariotimer;
+struct prouttimer sprouttimer;
 
 #define POUET_STR " POUET PROUT KATAPLOP  POUET"
 
 static u8 *str = POUET_STR;
 
-void vario_tick()
+void prout_tick()
 {
-  svariotimer.pos = (svariotimer.pos+1) % (sizeof(POUET_STR)-7);
-  display_vario(0, 0);
+  sprouttimer.pos = (sprouttimer.pos+1) % (sizeof(POUET_STR)-7);
+  display_prout(0, 0);
 }
 
-u8 is_vario(void)
+u8 is_prout(void)
 {
-  return (svariotimer.state == VARIO_RUN &&  (ptrMenu_L2 == &menu_L2_Vario));
+  return (sprouttimer.state == PROUT_RUN &&  (ptrMenu_L2 == &menu_L2_Prout));
 }
 
-void update_vario_timer()
+void update_prout_timer()
 {
   /* TA0CCR2 = TA0CCR2 + STOPWATCH_1HZ_TICK; */
 }
 
-void start_vario()
+void start_prout()
 {
 
-  svariotimer.state = VARIO_RUN;
+  sprouttimer.state = PROUT_RUN;
   /* // Init CCR register with current time */
   /* TA0CCR2 = TA0R; */
 		
   /* // Load CCR register with next capture time */
-  /* update_vario_timer(); */
+  /* update_prout_timer(); */
 
   /* // Reset IRQ flag     */
   /* TA0CCTL2 &= ~CCIFG;  */
@@ -109,46 +109,46 @@ void start_vario()
   display_symbol(LCD_ICON_RECORD, SEG_ON);
 }
 
-void stop_vario()
+void stop_prout()
 {
   /* // Clear timer interrupt enable    */
   /* TA0CCTL2 &= ~CCIE;  */
 
-  svariotimer.state = VARIO_STOP;
+  sprouttimer.state = PROUT_STOP;
 	
   display_symbol(LCD_ICON_RECORD, SEG_OFF);
 
   // Call draw routine immediately
-  display_vario(LINE2, DISPLAY_LINE_UPDATE_FULL);
+  display_prout(LINE2, DISPLAY_LINE_UPDATE_FULL);
 }
 
-void sx_vario(u8 line)
+void sx_prout(u8 line)
 {
   if (button.flag.down)
     {
-      if (svariotimer.state == VARIO_STOP){
-        start_vario();
+      if (sprouttimer.state == PROUT_STOP){
+        start_prout();
       } else {
-        stop_vario();
+        stop_prout();
       }
     }
 }
 
-void mx_vario(u8 line)
+void mx_prout(u8 line)
 {
 }
 
-void display_vario(u8 line, u8 update)
+void display_prout(u8 line, u8 update)
 {
   u8 cur[7];
-  memcpy(cur, str + svariotimer.pos, 6);
+  memcpy(cur, str + sprouttimer.pos, 6);
   cur[6] = 0;
   
   display_chars(LCD_SEG_L2_5_0, cur, SEG_ON);
 }
 
-void reset_vario(void)
+void reset_prout(void)
 {
-  svariotimer.pos = 0;
-  svariotimer.state = VARIO_STOP;
+  sprouttimer.pos = 0;
+  sprouttimer.state = PROUT_STOP;
 }
