@@ -49,7 +49,7 @@ extern void reset_clock(void);
 extern void sx_time(u8 line);
 extern void mx_time(u8 line);
 extern void clock_tick(void);
-extern void display_selection_Timeformat1(u8 segments, u32 index, u8 digits, u8 blanks);
+extern void display_selection_Timeformat1(u8 segments, u32 index, u8 digits, u8 blanks, u8 dummy);
 extern void display_time(u8 line, u8 update);
 
 // English units support

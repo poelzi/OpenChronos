@@ -51,7 +51,7 @@
 // Prototypes section	
 extern u8 * select_view_style(u8 line, u8 * view1, u8 * view2);
 extern void (*fptr_setValue_display_function1)(u8 segments, u32 value, u8 digits, u8 blanks);
-extern void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u16 mode, u8 segments, void (*fptr_setValue_display_function1)(u8 segments, u32 value, u8 digits, u8 blanks));
+extern void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u16 mode, u8 segments, void (*fptr_setValue_display_function1)(u8 segments, u32 value, u8 digits, u8 blanks, u8 disp_mode));
 extern void dummy(u8 line);
 
 #endif /*USER_H_*/

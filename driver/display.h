@@ -351,8 +351,8 @@ extern void DisplayTime(u8 updateMode);
 extern void display_am_pm_symbol(u8 timeAM);
 
 // Set_value display functions
-extern void display_value1(u8 segments, u32 value, u8 digits, u8 blanks);
-extern void display_hours1(u8 segments, u32 value, u8 digits, u8 blanks);
+extern void display_value1(u8 segments, u32 value, u8 digits, u8 blanks, u8 disp_mode);
+extern void display_hours_12_or_24(u8 segments, u32 value, u8 digits, u8 blanks, u8 disp_mode);
 
 // Integer to string conversion 
 extern u8 * itoa(u32 n, u8 digits, u8 blanks);

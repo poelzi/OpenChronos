@@ -214,7 +214,7 @@ void mx_alarm(u8 line)
 	  switch (select)
 	  {
 	  case 0:		// Set hour
-	    set_value(&hours, 2, 0, 0, 23, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_2, display_hours1);
+	    set_value(&hours, 2, 0, 0, 23, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_2, display_hours_12_or_24);
 	    select = 1;
 	    break;
 
@@ -242,36 +242,10 @@ void mx_alarm(u8 line)
 // *************************************************************************************************
 void display_alarm(u8 line, u8 update)
 {
-#if (OPTION_TIME_DISPLAY > CLOCK_24HR)
-	u8 hour12;
-#endif
 	
 	if (update == DISPLAY_LINE_UPDATE_FULL)			
 	{
-#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
-	  if (sys.flag.am_pm_time)
-	  {
-#endif
-#if (OPTION_TIME_DISPLAY > CLOCK_24HR)
-	    // Display 12H alarm time "HH:MM" + AM/PM
-	    hour12 = convert_hour_to_12H_format(sAlarm.hour);
-	    display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(hour12, 2, 0), SEG_ON);
-
-	    // Display AM/PM symbol
-	    display_am_pm_symbol(sAlarm.hour);
-#endif
-#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
-	  }
-	  else
-	  {
-#endif
-#if (OPTION_TIME_DISPLAY != CLOCK_AM_PM)
-	    // Display 24H alarm time "HH:MM"
-	    display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(sAlarm.hour, 2, 0), SEG_ON);
-#endif
-#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
-	  }
-#endif
+	  display_hours_12_or_24(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), sAlarm.hour, 2, 1, SEG_ON);
 	  display_chars(switch_seg(line, LCD_SEG_L1_1_0, LCD_SEG_L2_1_0), itoa(sAlarm.minute, 2, 0), SEG_ON);
 	  display_symbol(switch_seg(line, LCD_SEG_L1_COL, LCD_SEG_L2_COL0), SEG_ON);
 

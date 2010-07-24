@@ -96,7 +96,7 @@ void dummy(u8 line)
 //				fptr_setValue_display_function1		Value-specific display routine
 // @return      none
 // *************************************************************************************************
-void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u16 mode, u8 segments, void (*fptr_setValue_display_function1)(u8 segments, u32 value, u8 digits, u8 blanks))
+void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u16 mode, u8 segments, void (*fptr_setValue_display_function1)(u8 segments, u32 value, u8 digits, u8 blanks, u8 disp_mode))
 {
 	u8 update;
 	s16 stepValue = 1;
@@ -241,7 +241,7 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 
 			// Display function can either display value directly, modify value before displaying 
 			// or display a string referenced by the value
-			fptr_setValue_display_function1(segments, val, digits, blanks);
+			fptr_setValue_display_function1(segments, val, digits, blanks, SEG_ON_BLINK_ON);
 
 			// Clear update flag
 			update = 0;

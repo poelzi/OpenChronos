@@ -204,7 +204,7 @@ u8 is_hour_am(u8 hour)
 //				u8 blanks			Not used
 // @return      none
 // *************************************************************************************************
-void display_selection_Timeformat1(u8 segments, u32 index, u8 digits, u8 blanks)
+void display_selection_Timeformat1(u8 segments, u32 index, u8 digits, u8 blanks, u8 dummy)
 {
 	if (index < 2) display_chars(segments, (u8 *)selection_Timeformat[index], SEG_ON_BLINK_ON);
 }
@@ -314,7 +314,7 @@ void mx_time(u8 line)
       display_symbol(LCD_SEG_L2_DP, SEG_ON);
 
       // Set hours
-      set_value(&hours, 2, 0, 0, 23, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_2, display_hours1);
+      set_value(&hours, 2, 0, 0, 23, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_2, display_hours_12_or_24);
       select = 2;
       break;
 
@@ -349,43 +349,6 @@ void sx_time(u8 line)
 }
 
 // *************************************************************************************************
-// @fn          display_hours_with_12_24
-// @brief       Clock display helper routine. Supports 24H and 12H time format.
-// @param       u8 line     LINE1
-//
-// @return      none
-// *************************************************************************************************
-static void display_hours_with_12_24(u8 line)
-{
-#if (OPTION_TIME_DISPLAY > CLOCK_24HR)
-  u8 hour12;
-#endif
-
-#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
-  if (sys.flag.am_pm_time)
-  {
-#endif
-#if (OPTION_TIME_DISPLAY > CLOCK_24HR)
-    // Display 12H time "HH" + AM/PM
-    hour12 = convert_hour_to_12H_format(sTime.hour);
-    display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(hour12, 2, 0), SEG_ON);
-    display_am_pm_symbol(sTime.hour);
-#endif
-#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
-  }
-  else
-  {
-#endif
-#if(OPTION_TIME_DISPLAY != CLOCK_AM_PM)
-    // Display 24H time "HH"
-    display_chars(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), itoa(sTime.hour, 2, 0), SEG_ON);
-#endif
-#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
-  }
-#endif
-}
-
-// *************************************************************************************************
 // @fn          display_time
 // @brief       Clock display routine. Supports 24H and 12H time format,
 //              through the helper display_hours_with_12_24.
@@ -405,7 +368,7 @@ void display_time(u8 line, u8 update)
 	      switch(sTime.drawFlag)
 	      {
 	      case 3:
-	        display_hours_with_12_24(line);
+	        display_hours_12_or_24(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), sTime.hour, 2, 1, SEG_ON);
 	      case 2:
 	        display_chars(switch_seg(line, LCD_SEG_L1_1_0, LCD_SEG_L2_1_0), itoa(sTime.minute, 2, 0), SEG_ON);
 	      }
@@ -423,7 +386,7 @@ void display_time(u8 line, u8 update)
 	  if (sTime.line1ViewStyle == DISPLAY_DEFAULT_VIEW)
 	  {
 	    // Display hours
-	    display_hours_with_12_24(line);
+	    display_hours_12_or_24(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), sTime.hour, 2, 1, SEG_ON);
 	    // Display minute
 	    display_chars(switch_seg(line, LCD_SEG_L1_1_0, LCD_SEG_L2_1_0), itoa(sTime.minute, 2, 0), SEG_ON);
 	    display_symbol(switch_seg(line, LCD_SEG_L1_COL, LCD_SEG_L2_COL0), SEG_ON_BLINK_ON);
