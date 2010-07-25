@@ -75,7 +75,7 @@
 void simpliciti_get_data_callback(void);
 void start_simpliciti_tx_only(simpliciti_mode_t mode);
 void start_simpliciti_sync(void);
-
+int simpliciti_get_rvc_callback(u8 len) __attribute__((noinline));
 
 // *************************************************************************************************
 // Defines section
@@ -223,10 +223,10 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
         start_as = 1;
 	}
 #ifdef CONFIG_PHASE_CLOCK
-    else if (mode == SIMPLICITI_PHASE_CLOCK_START)
+    else if (mode == SIMPLICITI_PHASE_CLOCK_START || mode == SIMPLICITI_PHASE_CLOCK)
     {
-        simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_START_EVENTS;
-        start_as = 1;
+        if(mode == SIMPLICITI_PHASE_CLOCK)
+            start_as = 1;
     	display_symbol(LCD_ICON_RECORD, SEG_ON_BLINK_ON);
     }
 #endif
@@ -414,6 +414,8 @@ WDTCTL = WDTPW + WDTHOLD;
 	{
 		/* Initialisation phase. Get a Session id and send the
 		   program wanted */
+		//display_chars(LCD_SEG_L1_3_2, itoa(packet_counter, 2, ' '), SEG_ON);
+		
 		if(packet_counter == 30) {
 			simpliciti_flag |= SIMPLICITI_TRIGGER_STOP;
 			packet_counter = 0;
@@ -424,19 +426,20 @@ WDTCTL = WDTPW + WDTHOLD;
 
 		// send hw address so he recognices us and we will get a session id
 		simpliciti_data[0] = SIMPLICITI_PHASE_CLOCK_START_EVENTS;
-		simpliciti_data[1] = simpliciti_ed_address[0] ^ simpliciti_ed_address[1];
-		simpliciti_data[2] = simpliciti_ed_address[2] ^ simpliciti_ed_address[3];
-		// FIXME: TODO set program 
+		// put 2 bytes of watch id into the package
+		WATCH_ID(simpliciti_data, 1);
+		// FIXME: TODO set program  
 		simpliciti_data[3] = sPhase.program;
 		simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA | SIMPLICITI_TRIGGER_RECEIVE_DATA;
 		packet_counter ++;
+		
 	}
 	else if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK)
 	{
 		//display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
 		// Wait for next sample
 		display_symbol(LCD_ICON_RECORD, SEG_ON);
-		Timer0_A4_Delay(CONV_MS_TO_TICKS(20));	
+		Timer0_A4_Delay(CONV_MS_TO_TICKS(60));	
 		// Read from sensor if DRDY pin indicates new data (set in PORT2 ISR)
 		if (request.flag.acceleration_measurement && ((AS_INT_IN & AS_INT_PIN) == AS_INT_PIN))
 		{
@@ -487,8 +490,13 @@ WDTCTL = WDTPW + WDTHOLD;
 				display_symbol(LCD_ICON_BEEPER2, SEG_ON_BLINK_ON);
 				display_symbol(LCD_ICON_BEEPER3, SEG_ON_BLINK_ON);
 
+                open_radio();
+                
 				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
-			} 
+			} else if (sPhase.out_nr == 0) {
+                // shutoff radio. no need to let it run for so long
+                close_radio();
+            }
 
 
             sRFsmpl.timeout = SIMPLICITI_TIMEOUT; 
@@ -556,6 +564,7 @@ int simpliciti_get_rvc_callback(u8 len)
             simpliciti_data[0] = 0x00;
             simpliciti_data[1] = 0x00;
             simpliciti_data[2] = 0x00;
+            as_start();
             return 1;
 #endif
     }

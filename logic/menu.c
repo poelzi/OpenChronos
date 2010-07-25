@@ -253,7 +253,7 @@ const struct menu menu_L2_Battery =
 const struct menu menu_L2_Phase =
 {
 	FUNCTION(sx_phase),				// direct function
-	FUNCTION(dummy),				// sub menu function
+	FUNCTION(mx_phase),				// sub menu function
 	FUNCTION(display_phase_clock),	// display function
 	FUNCTION(update_time),			// new display data
 	&menu_L2_Rf,

@@ -82,6 +82,15 @@ typedef enum
 #define SIMPLICITI_PHASE_CLOCK_EVENTS   	(0x03)
 #define SIMPLICITI_PHASE_CLOCK_START_EVENTS	(0x04)
 
+// notify the ap that sync mode started
+#define SIMPLICITI_SYNC_STARTED_EVENTS      (0x10)
+
+
+#define WATCH_ID(dst,offset) \
+		dst[offset] = simpliciti_ed_address[0] ^ simpliciti_ed_address[1];\
+		dst[offset+1] = simpliciti_ed_address[2] ^ simpliciti_ed_address[3];
+
+
 
 #define SIMPLICITI_PHASE_CLOCK_START_RESPONSE	(0x54)
 
@@ -103,6 +112,7 @@ extern unsigned char simpliciti_flag;
 // Extern section
 
 extern void start_simpliciti_tx_only(simpliciti_mode_t mode);
+extern int simpliciti_get_rvc_callback(u8 len) __attribute__((noinline));
 
 
 #endif /*RFSIMPLICITI_H_*/

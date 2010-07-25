@@ -64,6 +64,7 @@
 #include "temperature.h"
 #include "vti_ps.h"
 #include "altitude.h"
+#include "user.h"
 
 
 // *************************************************************************************************
@@ -117,22 +118,6 @@ extern void (*fptr_lcd_function_line1)(u8 line, u8 update);
 
 
 // *************************************************************************************************
-// @fn          reset_rf
-// @brief       Reset SimpliciTI data. 
-// @param       none
-// @return      none
-// *************************************************************************************************
-void reset_sleep(void)
-{
-	// No connection
-	sPhase.mode = SLEEP_OFF;
-
-	// reset rf
-	reset_rf();
-}
-
-
-// *************************************************************************************************
 // @fn          sx_sleep
 // @brief       Start Sleep mode. Button DOWN connects/disconnects to access point.
 // @param       u8 line		LINE2
@@ -152,10 +137,71 @@ void sx_phase(u8 line)
 	if (is_bluerobin()) return;
 #endif
   	// Start SimpliciTI in tx only mode
-   	start_simpliciti_tx_only(SIMPLICITI_PHASE_CLOCK_START);
+    if(sPhase.bug)
+        start_simpliciti_tx_only(SIMPLICITI_PHASE_CLOCK);
+    else
+        start_simpliciti_tx_only(SIMPLICITI_PHASE_CLOCK_START);
+    //start_simpliciti_tx_only(SIMPLICITI_PHASE_CLOCK);
 }
 
-u8 diff(u8 x1, u8 x2) {
+// *************************************************************************************************
+// @fn          mx_phase
+// @brief       Set program number to use
+// @param       u8 line		LINE2
+// @return      none
+// *************************************************************************************************
+void mx_phase(u8 line){
+		s32 prog, bug;
+        u8 mode = 0;
+		prog = (s32)sPhase.program;
+        bug = (s32)sPhase.bug;
+		// Loop values until all are set or user breaks	set
+		while(1) 
+		{
+			// Idle timeout: exit without saving 
+			if (sys.flag.idle_timeout) break;
+		
+			// M2 (short): save, then exit 
+			if (button.flag.num) 
+			{
+				// Store local variables in global Eggtimer default
+				//sAlarm.hour = hours;
+				//sAlarm.minute = minutes;
+				sPhase.program = (u8)prog;
+                sPhase.bug = (u8)bug;
+				display.flag.line2_full_update = 1;
+				break;
+			}
+			if (button.flag.star) 
+                mode = (mode+1)%2;
+
+            switch (mode) {
+                case 0:
+                    //set_value(&prog, 2, 0, 0, 99, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
+                    display_chars(LCD_SEG_L2_5_0, (u8 *)" PR ", SEG_ON);
+                    set_value(&prog, 2, 0, 0, 99, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
+                    break;
+                case 1:
+                    display_chars(LCD_SEG_L2_5_0, (u8 *)" BUG", SEG_ON);
+                    set_value(&bug, 2, 0, 0, 1, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
+                    break;
+            }
+		}
+	
+		// Clear button flag
+		button.all_flags = 0;
+		display_phase_clock(line, DISPLAY_LINE_UPDATE_FULL);
+}
+
+
+
+// *************************************************************************************************
+// @fn          diff
+// @brief       calculates the smallest difference between two numbers
+// @param       none
+// @return      none
+// *************************************************************************************************
+static u8 diff(u8 x1, u8 x2) {
     u8 b1 = x1 - x2;
     if(b1 > 127)
         b1 = x2 - x1;
@@ -164,7 +210,6 @@ u8 diff(u8 x1, u8 x2) {
         return 0;
     return b1;
 }
-
 
 // *************************************************************************************************
 // @fn          phase_clock_calcpoint
@@ -208,15 +253,6 @@ void display_phase_clock(u8 line, u8 update)
 		display_chars(LCD_SEG_L2_5_0, (u8 *)" SLEEP", SEG_ON);
 	}
 }
-// *************************************************************************************************
-// @fn          is_sleep
-// @brief       Returns TRUE if SimpliciTI receiver is connected. 
-// @param       none
-// @return      u8
-// *************************************************************************************************
-u8 is_sleep(void)
-{
-	return (sPhase.mode != SLEEP_OFF);
-}
+
 
 #endif /*CONFIG_PHASE_CLOCK*/

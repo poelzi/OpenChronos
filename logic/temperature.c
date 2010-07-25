@@ -56,9 +56,11 @@
 // *************************************************************************************************
 // Prototypes section
 u8 is_temp_measurement(void);
+
+#ifndef CONFIG_METRIC_ONLY
 s16 convert_C_to_F(s16 value);
 s16 convert_F_to_C(s16 value);
-
+#endif
 
 // *************************************************************************************************
 // Defines section
@@ -225,6 +227,9 @@ void mx_temperature(u8 line)
 		if (button.flag.star) 
 		{
 			// For English units, convert set °F to °C
+#ifdef CONFIG_METRIC_ONLY
+				temperature1 = temperature;
+#else
 			if (!sys.flag.use_metric_units)
 			{
 				temperature1 = convert_F_to_C(temperature);	
@@ -233,7 +238,7 @@ void mx_temperature(u8 line)
 			{
 				temperature1 = temperature;
 			}
-
+#endif
 			// New offset is difference between old and new value
 			offset = temperature1 - temperature0;
 			sTemp.offset += offset;

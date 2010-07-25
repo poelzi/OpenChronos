@@ -36,6 +36,7 @@
 #include "bsp_buttons.h"
 #include "simpliciti.h"
 #include "driver/display.h"
+#include "rfsimpliciti.h"
 
 
 // *************************************************************************************************
@@ -60,8 +61,9 @@ extern uint8_t sInit_done;
 extern void Timer0_A4_Delay(u16 ticks);
 
 extern unsigned char simpliciti_payload_length;
+//extern txOpt_t  simpliciti_options;
 
-extern int simpliciti_get_rvc_callback(uint8_t len);
+//extern int simpliciti_get_rvc_callback(uint8_t len);
 
 // *************************************************************************************************
 // Global Variable section
@@ -231,10 +233,11 @@ void simpliciti_main_tx_only(void)
 			// Send data when flag bit SIMPLICITI_TRIGGER_SEND_DATA is set
 			if (getFlag(simpliciti_flag, SIMPLICITI_TRIGGER_SEND_DATA)) 
 			{
-			  SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_AWAKE, 0);
 			  // Acceleration / button events packets are 4 bytes long
-			  SMPL_SendOpt(sLinkID1, simpliciti_data, simpliciti_payload_length, SMPL_TXOPTION_NONE);
-
+              SMPL_SendOpt(sLinkID1, simpliciti_data, simpliciti_payload_length, SMPL_TXOPTION_NONE);
+			  //SMPL_SendOpt(sLinkID1, simpliciti_data, simpliciti_payload_length, simpliciti_options);
+              // reset options to default
+              //simpliciti_options =  SMPL_TXOPTION_NONE;
 			  clearFlag(simpliciti_flag, SIMPLICITI_TRIGGER_SEND_DATA);
 			}
 			// Receive data when flag bit SIMPLICITI_TRIGGER_RECEIVE_DATA is set
@@ -251,8 +254,8 @@ void simpliciti_main_tx_only(void)
 				// generate a ready to receive packet
 				ed_data[0] = SYNC_ED_TYPE_R2R;
 				ed_data[1] = 0xCB;
+
 				SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_RXON, 0);
-				NWK_DELAY(10);
 
 				// we try to receive 9 times by sending a R2R packet
 				for (i = 0; i < 10; i++) {
@@ -275,8 +278,8 @@ void simpliciti_main_tx_only(void)
 								break;
 							}
 						}
-						Timer0_A4_Delay(CONV_MS_TO_TICKS(50));
 					}
+                    Timer0_A4_Delay(CONV_MS_TO_TICKS(500));
 				}
 			}
 
@@ -304,18 +307,30 @@ void simpliciti_main_tx_only(void)
 // *************************************************************************************************
 void simpliciti_main_sync(void)
 {
-	uint8_t len, i;
-	uint8_t ed_data[2];
-	
+	uint8_t len, i, contacted;
+	uint8_t ed_data[4];
+
+	contacted = 0;
+
 	while(1)
 	{
+		// send a notification that we are in sync mode
+		if (!contacted) {
+			SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_AWAKE, 0);
+
+			ed_data[0] = SIMPLICITI_SYNC_STARTED_EVENTS;
+			WATCH_ID(ed_data, 1);
+			ed_data[3] = 0x00;
+			SMPL_SendOpt(sLinkID1, ed_data, 4, SMPL_TXOPTION_NONE);
+			SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_SLEEP, 0);
+		}
 		// Sleep 0.5sec between ready-to-receive packets
 		// SimpliciTI has no low power delay function, so we have to use ours
 		Timer0_A4_Delay(CONV_MS_TO_TICKS(500));
 		
 		// Get radio ready. Radio wakes up in IDLE state.
-      	SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_AWAKE, 0);
-		
+		SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_AWAKE, 0);
+
 		// Send 2 byte long ready-to-receive packet to stimulate host reply
 		ed_data[0] = SYNC_ED_TYPE_R2R;
 		ed_data[1] = 0xCB;
@@ -324,11 +339,12 @@ void simpliciti_main_sync(void)
 		// Wait shortly for host reply
 		SMPL_Ioctl( IOCTL_OBJ_RADIO, IOCTL_ACT_RADIO_RXON, 0);
 		NWK_DELAY(10);
-  	
+
 		// Check if a command packet was received
 		while (SMPL_Receive(sLinkID1, simpliciti_data, &len) == SMPL_SUCCESS)
 		{
- 			// Decode received data
+			// Decode received data
+			contacted = 1;
 			if (len > 0)
 			{
 				// Use callback function in application to decode data and react

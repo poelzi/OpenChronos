@@ -1,11 +1,21 @@
 * modularise more code
 * try to free more space
-* autosync before/after flash
-* use bulk transfer in sleep clock mode
 * make buttons lock while sleep mode active
 * better compilition depending on config file. someone with more make knowledge please ;-)
 * fix warnings in simplicti code
 * use RTC of the msp430 instead of the interrupt code
+* fix the eggtimer. it runs to slow (like 2 seconds per second...)
+* merge eggtimer into stopwatch. to much shared code that blow the firmware
+
+== OPEN BUG ==
+* very hard to debug: when the battery is quite low, the sleep init mode fails. only way currently working
+  is to set "bug 1" in the sleep settings and skip the init phase (very bad).
+
+== IN WORKS ==
+* autosync before/after flash
+
+== MAYBE ==
+* use bulk transfer in sleep clock mode. There is now a multistep init phase that works quite well
 
 
 === DONE ===
