@@ -71,14 +71,24 @@
 
 struct vario svario;
 
+void hist_add(s16 alt);
+u8 hist_ready(void);
+
+#define HIST_GET_OLD() svario.hist_alts[(svario.hist_pos+1)%VARIO_HIST_SIZE]
+#define HIST_GET_NEW() svario.hist_alts[svario.hist_pos]
+
 /**
  * called every sec
  */
 void vario_tick()
 {
-  if (is_altitude_measurement()){ 
-    svario.previous_alt = svario.current_alt;
-    svario.current_alt = sAlt.altitude;
+  if (is_altitude_measurement()){
+    hist_add(sAlt.altitude);
+    if (!hist_ready()){
+        display_symbol(LCD_ICON_RECORD, SEG_ON_BLINK_ON);
+    } else {
+        display_symbol(LCD_ICON_RECORD, SEG_OFF);
+    }
   }
   display_vario(0, 0);
 }
@@ -128,42 +138,69 @@ void mx_vario(u8 line)
 
 void display_vario(u8 line, u8 update)
 {
+
   if (svario.state == VARIO_STOP) {
     display_chars(LCD_SEG_L2_5_0, (u8*) " idle", SEG_ON);
-  } else if (is_altitude_measurement()){ 
-    u8 *str;
+  } else if (is_altitude_measurement()){
+    if (!hist_ready()) {
+      display_chars(LCD_SEG_L2_5_0, (u8*)" wait", SEG_ON_BLINK_ON);
+    } else {
+      u8 *str;
 
-    s16 diff = svario.current_alt - svario.previous_alt;
-    u8 is_neg = 0;
-    u8 i;
+      s16 diff = HIST_GET_OLD() - HIST_GET_NEW();
+      u8 is_neg = 0;
+      u8 i;
 
-    if (diff < 0){
-      is_neg = 1;
-      diff = diff*(-1);
-    }
-
-    str = itoa(diff, 6, 7);
-
-    for (i=0; i<7; i++){
-      if (str[i] == '0' || str[i] == ' '){
-        if (is_neg)
-          str[i] = '-';
-        else
-          str[i] = ' ';
+      if (diff == 0){
+        display_chars(LCD_SEG_L2_5_0, (u8*) "     0", SEG_ON);
       } else {
-        break;
+        if (diff < 0){
+          is_neg = 1;
+          diff = diff*(-1);
+        }
+        diff = diff / VARIO_HIST_SIZE;
+
+        str = itoa(diff, 6, 7);
+
+        for (i=0; i<7; i++){
+          if (str[i] == '0' || str[i] == ' '){
+            if (is_neg)
+              str[i] = '-';
+            else
+              str[i] = ' ';
+          } else {
+            break;
+          }
+        }
+        display_chars(LCD_SEG_L2_5_0, str, SEG_ON);
       }
     }
-    display_chars(LCD_SEG_L2_5_0, str, SEG_ON);
   } else {
     display_chars(LCD_SEG_L2_5_0, (u8*) " NOALT", SEG_ON);
   }
 }
 
+u8 hist_ready(void) {
+  return (svario.hist_count == VARIO_HIST_SIZE);
+}
+
+/* s8 hist_size(void) { */
+/*   if (svario.previous_end == -1) return 0; */
+/*   if (svario.previous_end == svario.previous_start) return VARIO_HIST_SIZE; */
+/*   return ((svario.previous_end-svario.previous_start)>0 ? VARIO_HIST_SIZE-svario.previous_end+svario.previous_start : svario.previous_start-svario.previous_end); */
+/* } */
+
+void hist_add(s16 alt) {
+  if (svario.hist_count != VARIO_HIST_SIZE) svario.hist_count++;
+
+  svario.hist_alts[svario.hist_pos] = alt;
+  svario.hist_pos = (svario.hist_pos+1)%VARIO_HIST_SIZE;
+}
+
 void reset_vario(void)
 {
   svario.state = VARIO_STOP;
-  svario.previous_alt = 0;
+  svario.hist_pos = svario.hist_count = 0;
 }
 
 #endif /* CONFIG_VARIO */

@@ -67,11 +67,13 @@ extern u8 is_vario(void);
 #define VARIO_STOP	(0u)
 #define VARIO_RUN	(1u)
 
+#define VARIO_HIST_SIZE 10
+
 struct vario
 {
   u8 state;
-  u8 previous_alt;
-  u8 current_alt;
+  u8 hist_alts[VARIO_HIST_SIZE];
+  u8 hist_count, hist_pos;
 };
 
 extern struct vario svario;
