@@ -334,6 +334,7 @@ __interrupt void TIMER0_A0_ISR(void)
 	if (is_temp_measurement()) request.flag.temperature_measurement = 1;
 	
 	// Do a pressure measurement each second while menu item is active
+#ifdef CONFIG_ALTITUDE
 	if (is_altitude_measurement()) 
 	{
 		// Countdown altitude measurement timeout while menu item is active
@@ -353,6 +354,7 @@ __interrupt void TIMER0_A0_ISR(void)
 		// In case we missed the IRQ due to debouncing, get data now
 		if ((PS_INT_IN & PS_INT_PIN) == PS_INT_PIN) request.flag.altitude_measurement = 1;
 	}	
+#endif
 
 	// Count down timeout
 	if (is_acceleration_measurement()) 

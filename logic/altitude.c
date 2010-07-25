@@ -42,6 +42,8 @@
 // system
 #include "project.h"
 
+#ifdef CONFIG_ALTITUDE
+
 // driver
 #include "altitude.h"
 #include "display.h"
@@ -219,7 +221,7 @@ void do_altitude_measurement(u8 filter)
 	// If sensor is not ready, skip data read	
 	if ((PS_INT_IN & PS_INT_PIN) == 0) return;
 		
-	// Get temperature (format is *10°K) from sensor
+	// Get temperature (format is *10?K) from sensor
 	sAlt.temperature = ps_get_temp();
 
 	// Get pressure (format is 1Pa) from sensor
@@ -239,7 +241,7 @@ void do_altitude_measurement(u8 filter)
 		sAlt.pressure = pressure;
 	}
 	
-	// Convert pressure (Pa) and temperature (°K) to altitude (m)
+	// Convert pressure (Pa) and temperature (?K) to altitude (m)
 	sAlt.altitude = conv_pa_to_meter(sAlt.pressure, sAlt.temperature);
 }
 
@@ -447,3 +449,5 @@ void display_altitude(u8 line, u8 update)
 		display_symbol(LCD_SYMB_ARROW_DOWN, SEG_OFF);
 	}
 }
+
+#endif // CONFIG_ALTITUDE

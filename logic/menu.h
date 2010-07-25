@@ -72,7 +72,9 @@ struct menu
 // Line1 navigation
 extern const struct menu menu_L1_Time;
 extern const struct menu menu_L1_Alarm;
+#ifdef CONFIG_ALTITUDE
 extern const struct menu menu_L1_Altitude;
+#endif
 extern const struct menu menu_L1_Temperature;
 extern const struct menu menu_L1_Altitude;
 extern const struct menu menu_L1_Heartrate;
