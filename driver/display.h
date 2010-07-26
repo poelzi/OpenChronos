@@ -54,7 +54,9 @@
 #define CLOCK_AM_PM             1
 #define CLOCK_DISPLAY_SELECT    2
 
-#define OPTION_TIME_DISPLAY     CLOCK_DISPLAY_SELECT
+#ifndef OPTION_TIME_DISPLAY
+#warning "OPTION_TIME_DISPLAY not defined, 0 = 24Hr, 1 = AM/PM, 2 = selectable"
+#endif
 
 
 
