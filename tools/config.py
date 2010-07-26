@@ -25,47 +25,62 @@ DATA["CONFIG_FREQUENCY"] = {
         "values": [902, 869, 433]}
 
 DATA["CONFIG_METRIC_ONLY"] = {
-        "name": "Metric only code (saves space)",
+        "name": "Metric only code",
         "depends": [],
-        "default": False
+        "default": False,
+        "help": "Only add code for Metric units (24 hours/meter/celsius) to reduce image size",
 }
 
 DATA["THIS_DEVICE_ADDRESS"] = {
         "name": "Hardware address",
         "type": "text",
         "default": rand_hw(),
-        "ifndef": True
+        "ifndef": True,
+        "help": "Default Radio Hardware Address to use on the device",
 }
 
 
 DATA["USE_LCD_CHARGE_PUMP"] = {
         "name": "Use LCD Charge Pump",
         "default": False,
-		"help": "Use the internal charge pump to make the display contrast same tho whole battery lifetime. But this increases currency",
+        "help": "Use the internal charge pump to make the display contrast same tho whole battery lifetime. But this increases currency and reduces battery lifetime.",
 }
 
 DATA["USE_WATCHDOG"] = {
         "name": "Use Watchdog",
         "default": True,
-		"help": "Protects the clock against deadlocks by rebooting it.",
+        "help": "Protects the clock against deadlocks by rebooting it.",
 }
+
+# FIXME implement
+# DATA["CONFIG_AUTOSYNC"] = {
+#         "name": "Automaticly SYNC after reboot",
+#         "default": False,
+# 		"help": "Automaticly sync clock after reboot",
+# }
 
 
 DATA["DEBUG"] = {
         "name": "Debug",
-        "default": False}
+        "default": False,
+        "help": "Activates debug code",
+        }
 
 # modules
 
 DATA["CONFIG_DAY_OF_WEEK"] = {
-        "name": "Date: Show Day of Week",
+        "name": "Date: Day of Week",
         "depends": [],
-        "default": True}
+        "default": True,
+        "help": "Shows day of week on the date module",
+}
 
 DATA["CONFIG_TEST"] = {
         "name": "Test Mode",
         "depends": [],
-        "default": True}
+        "default": True,
+        "help": "Test module to test some functionalities when the clock started",
+}
 
 DATA["TEXT_MODULES"] = {
         "name": "Modules",
@@ -77,12 +92,24 @@ DATA["TEXT_MODULES"] = {
 DATA["CONFIG_EGGTIMER"] = {
         "name": "Eggtimer",
         "depends": [],
-        "default": False}
+        "default": False,
+        "help": "Countdown timer to count down from 1 minute - 20 hours to 0 and start an alarm",
+}
 
 DATA["CONFIG_PHASE_CLOCK"] = {
         "name": "Phase Clock",
         "depends": [],
-        "default": False}
+        "default": False,
+        "help": "Messures sleep phase by recording body movement and sends the data to the accesspoint.\n"
+                "Designed to be used with uberclock",
+}
+
+DATA["CONFIG_ALTITUDE"] = {
+        "name": "Altitude",
+        "depends": [],
+        "default": True,
+        "help": "Messures altitude"
+        }
 
 
 DATA["CONFIG_VARIO"] = {
@@ -103,10 +130,6 @@ DATA["CONFIG_ACCEL"] = {
         "default": True}
 DATA["CONFIG_ALARM"] = {
         "name": "Alarm",
-        "depends": [],
-        "default": True}
-DATA["CONFIG_ALTITUDE"] = {
-        "name": "Altitude",
         "depends": [],
         "default": True}
 DATA["CONFIG_BATTERY"] = {
@@ -152,12 +175,77 @@ FOOTER = """
 #print DATA
 #sys.exit(1)
 
+import curses, weakref
+
+def wrap(text, width):
+    """
+    A word-wrap function that preserves existing line breaks
+    and most spaces in the text. Expects that existing line
+    breaks are posix newlines (\n).
+    """
+    return reduce(lambda line, word, width=width: '%s%s%s' %
+                  (line,
+                   ' \n'[(len(line)-line.rfind('\n')-1
+                         + len(word.split('\n',1)[0]
+                              ) >= width)],
+                   word),
+                  text.split(' ')
+                 )
+
+class ConfigForm(npyscreen.TitleForm):
+    BLANK_LINES_BASE     = 0
+    BLANK_COLUMNS_RIGHT  = 0
+    DEFAULT_X_OFFSET = 2
+    FRAMED = False
+    #MAIN_WIDGET_CLASS   = wgmultiline.MultiLine
+    STATUS_WIDGET_CLASS = npyscreen.Textfield
+    COMMAND_WIDGET_CLASS= npyscreen.Textfield
+    #MAIN_WIDGET_CLASS = grid.SimpleGrid
+    #MAIN_WIDGET_CLASS = editmultiline.MultiLineEdit
+    def __init__(self, *args, **keywords):
+        super(ConfigForm, self).__init__(cycle_widgets=False, *args, **keywords)
+    
+    
+    def draw_form(self):
+        MAXY, MAXX = self.lines, self.columns #self.curses_pad.getmaxyx()
+        self.curses_pad.hline(0, 0, curses.ACS_HLINE, MAXX-1)  
+        self.curses_pad.hline(MAXY-2, 0, curses.ACS_HLINE, MAXX-1)  
+
+    def create(self):
+        MAXY, MAXX    = self.lines, self.columns
+        self.wStatus1 = self.add(self.__class__.STATUS_WIDGET_CLASS,  rely=0, relx=0,      editable=False,  )
+        self.wStatus1.value = "Config Chronos Firmware"
+        #self.wMain    = self.add(npyscreen.SimpleGrid,    rely=1,  relx=0,     max_height = -2, )
+        #self.wMain    = self.add(self.__class__.MAIN_WIDGET_CLASS,    rely=1,  relx=0,     max_height = -2, )
+        self.wStatus2 = self.add(self.__class__.STATUS_WIDGET_CLASS,  rely=MAXY-6, relx=0, max_heigh=3, heigth=3, editable=False,  )
+        self.wStatus2.value = ""
+        #self.wCommand = self.add(self.__class__.COMMAND_WIDGET_CLASS, rely = MAXY-1, relx=0,)
+        self.wStatus1.important = True
+        self.wStatus2.important = False
+        self.nextrely = 2
+
+    def set_help(self):
+        if hasattr(self._widgets__[self.editw], "_datafield") and \
+           "help" in self._widgets__[self.editw]._datafield:
+            #print wrap(self._widgets__[self.editw]._datafield["help"], self.columns-40)
+            val = wrap(self._widgets__[self.editw]._datafield["help"], self.columns-5)+"\n\n\n"
+        else:
+            val = ""
+        self.wStatus2.value = val + "\n"*(2-val.count("\n"))
+        
+        self.wStatus2.display()
+
+    def while_editing(self, *args, **kwargs):
+        self.set_help()
+        super(ConfigForm, self).while_editing(*args, **kwargs)
+
+
 class OpenChronosApp(npyscreen.NPSApp):
     def main(self):
         self.fields = {}
         # These lines create the form and populate it with widgets.
         # A fairly complex screen in only 8 or so lines of code - a line for each control.
-        F = npyscreen.Form(name = "Config Chronos Firmware",)
+        F = ConfigForm(name = "Config Chronos Firmware",)
 
 #        ms2= F.add(npyscreen.TitleMultiSelect, max_height =-2, value = [1,], name="Frequency", 
 #                   values = ["911","868","Option3"], scroll_exit=True)
@@ -179,8 +267,6 @@ class OpenChronosApp(npyscreen.NPSApp):
                 #f=F.add(npyscreen.TitleMultiSelect, max_height = 1, value = ["ENABLED",], name=field["name"], 
                 #	values = [""], scroll_exit=True)
                 f = F.add(npyscreen.Checkbox, name=field["name"], value=field["value"])
-                f._key = key
-                self.fields[key] = f
             elif field["type"] == "choices":
                 try:
                     value = field["values"].index(field["value"])
@@ -188,15 +274,14 @@ class OpenChronosApp(npyscreen.NPSApp):
                     value = field["values"].index(field["default"])
                 f = F.add(npyscreen.TitleSelectOne, max_height=4, value=value, name=field["name"], 
                         values = field["values"], scroll_exit=True)
-                f._key = key
-                self.fields[key] = f
             elif field["type"] == "text":
                 f = F.add(npyscreen.TitleText, max_height=1, value=field["value"], name=field["name"], 
                         values = field["value"])
-                f._key = key
-                self.fields[key] = f
             elif field["type"] == "info":
                 f = F.add(npyscreen.TitleText, max_height=1, name=field["name"])
+            f._key = key
+            f._datafield = field
+            self.fields[key] = f
 
 
         # This lets the user play with the Form.
@@ -259,7 +344,7 @@ class OpenChronosApp(npyscreen.NPSApp):
                     DATA[m[0]]["value"] = value
             else:
                 m = match2.search(line)
-                if m:
+                if m and m.groups()[0] in DATA:
                     m = m.groups()
                     DATA[m[0]]["value"] = False
 

@@ -164,8 +164,19 @@ const struct menu menu_L1_Temperature =
 	FUNCTION(mx_temperature),			// sub menu function
 	FUNCTION(display_temperature),		// display function
 	FUNCTION(update_temperature),		// new display data
+#ifdef CONFIG_ALTITUDE
 	&menu_L1_Altitude,
+#else
+#ifdef ELIMINATE_BLUEROBIN
+  &menu_L1_Acceleration,
+#else
+  &menu_L1_Heartrate,
+#endif
+#endif
+
 };
+
+#ifdef CONFIG_ALTITUDE
 // Line1 - Altitude
 const struct menu menu_L1_Altitude =
 {
@@ -180,6 +191,7 @@ const struct menu menu_L1_Altitude =
 	&menu_L1_Heartrate,
 	#endif
 };
+#endif
 
 //pfs
 #ifndef ELIMINATE_BLUEROBIN

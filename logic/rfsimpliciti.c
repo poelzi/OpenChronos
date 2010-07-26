@@ -587,8 +587,10 @@ void start_simpliciti_sync(void)
 	as_stop();
 
 	// Get updated altitude
+#ifdef CONFIG_ALTITUTDE
 	start_altitude_measurement();
 	stop_altitude_measurement();	
+#endif
 		
 	// Get updated temperature	
 	temperature_measurement(FILTER_OFF);
@@ -681,8 +683,10 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										sTemp.offset  = offset;	
 										sTemp.degrees = t1;									
 										// Set altitude
+#ifdef CONFIG_ALTITUDE
 										sAlt.altitude = (s16)((simpliciti_data[12]<<8) + simpliciti_data[13]);
 										update_pressure_table(sAlt.altitude, sAlt.pressure, sAlt.temperature);
+#endif
 										break;
 												
 		case SYNC_AP_CMD_GET_MEMORY_BLOCKS_MODE_1:	
@@ -747,8 +751,10 @@ void simpliciti_sync_get_data_callback(unsigned int index)
 										simpliciti_data[9]  = sAlarm.minute;
 										simpliciti_data[10] = sTemp.degrees >> 8;
 										simpliciti_data[11] = sTemp.degrees & 0xFF;
+#ifdef CONFIG_ALTITUDE
 										simpliciti_data[12] = sAlt.altitude >> 8;
 										simpliciti_data[13] = sAlt.altitude & 0xFF;
+#endif
 										break;
 										
 		case SYNC_ED_TYPE_MEMORY:		

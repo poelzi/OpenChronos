@@ -45,8 +45,12 @@ It is HIGHLY suggested to make a clean build before you flash the image with:
      .../msp430/bin/ld: region `text' overflowed by 13250 bytes
      collect2: ld returned 1 exit status
 
-   Your image is simply to large and will not fit into the flash. Try to disable some code with make config and try again :-)
+    or
+     
+     section .vectors loaded at [0000ff80,0000ffff] overlaps section .data loaded at [0000ff4e,0000ffcb]
 
+   Your image is simply to large and will not fit into the flash. Try to disable some modules with make config and try again
+   Or even better, send some patches that reduce code size ;-)
 
 == Difference to the TI Firmware ==
 
