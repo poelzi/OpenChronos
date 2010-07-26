@@ -42,6 +42,20 @@
 
 #include <project.h>
 
+/*
+ * Set some options at compile time for how the time is displayed
+ * The options are, in order of code space used-
+ * OPTION_TIME_DISPLAY == CLOCK_24HR
+ * OPTION_TIME_DISPLAY == CLOCK_AM_PM
+ * OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT
+ */
+
+#define CLOCK_24HR              0
+#define CLOCK_AM_PM             1
+#define CLOCK_DISPLAY_SELECT    2
+
+#define OPTION_TIME_DISPLAY     CLOCK_DISPLAY_SELECT
+
 
 
 // *************************************************************************************************
@@ -337,8 +351,8 @@ extern void DisplayTime(u8 updateMode);
 extern void display_am_pm_symbol(u8 timeAM);
 
 // Set_value display functions
-extern void display_value1(u8 segments, u32 value, u8 digits, u8 blanks);
-extern void display_hours1(u8 segments, u32 value, u8 digits, u8 blanks);
+extern void display_value1(u8 segments, u32 value, u8 digits, u8 blanks, u8 disp_mode);
+extern void display_hours_12_or_24(u8 segments, u32 value, u8 digits, u8 blanks, u8 disp_mode);
 
 // Integer to string conversion 
 extern u8 * itoa(u32 n, u8 digits, u8 blanks);
