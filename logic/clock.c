@@ -1,34 +1,34 @@
 // *************************************************************************************************
 //
-//	Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/ 
-//	 
-//	 
-//	  Redistribution and use in source and binary forms, with or without 
-//	  modification, are permitted provided that the following conditions 
+//	Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
+//
+//
+//	  Redistribution and use in source and binary forms, with or without
+//	  modification, are permitted provided that the following conditions
 //	  are met:
-//	
-//	    Redistributions of source code must retain the above copyright 
+//
+//	    Redistributions of source code must retain the above copyright
 //	    notice, this list of conditions and the following disclaimer.
-//	 
+//
 //	    Redistributions in binary form must reproduce the above copyright
-//	    notice, this list of conditions and the following disclaimer in the 
-//	    documentation and/or other materials provided with the   
+//	    notice, this list of conditions and the following disclaimer in the
+//	    documentation and/or other materials provided with the
 //	    distribution.
-//	 
+//
 //	    Neither the name of Texas Instruments Incorporated nor the names of
 //	    its contributors may be used to endorse or promote products derived
 //	    from this software without specific prior written permission.
-//	
-//	  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-//	  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+//
+//	  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//	  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 //	  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-//	  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-//	  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-//	  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+//	  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+//	  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//	  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
 //	  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 //	  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-//	  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-//	  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+//	  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//	  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 //	  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // *************************************************************************************************
@@ -100,19 +100,19 @@ extern void (*fptr_lcd_function_line2)(u8 line, u8 update);
 // @param       none
 // @return      none
 // *************************************************************************************************
-void reset_clock(void) 
+void reset_clock(void)
 {
 	// Set global system time to 0
 	sTime.system_time = 0;
-	
+
 	// Set main 24H time to start value
-	sTime.hour   = 4; 
-	sTime.minute = 30; 
-	sTime.second = 0; 
-	
+	sTime.hour   = 4;
+	sTime.minute = 30;
+	sTime.second = 0;
+
 	// Display style of both lines is default (HH:MM)
 	sTime.line1ViewStyle = DISPLAY_DEFAULT_VIEW;
-	
+
 	// Reset timeout detection
 	sTime.last_activity 		  = 0;
 }
@@ -124,7 +124,7 @@ void reset_clock(void)
 // @param       none
 // @return      none
 // *************************************************************************************************
-void clock_tick(void) 
+void clock_tick(void)
 {
 	// Use sTime.drawFlag to minimize display updates
 	// sTime.drawFlag = 1: second
@@ -137,15 +137,15 @@ void clock_tick(void)
 
 	// Add 1 second
 	sTime.second++;
-	
+
 	// Add 1 minute
 	if (sTime.second == 60)
 	{
 		sTime.second = 0;
 		sTime.minute++;
 		sTime.drawFlag++;
-	
-		// Add 1 hour	
+
+		// Add 1 hour
 		if (sTime.minute == 60)
 		{
 			sTime.minute = 0;
@@ -174,7 +174,7 @@ u8 convert_hour_to_12H_format(u8 hour)
 {
 	// 00:00 .. 11:59 --> AM 12:00 .. 11:59
 	if (hour == 0)			return (hour + 12);
-	else if (hour <= 12)	return (hour);	
+	else if (hour <= 12)	return (hour);
 	// 13:00 .. 23:59 --> PM 01:00 .. 11:59
 	else  					return (hour - 12);
 }
@@ -194,10 +194,10 @@ u8 is_hour_am(u8 hour)
 	else  			return (0);
 }
 
-
+#if (OPTION_TIME_DISPLAY == CLOCK_DISPLAY_SELECT)
 // *************************************************************************************************
 // @fn          display_selection_Timeformat
-// @brief       Display time format 12H / 24H. 
+// @brief       Display time format 12H / 24H.
 // @param       u8 segments			Target segments where to display information
 //				u32 index			0 or 1, index for value string
 //				u8 digits			Not used
@@ -208,6 +208,7 @@ void display_selection_Timeformat1(u8 segments, u32 index, u8 digits, u8 blanks,
 {
 	if (index < 2) display_chars(segments, (u8 *)selection_Timeformat[index], SEG_ON_BLINK_ON);
 }
+#endif // CLOCK_DISPLAY_SELECT
 
 #endif //OPTION_TIME_DISPLAY
 
@@ -380,7 +381,7 @@ void display_time(u8 line, u8 update)
 	    }
 	  }
 	}
-	else if (update == DISPLAY_LINE_UPDATE_FULL)			
+	else if (update == DISPLAY_LINE_UPDATE_FULL)
 	{
 	  // Full update
 	  if (sTime.line1ViewStyle == DISPLAY_DEFAULT_VIEW)
@@ -407,3 +408,4 @@ void display_time(u8 line, u8 update)
 	  display_symbol(LCD_SYMB_AM, SEG_OFF);
 	}
 }
+
