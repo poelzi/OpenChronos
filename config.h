@@ -4,9 +4,10 @@
 #define _CONFIG_H_
 
 #define CONFIG_FREQUENCY 902
+#define OPTION_TIME_DISPLAY 0
 // CONFIG_METRIC_ONLY is not set
 #ifndef THIS_DEVICE_ADDRESS
-#define THIS_DEVICE_ADDRESS {0xed,0xc0,0xbb,0x25}
+#define THIS_DEVICE_ADDRESS {0xe1,0x3e,0x17,0xa}
 #endif // THIS_DEVICE_ADDRESS
 // USE_LCD_CHARGE_PUMP is not set
 #define USE_WATCHDOG

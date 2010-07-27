@@ -83,6 +83,7 @@ extern const struct menu menu_L1_Acceleration;
 
 // Line2 navigation
 extern const struct menu menu_L2_Date;
+extern const struct menu menu_L2_Time;
 extern const struct menu menu_L2_Stopwatch;
 #ifdef CONFIG_EGGTIMER
 extern const struct menu menu_L2_Eggtimer;

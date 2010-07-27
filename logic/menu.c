@@ -223,8 +223,19 @@ const struct menu menu_L2_Date =
 	FUNCTION(mx_date),			// sub menu function
 	FUNCTION(display_date),		// display function
 	FUNCTION(update_date),		// new display data
+	&menu_L2_Time,
+};
+
+// Line2 - Time
+const struct menu menu_L2_Time =
+{
+	FUNCTION(sx_time),			// direct function
+	FUNCTION(mx_time),			// sub menu function
+	FUNCTION(display_time),		// display function
+	FUNCTION(update_time),		// new display data
 	&menu_L2_Stopwatch,
 };
+
 // Line2 - Stopwatch
 const struct menu menu_L2_Stopwatch =
 {

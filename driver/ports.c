@@ -320,10 +320,11 @@ __interrupt void PORT2_ISR(void)
 	{
 		// Additional debounce delay to enable safe high detection
 		Timer0_A4_Delay(CONV_MS_TO_TICKS(BUTTONS_DEBOUNCE_TIME_LEFT));
-	
+#ifndef EMU	
 		// Check if this button event is short enough
 		if (BUTTON_STAR_IS_PRESSED) button.flag.star = 0;
 		if (BUTTON_NUM_IS_PRESSED) button.flag.num = 0;	
+#endif
 	}
 	
 	// Reenable PORT2 IRQ

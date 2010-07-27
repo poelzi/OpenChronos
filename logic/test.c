@@ -272,7 +272,7 @@ void test_mode(void)
 
 void display_all_on(void)
 {
-	u8 * lcdptr = (u8*)0x0A20;
+	u8 * lcdptr = LCD_MEM_1;
 	u8 i;
 	
 	for (i=1; i<=12; i++) 

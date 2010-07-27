@@ -6,7 +6,8 @@
 */
 
 		.name __even_in_range
-		.text 
+		.text
+#ifndef EMU
 __even_in_range:
       bit.b #0, r12  ; //test: __value is even?
       jnz NotValid
@@ -15,6 +16,7 @@ __even_in_range:
 NotValid:           ; not valid set r12 = 0 else leave passed paremeter in r12 to be returned
       mov.b #0, r12
 Exit:
+#endif
       ret
 	  .global __even_in_range
       

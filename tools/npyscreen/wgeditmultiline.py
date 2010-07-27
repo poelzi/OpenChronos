@@ -3,7 +3,7 @@ from . import wgwidget    as widget
 import curses
 import textwrap
 import re
-from functools import reduce
+#from functools import reduce
 
 class MultiLineEdit(widget.Widget):
     def __init__(self, screen, autowrap=True, slow_scroll=True, scroll_exit=True, value=None, **keywords):

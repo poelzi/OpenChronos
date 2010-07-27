@@ -142,6 +142,9 @@ static const addr_t   sMyROMAddress = {THIS_DEVICE_ADDRESS};
 // *************************************************************************************************
 int main(void)
 {
+#ifdef EMU
+	emu_init();
+#endif
 	// Init MCU 
 	init_application();
 
@@ -183,6 +186,7 @@ void init_application(void)
 {
 	volatile unsigned char *ptr;
 	  
+#ifndef EMU
 	// ---------------------------------------------------------------------
 	// Enable watchdog
 	
@@ -262,6 +266,7 @@ void init_application(void)
 	PMAPPWD = 0;
 	// Re-enable all interrupts
 	__enable_interrupt();
+#endif
 	
 	// ---------------------------------------------------------------------
 	// Configure ports
@@ -399,6 +404,36 @@ void init_global_variables(void)
 	battery_measurement();
 }
 
+static void set_line1(const struct menu *new)
+{
+	// Clean up display before activating next menu item 
+	fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
+			
+	// Go to next menu entry
+	ptrMenu_L1 = new;
+				
+	// Assign new display function
+	fptr_lcd_function_line1 = ptrMenu_L1->display_function;
+
+	// Set Line1 display update flag
+	display.flag.line1_full_update = 1;
+}
+
+static void set_line2(const struct menu *new)
+{
+	// Clean up display before activating next menu item 
+	fptr_lcd_function_line2(LINE2, DISPLAY_LINE_CLEAR);
+
+	// Go to next menu entry
+	ptrMenu_L2 = new;
+
+	// Assign new display function
+	fptr_lcd_function_line2 = ptrMenu_L2->display_function;
+
+	// Set Line2 display update flag
+	display.flag.line2_full_update = 1;
+}
+
 
 // *************************************************************************************************
 // @fn          wakeup_event
@@ -452,18 +487,17 @@ void wakeup_event(void)
 	{
 		// M1 button event ---------------------------------------------------------------------
 		// (Short) Advance to next menu item
-		if(button.flag.star) 
+		if (button.flag.star) 
 		{
-			// Clean up display before activating next menu item 
-			fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
-			
-			// Go to next menu entry
-			ptrMenu_L1 = ptrMenu_L1->next;
-				
-			// Assign new display function
-			fptr_lcd_function_line1 = ptrMenu_L1->display_function;
+			/* Try to keep clock at at least one line */
+			if (ptrMenu_L1 == &menu_L1_Time)
+				set_line2(&menu_L2_Time);
+			set_line1(ptrMenu_L1->next);
 
-			// Set Line1 display update flag
+			/* But do not display clock twice */
+			if ((ptrMenu_L1 == &menu_L1_Time) &&
+			    (ptrMenu_L2 == &menu_L2_Time))
+				set_line2(&menu_L2_Date);
 			display.flag.line1_full_update = 1;
 
 			// Clear button flag
@@ -471,19 +505,14 @@ void wakeup_event(void)
 		}
 		// NUM button event ---------------------------------------------------------------------
 		// (Short) Advance to next menu item
-		else if(button.flag.num) 
+		else if (button.flag.num) 
 		{
-			// Clean up display before activating next menu item 
-			fptr_lcd_function_line2(LINE2, DISPLAY_LINE_CLEAR);
-
-			// Go to next menu entry
-			ptrMenu_L2 = ptrMenu_L2->next;
-
-			// Assign new display function
-			fptr_lcd_function_line2 = ptrMenu_L2->display_function;
-
-			// Set Line2 display update flag
-			display.flag.line2_full_update = 1;
+			set_line2(ptrMenu_L2->next);
+ 
+			/* But do not display clock twice */
+			if ((ptrMenu_L1 == &menu_L1_Time) &&
+			    (ptrMenu_L2 == &menu_L2_Time))
+				set_line2(ptrMenu_L2->next);
 
 			// Clear button flag
 			button.flag.num = 0;
@@ -707,12 +736,14 @@ void read_calibration_values(void)
 	u8 i;
 	u8 * flash_mem;         					// Memory pointer
 	
+#ifndef EMU
 	// Read calibration data from Info D memory
 	flash_mem = (u8 *)0x1800;
 	for (i=0; i<CALIBRATION_DATA_LENGTH; i++)
 	{
 		cal_data[i] = *flash_mem++;
 	}
+#endif
 	
 	if (cal_data[0] == 0xFF) 
 	{

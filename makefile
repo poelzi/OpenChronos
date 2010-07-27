@@ -1,8 +1,11 @@
-
 # MSP430		(Texas Instruments)
 CPU	= MSP430
-CC  = msp430-gcc
-LD  = msp430-ld
+CC      = msp430-gcc
+LD      = msp430-ld
+ifeq (emu,$(findstring emu,$(MAKECMDGOALS)))
+CC = gcc
+LD = ld
+endif
 PYTHON = python
 
 PROJ_DIR	=.
@@ -50,8 +53,21 @@ USE_CFLAGS = $(CFLAGS_PRODUCTION)
 
 CONFIG_FLAGS ?= $(shell cat config.h | grep CONFIG_FREQUENCY | sed 's/.define CONFIG_FREQUENCY //' | sed 's/902/-DISM_US/' | sed 's/433/-DISM_LF/' | sed 's/869/-DISM_EU/')
 
+CLEAN_EXTRA = emu/emu.o
+
 ifeq (debug,$(findstring debug,$(MAKECMDGOALS)))
 USE_CFLAGS = $(CFLAGS_DEBUG)
+endif
+# emulator
+ifeq (emu,$(findstring emu,$(MAKECMDGOALS)))
+USE_CFLAGS = -DEMU $(CFLAGS_DEBUG)
+CC_CMACH =
+CC_DMACH =
+CC_DOPT		= -DELIMINATE_BLUEROBIN
+SIMPLICICTI_SOURCE =
+
+CC_INCLUDE += -I$(PROJ_DIR)/emu/include
+ALL_O += emu/emu.o
 endif
 
 main: config.h even_in_range $(ALL_O) $(EXTRA_O) build
@@ -84,6 +100,10 @@ debug:	even_in_range $(ALL_O)
 	@echo "Convert to TI Hex file"
 	$(PYTHON) tools/memory.py -i build/eZChronos.dbg.elf -o build/eZChronos.txt
 
+emu:	$(ALL_O)
+	@echo "Compiling $@ for $(CPU) for emulator"
+	$(CC) $(CC_CMACH) $(CFLAGS_DEBUG) -o $(BUILD_DIR)/eZChronos.emu.elf $(ALL_O)
+
 debug_asm: $(ALL_S)
 	@echo "Compiling $@ for $(CPU) in debug"
 
@@ -92,11 +112,11 @@ source_index: $(ALL_S)
 
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
-	msp430-gcc -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o even_in_range.o
+	$(CC) -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o even_in_range.o
 
 clean: 
 	@echo "Removing files..."
-	rm -f $(ALL_O)
+	rm -f $(ALL_O) $(CLEAN_EXTRA)
 	rm -rf build/*
 
 build:

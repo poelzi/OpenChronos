@@ -119,6 +119,7 @@ u8  adc12_data_ready;
 // *************************************************************************************************
 u16 adc12_single_conversion(u16 ref, u16 sht, u16 channel)
 {
+#ifndef EMU
 	// Initialize the shared reference module 
 	REFCTL0 |= REFMSTR + ref + REFON;    		// Enable internal reference (1.5V or 2.5V)
   
@@ -155,6 +156,9 @@ u16 adc12_single_conversion(u16 ref, u16 sht, u16 channel)
 	
 	// Return ADC result
 	return (adc12_result);
+#else
+	return 0;
+#endif
 }
 
 

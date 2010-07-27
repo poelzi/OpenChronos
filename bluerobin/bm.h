@@ -213,6 +213,25 @@
 //  #endif
 
 
+#elif EMU
+
+#define INTERRUPT 
+#define MONITOR
+#define NO_INIT
+#define INTERRUPTS_ENABLE()   do {} while (0)
+// WA for HW bug, add a NOP
+#define INTERRUPTS_DISABLE()  do {} while (0)
+#define NO_OPERATION()        do {} while (0)
+
+// Found Texas Instruments MSP430 CPU  (V2)
+#define _CPU_TID_             _TI_MSP430_
+#define _CPU_DIRECTION_OUT_1_ TRUE
+#define _CPU_EDGE_HIGH_LOW_1_ TRUE
+//#define _CPU_64BIT_INT_       long long
+
+#define _CPU_TID_             _TI_MSP430_
+#define _CPU_DIRECTION_OUT_1_ TRUE
+#define _CPU_EDGE_HIGH_LOW_1_ TRUE
 #else
   #error "Unknown Compiler, the file bm.h has to be expanded !"
 #endif

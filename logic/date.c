@@ -50,6 +50,9 @@
 #include "date.h"
 #include "user.h"
 
+#ifdef EMU
+#include <time.h>
+#endif
 
 // *************************************************************************************************
 // Prototypes section
@@ -85,9 +88,23 @@ extern void (*fptr_lcd_function_line2)(u8 line, u8 update);
 void reset_date(void)
 {
 	// Set date 
-	sDate.year  = 2009;
-	sDate.month = 8;
-	sDate.day 	= 1;
+	sDate.year  = 2010;
+	sDate.month = 7;
+	sDate.day   = 16;
+
+#ifdef EMU
+	{
+		time_t now;
+		struct tm *res;
+
+		time(&now);
+		res = localtime(&now);
+
+		sDate.year  = res->tm_year + 1900;
+		sDate.month = res->tm_mon + 1;
+		sDate.day   = res->tm_mday;
+	}
+#endif
 	
 	// Show day and month on display
 	sDate.display = DISPLAY_DEFAULT_VIEW;
@@ -164,6 +181,23 @@ void add_day(void)
 	display.flag.full_update = 1;
 }
 
+static int
+get_day_of_week(int iday, int month, int year)
+{
+	int lengths[] = { 5, 1, 1, 4, 6, 2, 4, 0, 3, 5, 1, 3 };
+	int day;
+
+	day = (year + year/4) % 7;
+	day += lengths[sDate.month - 1] + iday;
+	if ((get_numberOfDays(month, 2) == 29) &&
+	    (month < 3))
+		day--;
+	day %= 7;
+
+	/* 0 == sunday */
+	return day;
+}
+
 
 // *************************************************************************************************
 // @fn          mx_date
@@ -219,6 +253,9 @@ void mx_date(u8 line)
 	{
 		// Idle timeout: exit without saving 
 		if (sys.flag.idle_timeout) break;
+
+		str = itoa(get_day_of_week(day, month, year), 1, 0);
+		display_chars(LCD_SEG_L2_4_0, str, SEG_ON);
 
 		// Button STAR (short): save, then exit 
 		if (button.flag.star) 
@@ -307,6 +344,10 @@ void display_date(u8 line, u8 update)
 	{
 		if (sDate.display == DISPLAY_DEFAULT_VIEW)
 		{
+			str = itoa(get_day_of_week(sDate.day, sDate.month, sDate.year), 1, 0);
+			display_chars(LCD_SEG_L2_4_0, str, SEG_ON);
+	
+
 			// Convert day to string
 			str = itoa(sDate.day, 2, 0);
 			if (sys.flag.use_metric_units)
@@ -319,7 +360,7 @@ void display_date(u8 line, u8 update)
 			}
 
 			// Convert month to string
-			str = itoa(sDate.month, 2, 0);
+			str = itoa(sDate.month, 2, 1);
 			if (sys.flag.use_metric_units)
 			{ 
 				display_chars(switch_seg(line, LCD_SEG_L1_1_0, LCD_SEG_L2_1_0), str, SEG_ON);
