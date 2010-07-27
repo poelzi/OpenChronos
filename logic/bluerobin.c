@@ -257,7 +257,7 @@ void sx_bluerobin(u8 line)
 //				
 // @return      none
 // *************************************************************************************************
-void display_selection_User_Sex1(u8 segments, u32 index, u8 digits, u8 blanks)
+void display_selection_User_Sex1(u8 segments, u32 index, u8 digits, u8 blanks, u8 dummy)
 {
 	if (index < 2) display_chars(segments, (u8 *)selection_User_Sex[index], SEG_ON_BLINK_ON);
 }

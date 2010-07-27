@@ -24,11 +24,20 @@ DATA["CONFIG_FREQUENCY"] = {
         "type": "choices",
         "values": [902, 869, 433]}
 
+DATA["OPTION_TIME_DISPLAY"] = {
+        "name": "Time display options",
+        "depends": [],
+        "default": 0,
+        "type": "choices",
+        "values": [0, 1, 2],
+	"help": "Select how time should be displayed, in order of code size options are- 0 = 24hr, 1=12hr (AM/PM) or 2=selectable"
+}
+
 DATA["CONFIG_METRIC_ONLY"] = {
         "name": "Metric only code",
         "depends": [],
         "default": False,
-        "help": "Only add code for Metric units (24 hours/meter/celsius) to reduce image size",
+        "help": "Only add code for Metric units (meter/celsius) to reduce image size",
 }
 
 DATA["THIS_DEVICE_ADDRESS"] = {

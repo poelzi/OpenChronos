@@ -96,6 +96,7 @@ typedef union
     u16 up_down_repeat_enabled  : 1;    // While in set_value(), create virtual UP/DOWN button events
     u16 low_battery      		: 1;    // 1 = Battery is low
     u16 use_metric_units		: 1;    // 1 = Use metric units, 0 = use English units
+    u16 am_pm_time          : 1;    // 1 = Display times as AM/PM else 24Hr
     u16 delay_over     			: 1;    // 1 = Timer delay over
     u16 no_beep                 : 1;    // Don't beep on key press
   } flag;
