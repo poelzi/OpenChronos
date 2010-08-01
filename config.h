@@ -18,6 +18,8 @@
 // CONFIG_EGGTIMER is not set
 // CONFIG_PHASE_CLOCK is not set
 #define CONFIG_ALTITUDE
+// CONFIG_VARIO is not set
+// CONFIG_PROUT is not set
 #define CONFIG_ACCEL
 #define CONFIG_ALARM
 #define CONFIG_BATTERY
