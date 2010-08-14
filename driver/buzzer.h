@@ -87,6 +87,10 @@ struct buzzer
 	
 	// Current buzzer output state
 	u8 state;
+
+        // Current steps (~freq)
+        u8 steps;
+
 };
 extern struct buzzer sBuzzer;
 
