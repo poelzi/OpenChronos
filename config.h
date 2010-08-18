@@ -14,7 +14,6 @@
 // DEBUG is not set
 #define CONFIG_DAY_OF_WEEK
 #define CONFIG_TEST
-#define TEXT_MODULES 
 // CONFIG_EGGTIMER is not set
 // CONFIG_PHASE_CLOCK is not set
 #define CONFIG_ALTITUDE
