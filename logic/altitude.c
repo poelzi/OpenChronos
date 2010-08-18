@@ -235,9 +235,11 @@ void do_altitude_measurement(u8 filter)
 	else
 	{
 		// Filter current pressure
-		// FIXME: find a FIXEDPOINTER way
+#ifdef FIXEDPOINT
+        pressure = (u32)(((pressure * 2) + (sAlt.pressure * 8))/10);
+#else
 		pressure = (u32)((pressure * 0.2) + (sAlt.pressure * 0.8));
-	
+#endif
 		// Store average pressure
 		sAlt.pressure = pressure;
 	}

@@ -50,7 +50,7 @@ DATA["FIXEDPOINT"] = {
         "name": "Fixedpoint",
         "depends": [],
         "default": False,
-        "help": "Tries to use fix point aritmetric. If no module is using it, it reduces the code size dramaticly",
+        "help": "Tries to use fix point aritmetric. If no module is using it, it reduces the code size dramaticly. EXPERIMENTAL",
 }
 
 DATA["THIS_DEVICE_ADDRESS"] = {

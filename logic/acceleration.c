@@ -237,9 +237,12 @@ void display_acceleration(u8 line, u8 update)
 			}
 			accel_data = convert_acceleration_value_to_mgrav(raw_data) / 10;
 			
-			// FIXME: find a FIXEDPOINTER way
 			// Filter acceleration
+#ifdef FIXEDPOINT
+			accel_data = (u16)(((accel_data * 2) + (sAccel.data * 8))/10);
+#else
 			accel_data = (u16)((accel_data * 0.2) + (sAccel.data * 0.8));
+#endif
 			
 			// Store average acceleration
 			sAccel.data = accel_data;	
