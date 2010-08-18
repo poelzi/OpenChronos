@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import npyscreen
+import urwid
+import urwid.raw_display
+import sys
+
+
 import re, sys, random
-#npyscreen.disableColor()
 from sorteddict import SortedDict
 
 # {0x79, 0x56, 0x34, 0x12}
@@ -22,15 +25,18 @@ DATA["CONFIG_FREQUENCY"] = {
         "depends": [],
         "default": 902,
         "type": "choices",
-        "values": [902, 869, 433]}
+        "values": [902, 869, 433],
+        "help": "Frequency for the clock"
+
+}
 
 DATA["OPTION_TIME_DISPLAY"] = {
         "name": "Time display options",
         "depends": [],
         "default": 0,
         "type": "choices",
-        "values": [0, 1, 2],
-	"help": "Select how time should be displayed, in order of code size options are- 0 = 24hr, 1=12hr (AM/PM) or 2=selectable"
+        "values": [(0, "24hr"), (1, "12hr (AM/PM)"), (2, "selectable")],
+        "help": "Select how time should be displayed, in order of code size options are- 0 = 24hr, 1=12hr (AM/PM) or 2=selectable"
 }
 
 DATA["CONFIG_METRIC_ONLY"] = {
@@ -179,129 +185,163 @@ FOOTER = """
 """
 
 
-#load_config()
+# debugging functions
+#FP = open("/tmp/log", "w")
+#def flog(*args):
+#    FP.write(repr(args))
+#    FP.write("\n")
 
-#print DATA
-#sys.exit(1)
 
-import curses, weakref
+class HelpListWalker(urwid.SimpleListWalker):
+    def __init__(self, app, *args, **kwargs):
+        self.app = app
+        super(HelpListWalker, self).__init__(*args, **kwargs)
 
-def wrap(text, width):
-    """
-    A word-wrap function that preserves existing line breaks
-    and most spaces in the text. Expects that existing line
-    breaks are posix newlines (\n).
-    """
-    return reduce(lambda line, word, width=width: '%s%s%s' %
-                  (line,
-                   ' \n'[(len(line)-line.rfind('\n')-1
-                         + len(word.split('\n',1)[0]
-                              ) >= width)],
-                   word),
-                  text.split(' ')
-                 )
 
-class ConfigForm(npyscreen.TitleForm):
-    BLANK_LINES_BASE     = 0
-    BLANK_COLUMNS_RIGHT  = 0
-    DEFAULT_X_OFFSET = 2
-    FRAMED = False
-    #MAIN_WIDGET_CLASS   = wgmultiline.MultiLine
-    STATUS_WIDGET_CLASS = npyscreen.Textfield
-    COMMAND_WIDGET_CLASS= npyscreen.Textfield
-    #MAIN_WIDGET_CLASS = grid.SimpleGrid
-    #MAIN_WIDGET_CLASS = editmultiline.MultiLineEdit
-    def __init__(self, *args, **keywords):
-        super(ConfigForm, self).__init__(cycle_widgets=False, *args, **keywords)
-    
-    
-    def draw_form(self):
-        MAXY, MAXX = self.lines, self.columns #self.curses_pad.getmaxyx()
-        self.curses_pad.hline(0, 0, curses.ACS_HLINE, MAXX-1)  
-        self.curses_pad.hline(MAXY-2, 0, curses.ACS_HLINE, MAXX-1)  
-
-    def create(self):
-        MAXY, MAXX    = self.lines, self.columns
-        self.wStatus1 = self.add(self.__class__.STATUS_WIDGET_CLASS,  rely=0, relx=0,      editable=False,  )
-        self.wStatus1.value = "Config Chronos Firmware"
-        #self.wMain    = self.add(npyscreen.SimpleGrid,    rely=1,  relx=0,     max_height = -2, )
-        #self.wMain    = self.add(self.__class__.MAIN_WIDGET_CLASS,    rely=1,  relx=0,     max_height = -2, )
-        self.wStatus2 = self.add(self.__class__.STATUS_WIDGET_CLASS,  rely=MAXY-6, relx=0, max_heigh=3, heigth=3, editable=False,  )
-        self.wStatus2.value = ""
-        #self.wCommand = self.add(self.__class__.COMMAND_WIDGET_CLASS, rely = MAXY-1, relx=0,)
-        self.wStatus1.important = True
-        self.wStatus2.important = False
-        self.nextrely = 2
-
-    def set_help(self):
-        if hasattr(self._widgets__[self.editw], "_datafield") and \
-           "help" in self._widgets__[self.editw]._datafield:
-            #print wrap(self._widgets__[self.editw]._datafield["help"], self.columns-40)
-            val = wrap(self._widgets__[self.editw]._datafield["help"], self.columns-5)+"\n\n\n"
+    def set_focus(self, focus):
+        if hasattr(self[focus], "_datafield") and \
+           "help" in self[focus]._datafield:
+            self.app.help_widget.set_text(self[focus]._datafield["help"])
         else:
-            val = ""
-        self.wStatus2.value = val + "\n"*(2-val.count("\n"))
-        
-        self.wStatus2.display()
+            self.app.help_widget.set_text("")
+        return super(HelpListWalker, self).set_focus(focus)
 
-    def while_editing(self, *args, **kwargs):
-        self.set_help()
-        super(ConfigForm, self).while_editing(*args, **kwargs)
+class HelpGridFlow(urwid.GridFlow):
+    def __init__(self, app, *args, **kwargs):
+        self.app = app
+        super(HelpGridFlow, self).__init__(*args, **kwargs)
 
 
-class OpenChronosApp(npyscreen.NPSApp):
+    def set_focus(self, focus):
+        if hasattr(focus, "_datafield") and \
+           "help" in focus._datafield:
+            self.app.help_widget.set_text(focus._datafield["help"])
+        else:
+            self.app.help_widget.set_text("")
+        return super(HelpGridFlow, self).set_focus(focus)
+
+
+class OpenChronosApp(object):
     def main(self):
         self.fields = {}
-        # These lines create the form and populate it with widgets.
-        # A fairly complex screen in only 8 or so lines of code - a line for each control.
-        F = ConfigForm(name = "Config Chronos Firmware",)
+        text_header = (u"OpenChronos config  \u2503  "
+                       u"UP / DOWN / PAGE UP / PAGE DOWN scroll.  F8 aborts.")
 
-#        ms2= F.add(npyscreen.TitleMultiSelect, max_height =-2, value = [1,], name="Frequency", 
-#                   values = ["911","868","Option3"], scroll_exit=True)
-#        ms2= F.add(npyscreen.TitleMultiSelect, max_height =-2, value = [1,], name="Pick Several", 
-#                    values = ["Option1","Option2","Option3"], scroll_exit=True)
- 
-    #		fn = F.add(npyscreen.TitleFilename, name = "Filename:")
-    # 		dt = F.add(npyscreen.TitleDateCombo, name = "Date:")
-    # 		s = F.add(npyscreen.TitleSlider, out_of=12, name = "Slider")
-    # 		ml= F.add(npyscreen.MultiLineEdit, 
-    # 			value = """try typing here!\nMutiline text, press ^R to reformat.\n""", 
-    # 			max_height=5, rely=9)
-    # 		ms2= F.add(npyscreen.TitleMultiSelect, max_height =-2, value = [1,], name="Pick Several", 
-    # 				values = ["Option1","Option2","Option3"], scroll_exit=True)
-        #t = F.add(npyscreen.TitleText, name = "Modules:",)
+        self.list_content = list_content = []
 
         for key,field in DATA.iteritems():
+            # generate gui forms depending on type
             if field.get("type", "bool") == "bool":
-                #f=F.add(npyscreen.TitleMultiSelect, max_height = 1, value = ["ENABLED",], name=field["name"], 
-                #	values = [""], scroll_exit=True)
-                f = F.add(npyscreen.Checkbox, name=field["name"], value=field["value"])
+                f = urwid.AttrWrap(urwid.CheckBox(field["name"], state=field["value"]),'buttn','buttnf')
+                f._datafield = field
+                self.fields[key] = f
+                list_content.append(f)
+
             elif field["type"] == "choices":
                 try:
                     value = field["values"].index(field["value"])
                 except ValueError:
-                    value = field["values"].index(field["default"])
-                f = F.add(npyscreen.TitleSelectOne, max_height=4, value=value, name=field["name"], 
-                        values = field["values"], scroll_exit=True)
+                    value = field["default"]
+                field["radio_button_group"] = []
+                f = urwid.Text(field["name"])
+                f._datafield = field
+                choice_items = [f]
+                for dat in field["values"]:
+                    txt = value = dat
+                    if isinstance(dat, tuple):
+                        value, txt = dat
+                    f = urwid.AttrWrap(urwid.RadioButton(field["radio_button_group"],
+                        unicode(txt), state=value==field["value"]), 'buttn','buttnf')
+                    f._datafield = field
+                    f.value = value
+                    choice_items.append(f)
+                hgf = HelpGridFlow(self, choice_items, 20, 3, 1, 'left')
+                self.fields[key] = choice_items
+                hgf.focus_cell = hgf.cells[1]
+                list_content.append(hgf)
+
             elif field["type"] == "text":
-                f = F.add(npyscreen.TitleText, max_height=1, value=field["value"], name=field["name"], 
-                        values = field["value"])
+                f = urwid.AttrWrap(urwid.Edit("%s: "%field["name"], field["value"]), 
+                                   'editbx', 'editfc')
+                f._datafield = field
+                self.fields[key] = f
+                list_content.append(f)
+
             elif field["type"] == "info":
-                f = F.add(npyscreen.TitleText, max_height=1, name=field["name"])
-            f._key = key
-            f._datafield = field
-            self.fields[key] = f
+                f = urwid.Text(field["name"])
+                f._datafield = field
+                self.fields[key] = f
+                list_content.append(f)
+
+        def ok_pressed(*args, **kwargs):
+            raise urwid.ExitMainLoop()
+
+        def abort_pressed(*args, **kwargs):
+            sys.exit(0)
+
+        list_content.append(urwid.Divider(div_char=u"\u2550", top=1, bottom=1))
+        list_content.append(
+        urwid.Padding(urwid.GridFlow(
+            [urwid.AttrWrap(urwid.Button("Save", ok_pressed), 'buttn','buttnf'),
+             urwid.AttrWrap(urwid.Button("Abort", abort_pressed), 'buttn','buttnf')],
+            15, 4, 4, 'center'),
+            ('fixed left',4), ('fixed right',3)))
 
 
-        # This lets the user play with the Form.
-        F.edit()
+        header = urwid.AttrWrap(urwid.Text(text_header), 'header')
+        #header = urwid.Padding(urwid.BigText("OpenChronos", urwid.HalfBlock5x4Font()))
+        walker = HelpListWalker(self, list_content)
+        listbox = urwid.ListBox(walker)
+        self.help_widget = urwid.Text("")
+        footer = urwid.AttrWrap(self.help_widget, 'footer')
+        frame = urwid.Frame(urwid.AttrWrap(listbox, 'body'), header=header, footer=footer)
+
+        screen = urwid.raw_display.Screen()
+        palette = [
+            ('body','black','light gray', 'standout'),
+            ('reverse','light gray','black'),
+            ('header','white','dark red', 'bold'),
+            ('important','dark blue','light gray',('standout','underline')),
+            ('editfc','white', 'dark blue', 'bold'),
+            ('editbx','light gray', 'dark blue'),
+            ('editcp','black','light gray', 'standout'),
+            ('bright','dark gray','light gray', ('bold','standout')),
+            ('buttn','black','dark cyan'),
+            ('buttnf','white','dark blue','bold'),
+            ]
+
+
+        def unhandled(key):
+            if key == 'f8':
+                #raise urwid.ExitMainLoop()
+                sys.exit(0)
+
+        urwid.MainLoop(frame, palette, screen,
+            unhandled_input=unhandled).run()
+
 
     def save_config(self):
+        print "save"
         for key,field in self.fields.iteritems():
-            value = field.value
-            if hasattr(field, "values"):
-                 value = field.values[value[0]]
-            DATA[key]["value"] = value
+            print key, field
+            if isinstance(field, (tuple, list)):
+                for item in field:
+                    if hasattr(item, "get_state"):
+                        print item.get_state()
+                        if item.get_state():
+                            # found the set radio button
+                            DATA[key]["value"] = item.value
+                                # look up the 
+            elif isinstance(field, urwid.Text):
+                pass
+            elif isinstance(field, urwid.AttrMap):
+                wid = field.original_widget
+                if isinstance(wid, urwid.Edit):
+                    DATA[key]["value"] = wid.get_edit_text()
+                else:
+                    DATA[key]["value"] = wid.get_state()
+            else:
+                raise ValueError, "Unhandled type"
 
         fp = open("config.h", "w")
         fp.write("// !!!! DO NOT EDIT !!!, use: make config\n")
@@ -357,14 +397,11 @@ class OpenChronosApp(npyscreen.NPSApp):
                     m = m.groups()
                     DATA[m[0]]["value"] = False
 
-        #print DATA
-        #sys.exit(0)
-
         set_default()
 
 if __name__ == "__main__":
     App = OpenChronosApp()
     App.load_config()
-    App.run()
+    App.main()
     App.save_config()
 
