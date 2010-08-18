@@ -102,11 +102,11 @@ clean:
 build:
 	mkdir build
 
-config.h:
-	python tools/config.py
+config.h: config
 
 config:
 	python tools/config.py
+	git update-index --assume-unchanged config.h 2> /dev/null || true
 
 help:
 	@echo "Valid targets are"

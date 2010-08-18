@@ -321,13 +321,10 @@ class OpenChronosApp(object):
 
 
     def save_config(self):
-        print "save"
         for key,field in self.fields.iteritems():
-            print key, field
             if isinstance(field, (tuple, list)):
                 for item in field:
                     if hasattr(item, "get_state"):
-                        print item.get_state()
                         if item.get_state():
                             # found the set radio button
                             DATA[key]["value"] = item.value
@@ -348,7 +345,9 @@ class OpenChronosApp(object):
         fp.write(HEADER)
         for key,dat in DATA.iteritems():
             if not "value" in dat:
-               continue
+                continue
+            if "type" in dat and dat["type"] == "info":
+                continue
             if DATA[key].get("ifndef", False):
                 fp.write("#ifndef %s\n" %key)
             if isinstance(dat["value"], bool):
