@@ -11,6 +11,9 @@ python http://python.org
 == Supported Compilers ==
 
 msp430-gcc4
+   Working combinations:
+   gcc=4.4.3 binutils=2.20.1 libc=20100430
+
 IAR msp430
 
 Patches for more (more efficient) compilers are welcome :-)
