@@ -102,7 +102,9 @@ clean:
 build:
 	mkdir build
 
-config.h: config
+config.h:
+	python tools/config.py
+	git update-index --assume-unchanged config.h 2> /dev/null || true
 
 config:
 	python tools/config.py
