@@ -263,16 +263,26 @@ void reset_stopwatch(void)
 
 
 // *************************************************************************************************
-// @fn          is_stopwatch
+// @fn          is_stopwatch_run
 // @brief       Is stopwatch operating and visible?
 // @param       none
 // @return      1=STOPWATCH_RUN, 0=other states
 // *************************************************************************************************
-u8 is_stopwatch(void)
+u8 is_stopwatch_run(void)
 {
 	return ((sStopwatch.state == STOPWATCH_RUN) && (ptrMenu_L2 == &menu_L2_Stopwatch));
 }
 
+// *************************************************************************************************
+// @fn          is_stopwatch_stop
+// @brief       Is stopwatch stopped and visible?
+// @param       none
+// @return      1=STOPWATCH_STOP, 0=other states
+// *************************************************************************************************
+u8 is_stopwatch_stop(void)
+{
+	return ((sStopwatch.state == STOPWATCH_STOP) && (ptrMenu_L2 == &menu_L2_Stopwatch));
+}
 
 // *************************************************************************************************
 // @fn          start_stopwatch
@@ -352,6 +362,9 @@ void mx_stopwatch(u8 line)
 // *************************************************************************************************
 void sx_stopwatch(u8 line)
 {
+	//This function is likely never called because for timing reasons
+	//start_stopwatch and stop_stopwatch are called directly in ports.c
+	
 	// DOWN: RUN, STOP
 	if(button.flag.down)
 	{

@@ -46,7 +46,8 @@
 extern void start_stopwatch(void);
 extern void stop_stopwatch(void);
 extern void reset_stopwatch(void);
-extern u8 is_stopwatch(void);
+extern u8 is_stopwatch_run(void);
+extern u8 is_stopwatch_stop(void);
 extern void stopwatch_tick(void);
 extern void update_stopwatch_timer(void);
 extern void mx_stopwatch(u8 line);

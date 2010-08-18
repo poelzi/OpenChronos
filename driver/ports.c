@@ -251,13 +251,21 @@ __interrupt void PORT2_ISR(void)
 				// Generate button click
 				buzzer = 1;
 				
-				// Faster reaction for stopwatch stop button press
-				if (is_stopwatch() && !sys.flag.lock_buttons) 
+				if( !sys.flag.lock_buttons)
 				{
-					stop_stopwatch();
-					button.flag.down = 0;
+					// Faster reaction for stopwatch stop button press
+					if (is_stopwatch_run())
+					{
+						stop_stopwatch();
+						button.flag.down = 0;
+					}
+					// Faster reaction for stopwatch start button press
+					else if (is_stopwatch_stop())
+					{
+						start_stopwatch();
+						button.flag.down = 0;
+					}
 				}
-					
 			}
 		}
 		// ---------------------------------------------------

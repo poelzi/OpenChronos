@@ -239,7 +239,7 @@ void Timer0_A4_Delay(u16 ticks)
 		WDTCTL = WDTPW + WDTIS__512K + WDTSSEL__ACLK + WDTCNTCL;
 #endif
 		// Redraw stopwatch display
-		if (is_stopwatch()) display_stopwatch(LINE2, DISPLAY_LINE_UPDATE_PARTIAL);
+		if (is_stopwatch_run()) display_stopwatch(LINE2, DISPLAY_LINE_UPDATE_PARTIAL);
 
 		// Check stop condition
 		if (sys.flag.delay_over) break;
