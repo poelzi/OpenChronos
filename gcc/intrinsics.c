@@ -15,28 +15,28 @@
 void __delay_cycles(unsigned long __cycles)
 {
 	// divide by eight
-	asm("clrc");
-	asm("rra.w %[src]" 
+	asm volatile("clrc");
+	asm volatile("rra.w %[src]" 
 		: [src] "=r" (__cycles) 
 		: "[src]" (__cycles) );
-	asm("clrc");
-	asm("rra.w %[src]" 
+	asm volatile("clrc");
+	asm volatile("rra.w %[src]" 
 		: [src] "=r" (__cycles) 
 		: "[src]" (__cycles) );
-	asm("clrc");
-	asm("rra.w %[src]" 
+	asm volatile("clrc");
+	asm volatile("rra.w %[src]" 
 		: [src] "=r" (__cycles) 
 		: "[src]" (__cycles) );
-	asm("DelayLoop:");
-	asm("nop");	// add nops to increase loop to eight clock cycles
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("nop");
-	asm("dec.w %[src]"
+	asm volatile("DelayLoop:");
+	asm volatile("nop");	// add nops to increase loop to eight clock cycles
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("nop");
+	asm volatile("dec.w %[src]"
 		: [src] "=r" (__cycles) 
 		: "[src]" (__cycles));
-	asm("jne DelayLoop");
+	asm volatile("jne DelayLoop");
 }
 
 //__set_interrupt_state  used in bsp_msp430_defs.h, rf1a.c

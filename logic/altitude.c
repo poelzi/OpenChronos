@@ -235,6 +235,7 @@ void do_altitude_measurement(u8 filter)
 	else
 	{
 		// Filter current pressure
+		// FIXME: find a FIXEDPOINTER way
 		pressure = (u32)((pressure * 0.2) + (sAlt.pressure * 0.8));
 	
 		// Store average pressure
@@ -242,7 +243,11 @@ void do_altitude_measurement(u8 filter)
 	}
 	
 	// Convert pressure (Pa) and temperature (?K) to altitude (m)
-	sAlt.altitude = conv_pa_to_meter(sAlt.pressure, sAlt.temperature);
+#ifdef FIXEDPOINT
+	sAlt.altitude = conv_pa_to_altitude(sAlt.pressure, sAlt.temperature);
+#else
+    sAlt.altitude = conv_pa_to_meter(sAlt.pressure, sAlt.temperature);
+#endif
 }
 
 

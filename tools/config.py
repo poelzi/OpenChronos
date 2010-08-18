@@ -46,6 +46,13 @@ DATA["CONFIG_METRIC_ONLY"] = {
         "help": "Only add code for Metric units (meter/celsius) to reduce image size",
 }
 
+DATA["FIXEDPOINT"] = {
+        "name": "Fixedpoint",
+        "depends": [],
+        "default": False,
+        "help": "Tries to use fix point aritmetric. If no module is using it, it reduces the code size dramaticly",
+}
+
 DATA["THIS_DEVICE_ADDRESS"] = {
         "name": "Hardware address",
         "type": "text",

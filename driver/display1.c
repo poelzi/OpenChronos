@@ -59,6 +59,11 @@
 // Global Variable section
 
 // Table with memory bit assignment for digits "0" to "9" and characters "A" to "Z"
+//   A
+// F   B
+//   G
+// E   C
+//   D
 const u8 lcd_font[] =
 {
   SEG_A+SEG_B+SEG_C+SEG_D+SEG_E+SEG_F,           // Displays "0"
@@ -71,41 +76,39 @@ const u8 lcd_font[] =
   SEG_A+SEG_B+SEG_C,                             // Displays "7"
   SEG_A+SEG_B+SEG_C+SEG_D+SEG_E+SEG_F+SEG_G,     // Displays "8"
   SEG_A+SEG_B+SEG_C+SEG_D+      SEG_F+SEG_G,     // Displays "9"
-  0                                        ,     // Displays " "
-  0                                        ,     // Displays " "
-  0                                        ,     // Displays " "
-  0                                        ,     // Displays " "
-  0                                        ,     // Displays " "
-                   SEG_D+SEG_E+       SEG_G,     // Displays "c"
-  0                                        ,     // Displays " "
+  0                                        ,     // Displays " " (:)
+  0                                        ,     // Displays " " (;)
+  SEG_A+                        SEG_F+SEG_G,     // Displays "<" as high c
+                    SEG_D+            SEG_G,     // Displays "="
+  0                                        ,     // Displays " " (>)
+  SEG_A+SEG_B+            SEG_E+      SEG_G,     // Displays "?"
+  0                                        ,     // Displays " " (@)
   SEG_A+SEG_B+SEG_C+      SEG_E+SEG_F+SEG_G,     // Displays "A"
               SEG_C+SEG_D+SEG_E+SEG_F+SEG_G,     // Displays "b"
-  SEG_A+            SEG_D+SEG_E+SEG_F      ,     // Displays "C"
+                    SEG_D+SEG_E+      SEG_G,     // Displays "c"
         SEG_B+SEG_C+SEG_D+SEG_E+      SEG_G,     // Displays "d"
   SEG_A+           +SEG_D+SEG_E+SEG_F+SEG_G,     // Displays "E"
-  SEG_A+                  SEG_E+SEG_F+SEG_G,     // Displays "F"
-//  SEG_A+      SEG_C+SEG_D+SEG_E+SEG_F+SEG_G,     // Displays "G"
-  SEG_A+SEG_B+SEG_C+SEG_D+      SEG_F+SEG_G,     // Displays "g"
-        SEG_B+SEG_C+      SEG_E+SEG_F+SEG_G,     // Displays "H"
-                          SEG_E+SEG_F      ,     // Displays "I"
+  SEG_A+                  SEG_E+SEG_F+SEG_G,     // Displays "f"
+  SEG_A+SEG_B+SEG_C+SEG_D+      SEG_F+SEG_G,     // Displays "g" same as 9
+              SEG_C+      SEG_E+SEG_F+SEG_G,     // Displays "h"
+                          SEG_E            ,     // Displays "i"
   SEG_A+SEG_B+SEG_C+SEG_D                  ,     // Displays "J"
-//  		SEG_B+SEG_C+      SEG_E+SEG_F+SEG_G,     // Displays "k"
-  		     		SEG_D+SEG_E+SEG_F+SEG_G,     // Displays "k"
+  		     		SEG_D+      SEG_F+SEG_G,     // Displays "k"
                     SEG_D+SEG_E+SEG_F      ,     // Displays "L"
   SEG_A+SEG_B+SEG_C+      SEG_E+SEG_F      ,     // Displays "M"
               SEG_C+      SEG_E+      SEG_G,     // Displays "n"
               SEG_C+SEG_D+SEG_E+      SEG_G,     // Displays "o"
   SEG_A+SEG_B+            SEG_E+SEG_F+SEG_G,     // Displays "P"
-  SEG_A+SEG_B+SEG_C+SEG_D+SEG_E+SEG_F      ,     // Displays "Q"
+  SEG_A+SEG_B+SEG_C+            SEG_F+SEG_G,     // Displays "q"
                           SEG_E+      SEG_G,     // Displays "r"
-  SEG_A+      SEG_C+SEG_D+      SEG_F+SEG_G,     // Displays "S"
+  SEG_A+      SEG_C+SEG_D+      SEG_F+SEG_G,     // Displays "S" same as 5
                     SEG_D+SEG_E+SEG_F+SEG_G,     // Displays "t"
               SEG_C+SEG_D+SEG_E            ,     // Displays "u"
-              SEG_C+SEG_D+SEG_E            ,     // Displays "u"
-                                      SEG_G,     // Displays "-"
-        SEG_B+SEG_C+     +SEG_E+SEG_F+SEG_G,     // Displays "X"
+              SEG_C+SEG_D+SEG_E            ,     // Displays "v" same as u
+        SEG_B+SEG_C+SEG_D+SEG_E+SEG_F+SEG_G,     // Displays "W"
+        SEG_B+SEG_C+     +SEG_E+SEG_F+SEG_G,     // Displays "X" as H
         SEG_B+SEG_C+SEG_D+      SEG_F+SEG_G,     // Displays "Y"
-  SEG_A+SEG_B+      SEG_D+SEG_E+      SEG_G,     // Displays "Z"
+  SEG_A+SEG_B+      SEG_D+SEG_E+      SEG_G,     // Displays "Z" same as 2
 };
 
 

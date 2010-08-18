@@ -47,10 +47,14 @@ extern void ps_start(void);
 extern void ps_stop(void);
 extern u32 ps_get_pa(void);
 extern u16 ps_get_temp(void);
+
 extern void init_pressure_table(void);
 extern void update_pressure_table(s16 href, u32 p_meas, u16 t_meas);
+#ifndef FIXEDPOINT
 extern s16 conv_pa_to_meter(u32 p_meas, u16 t_meas);
-
+#else
+extern s16 conv_pa_to_altitude(u32 p_meas, u16 t_meas);
+#endif
 
 // *************************************************************************************************
 // Defines section

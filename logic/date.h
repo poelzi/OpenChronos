@@ -58,7 +58,7 @@ extern void display_date(u8 line, u8 update);
 // Global Variable section
 struct date
 {
-	u8  display;
+	u8  view;
 	u8  day;
 	u8  month;
 	u16 year;
