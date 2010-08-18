@@ -26,7 +26,7 @@ DATA["CONFIG_FREQUENCY"] = {
         "default": 902,
         "type": "choices",
         "values": [902, 869, 433],
-        "help": "Frequency for the clock"
+        "help": "Radio frequency for the clock"
 
 }
 
@@ -65,7 +65,7 @@ DATA["THIS_DEVICE_ADDRESS"] = {
 DATA["USE_LCD_CHARGE_PUMP"] = {
         "name": "Use LCD Charge Pump",
         "default": False,
-        "help": "Use the internal charge pump to make the display contrast same tho whole battery lifetime. But this increases currency and reduces battery lifetime.",
+        "help": "Use the internal charge pump to make the display contrast contstant through the whole battery lifetime. As a downside this increases currency and reduces battery lifetime.",
 }
 
 DATA["USE_WATCHDOG"] = {
@@ -122,7 +122,7 @@ DATA["CONFIG_PHASE_CLOCK"] = {
         "name": "Phase Clock",
         "depends": [],
         "default": False,
-        "help": "Messures sleep phase by recording body movement and sends the data to the accesspoint.\n"
+        "help": "Messures sleep phase by recording body movement and sending the data to the accesspoint.\n"
                 "Designed to be used with uberclock",
 }
 
@@ -147,7 +147,7 @@ DATA["CONFIG_PROUT"] = {
 # not yet working
 
 DATA["CONFIG_ACCEL"] = {
-        "name": "Accleration",
+        "name": "Acceleration",
         "depends": [],
         "default": True}
 DATA["CONFIG_ALARM"] = {
