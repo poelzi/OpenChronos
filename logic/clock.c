@@ -90,9 +90,6 @@ const u8 selection_Timeformat[][4] =
 
 // *************************************************************************************************
 // Extern section
-extern void (*fptr_lcd_function_line1)(u8 line, u8 update);
-extern void (*fptr_lcd_function_line2)(u8 line, u8 update);
-
 
 // *************************************************************************************************
 // @fn          reset_clock

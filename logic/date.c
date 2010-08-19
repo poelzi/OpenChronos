@@ -71,8 +71,6 @@ struct date sDate;
 
 // *************************************************************************************************
 // Extern section
-extern void (*fptr_lcd_function_line1)(line_t line, update_t update);
-extern void (*fptr_lcd_function_line2)(line_t line, update_t update);
 
 
 // *************************************************************************************************
