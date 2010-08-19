@@ -465,7 +465,7 @@ void wakeup_event(void)
 		if(button.flag.star) 
 		{
 			//skip to next menu item
-			menu_skip_next(LINE1);
+			ptrMenu_L1->nx_function(LINE1);
 			
 			// Set Line1 display update flag
 			display.flag.line1_full_update = 1;
@@ -478,7 +478,7 @@ void wakeup_event(void)
 		else if(button.flag.num) 
 		{
 			//skip to next menu item
-			menu_skip_next(LINE2);
+			ptrMenu_L2->nx_function(LINE2);
 			
 			// Set Line2 display update flag
 			display.flag.line2_full_update = 1;
@@ -755,6 +755,12 @@ void read_calibration_values(void)
 	}
 }
 
+// *************************************************************************************************
+// @fn          menu_skip_next
+// @brief       skip to next menu item
+// @param       line line to skip in
+// @return      none
+// *************************************************************************************************
 void menu_skip_next(line_t line)
 {
 	if(line==LINE1)
