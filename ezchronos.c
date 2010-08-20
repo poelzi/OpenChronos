@@ -608,7 +608,7 @@ void display_update(void)
 		line = LINE2;
 		
 		// Select message to display
-		if (message.flag.type_locked)			memcpy(string, "  LO?T", 6);
+		if (message.flag.type_locked)			memcpy(string, "  LOCT", 6);
 		else if (message.flag.type_unlocked)	memcpy(string, "  OPEN", 6);
 		else if (message.flag.type_lobatt)		memcpy(string, "LOBATT", 6);
 		else if (message.flag.type_no_beep_on)  memcpy(string, " SILNC", 6);
