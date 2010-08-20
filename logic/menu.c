@@ -263,8 +263,8 @@ const struct menu menu_L2_Vario =
 const struct menu menu_L2_Stopwatch =
 {
 	FUNCTION(sx_stopwatch),		// direct function
-	FUNCTION(mx_stopwatch),		// sub menu function
 	FUNCTION(menu_skip_next),	// next item function
+	FUNCTION(mx_stopwatch),		// sub menu function
 	FUNCTION(display_stopwatch),// display function
 	FUNCTION(update_stopwatch),	// new display data
 #ifndef CONFIG_EGGTIMER

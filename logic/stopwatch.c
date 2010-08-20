@@ -58,6 +58,7 @@
 void start_stopwatch(void);
 void stop_stopwatch(void);
 void reset_stopwatch(void);
+void split_stopwatch(void);
 void stopwatch_tick(void);
 void update_stopwatch_timer(void);
 void mx_stopwatch(u8 line);
@@ -76,7 +77,7 @@ struct stopwatch sStopwatch;
 
 // *************************************************************************************************
 // Extern section
-
+extern void menu_skip_next(line_t line); //ezchronos.c
 
 // *************************************************************************************************
 // @fn          update_stopwatch_timer
@@ -233,15 +234,19 @@ void stopwatch_tick(void)
 		}
 	}		
 	
-	// Always set display update flag
-	display.flag.update_stopwatch = 1;
+	//do not do partial update when in SPLIT mode
+	if(!(sStopwatch.state & STOPWATCH_SPLIT))
+	{
+		// Always set display update flag
+		display.flag.update_stopwatch = 1;
+	}
 }
 
 
 
 // *************************************************************************************************
 // @fn          reset_stopwatch
-// @brief       Clears stopwatch counter and sets stopwatch state to off.
+// @brief       Clears stopwatch counter and sets stopwatch state to reset (off).
 // @param       none
 // @return      none
 // *************************************************************************************************
@@ -254,8 +259,8 @@ void reset_stopwatch(void)
 	sStopwatch.swtIs10Hz 	= 0;		// 1/10Hz trigger
 	sStopwatch.swtIs1Hz  	= 0;		// 1Hz trigger
 	
-	// Init stopwatch state 'Off'
-	sStopwatch.state 	  	= STOPWATCH_STOP;		
+	// Init stopwatch state 'Reset' ('Off')
+	sStopwatch.state 	  	= STOPWATCH_RESET;		
 	
 	// Default display style is MM:SS:HH
 	sStopwatch.viewStyle 	= DISPLAY_DEFAULT_VIEW;
@@ -266,22 +271,22 @@ void reset_stopwatch(void)
 // @fn          is_stopwatch_run
 // @brief       Is stopwatch operating and visible?
 // @param       none
-// @return      1=STOPWATCH_RUN, 0=other states
+// @return      1=STOPWATCH_RUN or STOPWATCH_SPLIT_RUN, 0=other states
 // *************************************************************************************************
 u8 is_stopwatch_run(void)
 {
-	return ((sStopwatch.state == STOPWATCH_RUN) && (ptrMenu_L2 == &menu_L2_Stopwatch));
+	return ((sStopwatch.state & STOPWATCH_RUN) && (ptrMenu_L2 == &menu_L2_Stopwatch));
 }
 
 // *************************************************************************************************
 // @fn          is_stopwatch_stop
 // @brief       Is stopwatch stopped and visible?
 // @param       none
-// @return      1=STOPWATCH_STOP, 0=other states
+// @return      1=STOPWATCH_STOP or STOPWATCH_RESET or STOPWATCH_SPLIT_STOP, 0=other states
 // *************************************************************************************************
 u8 is_stopwatch_stop(void)
 {
-	return ((sStopwatch.state == STOPWATCH_STOP) && (ptrMenu_L2 == &menu_L2_Stopwatch));
+	return (( (sStopwatch.state & STOPWATCH_STOP) || sStopwatch.state == STOPWATCH_RESET ) && (ptrMenu_L2 == &menu_L2_Stopwatch));
 }
 
 // *************************************************************************************************
@@ -292,8 +297,16 @@ u8 is_stopwatch_stop(void)
 // *************************************************************************************************
 void start_stopwatch(void)
 {
-	// Set stopwatch run flag
-	sStopwatch.state = STOPWATCH_RUN;	
+	if(sStopwatch.state == STOPWATCH_SPLIT_STOP)
+	{
+		// Set stopwatch split flag
+		sStopwatch.state = STOPWATCH_SPLIT_RUN;
+	}
+	else
+	{
+		// Set stopwatch run flag
+		sStopwatch.state = STOPWATCH_RUN;
+	}
 
 	// Init CCR register with current time
 	TA0CCR2 = TA0R;
@@ -324,14 +337,46 @@ void stop_stopwatch(void)
 	// Clear timer interrupt enable   
 	TA0CCTL2 &= ~CCIE; 
 
-	// Clear stopwatch run flag
-	sStopwatch.state = STOPWATCH_STOP;	
+	if(sStopwatch.state == STOPWATCH_RUN)
+	{
+		// Clear stopwatch run flag
+		sStopwatch.state = STOPWATCH_STOP;
+	}
+	else if(sStopwatch.state == STOPWATCH_SPLIT_RUN)
+	{
+		// Clear stopwatch run flag
+		sStopwatch.state = STOPWATCH_SPLIT_STOP;
+	}
 	
 	// Clear stopwatch icon
 	display_symbol(LCD_ICON_STOPWATCH, SEG_OFF);
 
 	// Call draw routine immediately
 	display_stopwatch(LINE2, DISPLAY_LINE_UPDATE_FULL);
+}
+
+
+// *************************************************************************************************
+// @fn          split_stopwatch
+// @brief       activate or deactivate split (lap time)
+// @param       none
+// @return      none
+// *************************************************************************************************
+void split_stopwatch(void)
+{
+	if(sStopwatch.state == STOPWATCH_RUN)
+	{
+		sStopwatch.state = STOPWATCH_SPLIT_RUN;
+		memcpy(sStopwatch.time_split, sStopwatch.time, sizeof(sStopwatch.time));
+		sStopwatch.viewStyle_split=sStopwatch.viewStyle;
+	}
+	else
+	{
+		//clear split bit
+		sStopwatch.state &= ~STOPWATCH_SPLIT;
+		display_stopwatch(LINE2, DISPLAY_LINE_UPDATE_FULL);
+	}
+
 }
 
 
@@ -343,14 +388,27 @@ void stop_stopwatch(void)
 // *************************************************************************************************
 void mx_stopwatch(u8 line)
 {
-	// Stop stopwatch
-	stop_stopwatch();
-			
-	// Reset stopwatch count
-	reset_stopwatch();	
 	
-	// Display "00:00:00"
-	display_stopwatch(line, DISPLAY_LINE_UPDATE_FULL);
+	if(sStopwatch.state == STOPWATCH_RESET)
+	{
+		//skip to next menu item when stopwatch is in reset state
+		menu_skip_next(line);
+	}
+	else if(sStopwatch.state == STOPWATCH_STOP)
+	{
+		// Stop stopwatch
+		stop_stopwatch();
+				
+		// Reset stopwatch count
+		reset_stopwatch();	
+		
+		// Display "00:00:00"
+		display_stopwatch(line, DISPLAY_LINE_UPDATE_FULL);
+	}
+	else
+	{
+		split_stopwatch();
+	}
 }
 
 
@@ -368,7 +426,7 @@ void sx_stopwatch(u8 line)
 	// DOWN: RUN, STOP
 	if(button.flag.down)
 	{
-		if (sStopwatch.state == STOPWATCH_STOP)
+		if((sStopwatch.state & STOPWATCH_STOP) || sStopwatch.state == STOPWATCH_RESET )
 		{
 			// (Re)start stopwatch
 			start_stopwatch();
@@ -395,7 +453,7 @@ void display_stopwatch(u8 line, u8 update)
 	// Partial line update only
 	if (update == DISPLAY_LINE_UPDATE_PARTIAL)
 	{	
-		if (display.flag.update_stopwatch)
+		if (display.flag.update_stopwatch && !(sStopwatch.state & STOPWATCH_SPLIT))
 		{
 			if (sStopwatch.viewStyle == DISPLAY_DEFAULT_VIEW)
 			{
@@ -433,15 +491,31 @@ void display_stopwatch(u8 line, u8 update)
 	// Redraw whole line
 	else if (update == DISPLAY_LINE_UPDATE_FULL)	
 	{
-		if (sStopwatch.viewStyle == DISPLAY_DEFAULT_VIEW)
+		if(sStopwatch.state & STOPWATCH_SPLIT)
 		{
-			// Display MM:SS:hh
-			display_chars(LCD_SEG_L2_5_0, sStopwatch.time+2, SEG_ON);
+			if (sStopwatch.viewStyle_split == DISPLAY_DEFAULT_VIEW)
+			{
+				// Display MM:SS:hh
+				display_chars(LCD_SEG_L2_5_0, sStopwatch.time_split+2, SEG_ON);
+			}
+			else // DISPLAY_ALTERNATIVE_VIEW
+			{
+				// Display HH:MM:SS
+				display_chars(LCD_SEG_L2_5_0, sStopwatch.time_split, SEG_ON);
+			}
 		}
-		else // DISPLAY_ALTERNATIVE_VIEW
+		else
 		{
-			// Display HH:MM:SS
-			display_chars(LCD_SEG_L2_5_0, sStopwatch.time, SEG_ON);
+			if (sStopwatch.viewStyle == DISPLAY_DEFAULT_VIEW)
+			{
+				// Display MM:SS:hh
+				display_chars(LCD_SEG_L2_5_0, sStopwatch.time+2, SEG_ON);
+			}
+			else // DISPLAY_ALTERNATIVE_VIEW
+			{
+				// Display HH:MM:SS
+				display_chars(LCD_SEG_L2_5_0, sStopwatch.time, SEG_ON);
+			}
 		}
 		display_symbol(LCD_SEG_L2_COL1, SEG_ON);
 		display_symbol(LCD_SEG_L2_COL0, SEG_ON);
