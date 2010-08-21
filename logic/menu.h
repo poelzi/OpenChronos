@@ -53,6 +53,8 @@ struct menu
 	void (*sx_function)(u8 line);		 
 	// Pointer to sub menu function (change settings, reset counter etc)
 	void (*mx_function)(u8 line);		 
+	// Pointer to next item function (normally change to next item)
+	void (*nx_function)(u8 line);	
 	// Pointer to display function
 	void (*display_function)(u8 line, u8 mode);		 
 	// Display update trigger 

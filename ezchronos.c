@@ -95,6 +95,8 @@ void idle_loop(void);
 void configure_ports(void);
 void read_calibration_values(void);
 
+void menu_skip_next(line_t line);
+
 
 // *************************************************************************************************
 // Defines section
@@ -462,15 +464,9 @@ void wakeup_event(void)
 		// (Short) Advance to next menu item
 		if(button.flag.star) 
 		{
-			// Clean up display before activating next menu item 
-			fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
+			//skip to next menu item
+			ptrMenu_L1->nx_function(LINE1);
 			
-			// Go to next menu entry
-			ptrMenu_L1 = ptrMenu_L1->next;
-				
-			// Assign new display function
-			fptr_lcd_function_line1 = ptrMenu_L1->display_function;
-
 			// Set Line1 display update flag
 			display.flag.line1_full_update = 1;
 
@@ -481,15 +477,9 @@ void wakeup_event(void)
 		// (Short) Advance to next menu item
 		else if(button.flag.num) 
 		{
-			// Clean up display before activating next menu item 
-			fptr_lcd_function_line2(LINE2, DISPLAY_LINE_CLEAR);
-
-			// Go to next menu entry
-			ptrMenu_L2 = ptrMenu_L2->next;
-
-			// Assign new display function
-			fptr_lcd_function_line2 = ptrMenu_L2->display_function;
-
+			//skip to next menu item
+			ptrMenu_L2->nx_function(LINE2);
+			
 			// Set Line2 display update flag
 			display.flag.line2_full_update = 1;
 
@@ -765,4 +755,36 @@ void read_calibration_values(void)
 	}
 }
 
+// *************************************************************************************************
+// @fn          menu_skip_next
+// @brief       skip to next menu item
+// @param       line line to skip in
+// @return      none
+// *************************************************************************************************
+void menu_skip_next(line_t line)
+{
+	if(line==LINE1)
+	{
+		// Clean up display before activating next menu item
+		fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
+			
+		// Go to next menu entry
+		ptrMenu_L1 = ptrMenu_L1->next;
+			
+		// Assign new display function
+		fptr_lcd_function_line1 = ptrMenu_L1->display_function;
+	}
+	else if(line==LINE2)
+	{
+	// Clean up display before activating next menu item
+		fptr_lcd_function_line2(LINE2, DISPLAY_LINE_CLEAR);
+
+		// Go to next menu entry
+		ptrMenu_L2 = ptrMenu_L2->next;
+
+		// Assign new display function
+		fptr_lcd_function_line2 = ptrMenu_L2->display_function;
+	}
+
+}
 

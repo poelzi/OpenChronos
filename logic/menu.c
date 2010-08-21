@@ -91,7 +91,9 @@ const struct menu * ptrMenu_L2 = NULL;
 
 
 // *************************************************************************************************
-// Global Variable section
+// Extern section
+extern void menu_skip_next(line_t line); //ezchronos.c
+
 
 void display_nothing(u8 line, u8 update) {}
 
@@ -144,6 +146,7 @@ const struct menu menu_L1_Time =
 {
 	FUNCTION(sx_time),			// direct function
 	FUNCTION(mx_time),			// sub menu function
+	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_time),		// display function
 	FUNCTION(update_time),		// new display data
 	&menu_L1_Alarm,
@@ -153,6 +156,7 @@ const struct menu menu_L1_Alarm =
 {
 	FUNCTION(sx_alarm),			// direct function
 	FUNCTION(mx_alarm),			// sub menu function
+	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_alarm),	// display function
 	FUNCTION(update_alarm),		// new display data
 	&menu_L1_Temperature,
@@ -162,6 +166,7 @@ const struct menu menu_L1_Temperature =
 {
 	FUNCTION(dummy),					// direct function
 	FUNCTION(mx_temperature),			// sub menu function
+	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_temperature),		// display function
 	FUNCTION(update_temperature),		// new display data
 #ifdef CONFIG_ALTITUDE
@@ -182,6 +187,7 @@ const struct menu menu_L1_Altitude =
 {
 	FUNCTION(sx_altitude),				// direct function
 	FUNCTION(mx_altitude),				// sub menu function
+	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_altitude),			// display function
 	FUNCTION(update_time),				// new display data
 	//pfs
@@ -200,6 +206,7 @@ const struct menu menu_L1_Heartrate =
 {
 	FUNCTION(sx_bluerobin),				// direct function
 	FUNCTION(mx_bluerobin),				// sub menu function
+	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_heartrate),		// display function
 	FUNCTION(update_time),				// new display data
 	&menu_L1_Speed,
@@ -209,6 +216,7 @@ const struct menu menu_L1_Speed =
 {
 	FUNCTION(dummy),					// direct function
 	FUNCTION(dummy),					// sub menu function
+	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_speed),			// display function
 	FUNCTION(update_time),				// new display data
 	&menu_L1_Acceleration,
@@ -219,6 +227,7 @@ const struct menu menu_L1_Acceleration =
 {
 	FUNCTION(sx_acceleration),			// direct function
 	FUNCTION(dummy),					// sub menu function
+	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_acceleration),		// display function
 	FUNCTION(update_acceleration),		// new display data
 	&menu_L1_Time,
@@ -229,6 +238,7 @@ const struct menu menu_L2_Date =
 {
 	FUNCTION(sx_date),			// direct function
 	FUNCTION(mx_date),			// sub menu function
+	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_date),		// display function
 	FUNCTION(update_date),		// new display data
 #ifndef CONFIG_VARIO
@@ -242,6 +252,7 @@ const struct menu menu_L2_Vario =
   {
 	FUNCTION(sx_vario),			// direct function
 	FUNCTION(mx_vario),			// sub menu function
+	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_vario),		// display function
 	FUNCTION(update_vario),		// new display data
         &menu_L2_Stopwatch,
@@ -252,6 +263,7 @@ const struct menu menu_L2_Vario =
 const struct menu menu_L2_Stopwatch =
 {
 	FUNCTION(sx_stopwatch),		// direct function
+	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(mx_stopwatch),		// sub menu function
 	FUNCTION(display_stopwatch),// display function
 	FUNCTION(update_stopwatch),	// new display data
@@ -266,6 +278,7 @@ const struct menu menu_L2_Eggtimer =
 {
         FUNCTION(sx_eggtimer),          // direct function
         FUNCTION(mx_eggtimer),          // sub menu function
+        FUNCTION(menu_skip_next),	// next item function
         FUNCTION(display_eggtimer),// display function
         FUNCTION(update_eggtimer),      // new display data
         &menu_L2_Battery,
@@ -276,6 +289,7 @@ const struct menu menu_L2_Battery =
 {
 	FUNCTION(dummy),					// direct function
 	FUNCTION(dummy),					// sub menu function
+	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_battery_V),		// display function
 	FUNCTION(update_battery_voltage),	// new display data
 #ifndef CONFIG_PHASE_CLOCK
@@ -289,6 +303,7 @@ const struct menu menu_L2_Phase =
 {
 	FUNCTION(sx_phase),				// direct function
 	FUNCTION(mx_phase),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_phase_clock),	// display function
 	FUNCTION(update_time),			// new display data
 	&menu_L2_Rf,
@@ -299,6 +314,7 @@ const struct menu menu_L2_Rf =
 {
 	FUNCTION(sx_rf),				// direct function
 	FUNCTION(dummy),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_rf),			// display function
 	FUNCTION(update_time),			// new display data
 	&menu_L2_Ppt,
@@ -308,6 +324,7 @@ const struct menu menu_L2_Ppt =
 {
 	FUNCTION(sx_ppt),				// direct function
 	FUNCTION(dummy),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_ppt),			// display function
 	FUNCTION(update_time),			// new display data
 	&menu_L2_Sync,
@@ -317,6 +334,7 @@ const struct menu menu_L2_Sync =
 {
 	FUNCTION(sx_sync),				// direct function
 	FUNCTION(dummy),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_sync),			// display function
 	FUNCTION(update_time),			// new display data
 	//pfs
@@ -332,6 +350,7 @@ const struct menu menu_L2_CalDist =
 {
 	FUNCTION(sx_caldist),			// direct function
 	FUNCTION(mx_caldist),			// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_caldist),		// display function
 	FUNCTION(update_time),			// new display data
 	&menu_L2_RFBSL,
@@ -342,6 +361,7 @@ const struct menu menu_L2_RFBSL =
 {
 	FUNCTION(sx_rfbsl),				// direct function
 	FUNCTION(mx_rfbsl),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_rfbsl),		// display function
 	FUNCTION(update_time),			// new display data
 #ifdef CONFIG_PROUT
@@ -352,6 +372,7 @@ const struct menu menu_L2_Prout =
 {
 	FUNCTION(sx_prout),				// direct function
 	FUNCTION(mx_prout),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_prout),		// display function
 	FUNCTION(update_time),			// new display data
 	&menu_L2_Date,

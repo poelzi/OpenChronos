@@ -46,6 +46,7 @@
 extern void start_stopwatch(void);
 extern void stop_stopwatch(void);
 extern void reset_stopwatch(void);
+extern void split_stopwatch(void);
 extern u8 is_stopwatch_run(void);
 extern u8 is_stopwatch_stop(void);
 extern void stopwatch_tick(void);
@@ -59,9 +60,16 @@ extern void display_stopwatch(u8 line, u8 update);
 // Defines section
 #define STOPWATCH_1HZ_TICK			(32768/1)
 #define STOPWATCH_100HZ_TICK		328 // PFS corrected(32768/100)
-#define STOPWATCH_STOP				(0u)
-#define STOPWATCH_RUN				(1u)
-#define STOPWATCH_HIDE				(2u)
+#define STOPWATCH_RESET				0x0
+#define STOPWATCH_STOP				0x1
+#define STOPWATCH_RUN				0x2
+#define STOPWATCH_SPLIT				0x4 //no actual state but the bit that is active in both split states
+#define STOPWATCH_SPLIT_STOP		0x5
+#define STOPWATCH_SPLIT_RUN			0x6
+#define STOPWATCH_HIDE				0x8
+
+
+
 
 
 // *************************************************************************************************
@@ -81,10 +89,12 @@ struct stopwatch
 	//	time[5] 	second L
 	//	time[6] 	1/10 sec 
 	//	time[7] 	1/100 sec
-	u8		time[8];
+	u8		time[8]; //ASCII codes
+	u8		time_split[8];
 	
 	// Display style
 	u8 	viewStyle;
+	u8 	viewStyle_split;
 };
 extern struct stopwatch sStopwatch;
 
