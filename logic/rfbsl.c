@@ -54,7 +54,17 @@
 #endif
 #include "rfsimpliciti.h"
 
+
+// *************************************************************************************************
+// Global Variable section
 u8 locked = 1;
+
+
+// *************************************************************************************************
+// Extern section
+extern void menu_skip_next(line_t line); //ezchronos.c
+
+
 // *************************************************************************************************
 // @fn          mx_rfbsl
 // @brief       This functions starts the RFBSL
@@ -110,6 +120,18 @@ void sx_rfbsl(u8 line)
         message.flag.type_locked = 1;
         locked = 1;
     }
+}
+
+// *************************************************************************************************
+// @fn          nx_rfbsl
+// @brief       This function locks the RFBSL and switches to next menu item
+// @param       line		LINE1, LINE2
+// @return      none
+// *************************************************************************************************
+void nx_rfbsl(u8 line)
+{
+	locked = 1;
+	menu_skip_next(line);
 }
 
 

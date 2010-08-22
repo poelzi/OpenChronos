@@ -361,7 +361,7 @@ const struct menu menu_L2_RFBSL =
 {
 	FUNCTION(sx_rfbsl),				// direct function
 	FUNCTION(mx_rfbsl),				// sub menu function
-	FUNCTION(menu_skip_next),		// next item function
+	FUNCTION(nx_rfbsl),				// next item function
 	FUNCTION(display_rfbsl),		// display function
 	FUNCTION(update_time),			// new display data
 #ifdef CONFIG_PROUT
