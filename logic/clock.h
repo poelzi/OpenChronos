@@ -53,7 +53,6 @@ extern void display_selection_Timeformat1(u8 segments, u32 index, u8 digits, u8 
 extern void display_time(u8 line, u8 update);
 
 // English units support
-extern void calc_24H_to_12H(u8 * hours, u8 * timeAM);
 extern u8 convert_hour_to_12H_format(u8 hour);
 extern u8 is_hour_am(u8 hour);
 

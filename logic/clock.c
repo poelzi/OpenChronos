@@ -67,9 +67,6 @@ void clock_tick(void);
 void mx_time(u8 line);
 void sx_time(u8 line);
 
-void calc_24H_to_12H(u8 * hours, u8 * timeAM);
-void conv_24H_to_12H(u8 * hours24, u8 * hours12, u8 * timeAMorPM);
-
 
 // *************************************************************************************************
 // Defines section
