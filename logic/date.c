@@ -364,7 +364,7 @@ void display_date(line_t line, update_t update)
 	}
 	else if (update == DISPLAY_LINE_CLEAR)
 	{
-		// Show default display when coming around next time
-		sDate.view = 0;
+		// Do some display cleanup (or just do nothing if everything is OK)
+		// This is NOT ONLY called on switch to next menu item
 	}	
 }
