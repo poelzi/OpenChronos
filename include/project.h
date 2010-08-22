@@ -139,6 +139,8 @@ typedef union
     u16 type_alarm_off		: 1;	// 1 = Show " off" text in Line1
     u16 type_no_beep_on     : 1;	// 1 = Show " beep" text in Line2
     u16 type_no_beep_off    : 1;	// 1 = Show "nobeep" text in Line2
+    u16 block_line1			: 1;	// 1 = block Line1 from updating until message erase
+    u16 block_line2			: 1;	// 1 = block Line2 from updating until message erase
  } flag;
   u16 all_flags;            // Shortcut to all message flags (for reset)
 } s_message_flags;

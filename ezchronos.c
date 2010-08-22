@@ -584,15 +584,27 @@ void display_update(void)
 		clear_line(LINE1);	
 		fptr_lcd_function_line1(LINE1, DISPLAY_LINE_UPDATE_FULL);
 	}
-	else if (ptrMenu_L1->display_update())
+	else if (ptrMenu_L1->display_update() &&!message.flag.block_line1)
 	{
 		// Update line1 only when new data is available
 		fptr_lcd_function_line1(LINE1, DISPLAY_LINE_UPDATE_PARTIAL);
 	}
 
+	// ---------------------------------------------------------------------
+	// Call Line2 display function
+	if (display.flag.full_update || display.flag.line2_full_update)
+	{
+		clear_line(LINE2);
+		fptr_lcd_function_line2(LINE2, DISPLAY_LINE_UPDATE_FULL);
+	}
+	else if (ptrMenu_L2->display_update() && !message.flag.block_line2)
+	{
+		// Update line2 only when new data is available
+		fptr_lcd_function_line2(LINE2, DISPLAY_LINE_UPDATE_PARTIAL);
+	}
 
 	// ---------------------------------------------------------------------
-	// If message text should be displayed on Line2, skip normal update
+	// If message text should be displayed
 	if (message.flag.show)
 	{
 		line = LINE2;
@@ -617,26 +629,17 @@ void display_update(void)
 		
 		// Clear previous content
 		clear_line(line);
-		fptr_lcd_function_line2(line, DISPLAY_LINE_CLEAR);
+		if(line == LINE2) 	fptr_lcd_function_line2(line, DISPLAY_LINE_CLEAR);
+		else				fptr_lcd_function_line1(line, DISPLAY_LINE_CLEAR);
 		
 		if (line == LINE2) 	display_chars(LCD_SEG_L2_5_0, string, SEG_ON);
 		else 				display_chars(LCD_SEG_L1_3_0, string, SEG_ON);
 		
-		// Next second tick erases message and repaints original screen content
+		// Next second tick erases message and repaints original screen content (full_update)
 		message.all_flags = 0;
+		if(line == LINE2) 	message.flag.block_line2 = 1;
+		else				message.flag.block_line1 = 1;
 		message.flag.erase = 1;
-	}
-	// ---------------------------------------------------------------------
-	// Call Line2 display function
-	else if (display.flag.full_update || display.flag.line2_full_update)
-	{
-		clear_line(LINE2);
-		fptr_lcd_function_line2(LINE2, DISPLAY_LINE_UPDATE_FULL);
-	}
-	else if (ptrMenu_L2->display_update() && !message.all_flags)
-	{
-		// Update line2 only when new data is available
-		fptr_lcd_function_line2(LINE2, DISPLAY_LINE_UPDATE_PARTIAL);
 	}
 	
 	// ---------------------------------------------------------------------

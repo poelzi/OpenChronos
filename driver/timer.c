@@ -413,6 +413,8 @@ __interrupt void TIMER0_A0_ISR(void)
 		else if (message.flag.erase) // message cycle is over, so erase it
 		{
 			message.flag.erase       = 0;
+			message.flag.block_line1 = 0;
+			message.flag.block_line2 = 0;
 			display.flag.full_update = 1;
 		}	
 	}
