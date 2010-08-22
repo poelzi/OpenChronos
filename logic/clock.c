@@ -109,6 +109,7 @@ void reset_clock(void)
 
 	// Display style of both lines is default (HH:MM)
 	sTime.line1ViewStyle = DISPLAY_DEFAULT_VIEW;
+	sTime.line2ViewStyle = DISPLAY_DEFAULT_VIEW;
 
 	// Reset timeout detection
 	sTime.last_activity 		  = 0;
@@ -381,7 +382,7 @@ void display_time(u8 line, u8 update)
 	else if (update == DISPLAY_LINE_UPDATE_FULL)
 	{
 	  // Full update
-	  if (sTime.line1ViewStyle == DISPLAY_DEFAULT_VIEW)
+	  if ( ( line == LINE1 && sTime.line1ViewStyle == DISPLAY_DEFAULT_VIEW ) || ( line == LINE2 && sTime.line2ViewStyle == DISPLAY_DEFAULT_VIEW ) )
 	  {
 	    // Display hours
 	    display_hours_12_or_24(switch_seg(line, LCD_SEG_L1_3_2, LCD_SEG_L2_3_2), sTime.hour, 2, 1, SEG_ON);

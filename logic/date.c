@@ -49,6 +49,7 @@
 // logic
 #include "date.h"
 #include "user.h"
+#include "clock.h"
 
 // *************************************************************************************************
 // Prototypes section
@@ -251,6 +252,7 @@ void sx_date(line_t line)
 {
 	// Rotate through 4 views
 	if (++sDate.view >= 4) sDate.view = 0;
+	if(sDate.view ==3) sTime.line2ViewStyle == DISPLAY_DEFAULT_VIEW;
 }
 
 

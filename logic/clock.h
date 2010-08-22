@@ -69,6 +69,7 @@ struct time
 
 	// Viewing style
 	u8		line1ViewStyle;
+	u8		line2ViewStyle;
 	
 	// Time data
 	u8		hour;
