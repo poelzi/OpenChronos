@@ -33,45 +33,37 @@
 //
 // *************************************************************************************************
 
-#ifndef TIMER_H_
-#define TIMER_H_
-
-// *************************************************************************************************
-// Include section
-
-
-// *************************************************************************************************
-// Prototypes section
-extern void Timer0_Init(void);
-extern void Timer0_Start(void);
-extern void Timer0_Stop(void);
-extern void Timer0_A1_Start(void);
-extern void Timer0_A1_Stop(void);
-extern void Timer0_A3_Start(u16 ticks);
-extern void Timer0_A3_Stop(void);
-extern void Timer0_A4_Delay(u16 ticks);
-extern void (*fptr_Timer0_A3_function)(void);
-
+#ifndef SIDEREALTIME_H_
+#define SIDEREALTIME_H_
 
 // *************************************************************************************************
 // Defines section
-struct timer
-{
-	// Timer0_A3 periodic delay 
-	u16		timer0_A3_ticks;
-};
-extern struct timer sTimer;
 
-// Trigger reset when all buttons are pressed
-#define BUTTON_RESET_SEC		(3u)
+// *************************************************************************************************
+// Prototypes section
+extern void reset_sidereal_clock(void);
+extern void sx_sidereal(u8 line);
+extern void mx_sidereal(u8 line);
+extern void sidereal_clock_tick(void);
+extern void display_sidereal(u8 line, u8 update);
 
 // *************************************************************************************************
 // Global Variable section
+struct sidereal_time
+{
+	// Flag to minimize display updates
+	u8 		drawFlag;
+
+	// Viewing style
+	u8		line1ViewStyle;
+	u8		line2ViewStyle;
+	
+	// Time data
+	u8		hour;
+	u8		minute;
+	u8 		second;
+};
+extern struct sidereal_time sSidereal_time;
 
 
-// *************************************************************************************************
-// Extern section
-
-
-
-#endif /*TIMER_H_*/
+#endif /*SIDEREALTIME_H_*/

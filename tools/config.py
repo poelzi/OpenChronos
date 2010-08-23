@@ -144,6 +144,12 @@ DATA["CONFIG_PROUT"] = {
         "depends": [],
         "default": False}
 
+
+DATA["CONFIG_SIDEREAL"] = {
+        "name": "Sidereal Time Clock",
+        "depends": [],
+        "default": False}
+
 # not yet working
 
 DATA["CONFIG_ACCEL"] = {

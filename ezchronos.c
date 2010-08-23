@@ -79,6 +79,9 @@
 #ifdef CONFIG_PHASE_CLOCK
 #include "phase_clock.h"
 #endif
+#ifdef CONFIG_SIDEREAL
+#include "sidereal.h"
+#endif
 
 #include "mrfi.h"
 #include "nwk_types.h"
@@ -355,6 +358,10 @@ void init_global_variables(void)
 	
 	// Set date to default value
 	reset_date();
+	
+	#ifdef CONFIG_SIDEREAL
+	reset_sidereal_clock();
+	#endif
 	
 	// Set alarm time to default value 
 	reset_alarm();

@@ -88,6 +88,9 @@ typedef union
 
 	// Logic module data update flags
     u16 update_time      		: 1;    // 1 = Time was updated 
+#ifdef CONFIG_SIDEREAL
+	u16 update_sidereal_time	: 1;	// 1 = Sidereal Time was updated
+#endif
     u16 update_stopwatch     	: 1;    // 1 = Stopwatch was updated
     u16 update_temperature   	: 1;    // 1 = Temperature was updated
     u16 update_battery_voltage 	: 1;    // 1 = Battery voltage was updated

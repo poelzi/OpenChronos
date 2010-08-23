@@ -79,6 +79,10 @@
 #include "vario.h"
 #endif
 
+#ifdef CONFIG_SIDEREAL
+#include "sidereal.h"
+#endif
+
 // *************************************************************************************************
 // Defines section
 #define FUNCTION(function)  function
@@ -132,6 +136,13 @@ u8 update_eggtimer(void)
 }
 #endif
 
+#ifdef CONFIG_SIDEREAL
+u8 update_sidereal(void)
+{
+	return (display.flag.update_sidereal_time);
+}
+#endif
+
 
 // *************************************************************************************************
 // User navigation ( [____] = default menu item after reset )
@@ -149,8 +160,26 @@ const struct menu menu_L1_Time =
 	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_time),		// display function
 	FUNCTION(update_time),		// new display data
+#ifdef CONFIG_SIDEREAL
+	&menu_L1_Sidereal,
+#else
+	&menu_L1_Alarm,
+#endif
+};
+
+#ifdef CONFIG_SIDEREAL
+// Line1 - Sidereal Time
+const struct menu menu_L1_Sidereal =
+{
+	FUNCTION(sx_sidereal),		// direct function
+	FUNCTION(mx_sidereal),		// sub menu function
+	FUNCTION(menu_skip_next),	// next item function
+	FUNCTION(display_sidereal),	// display function
+	FUNCTION(update_sidereal),	// new display data
 	&menu_L1_Alarm,
 };
+#endif
+
 // Line1 - Alarm
 const struct menu menu_L1_Alarm =
 {

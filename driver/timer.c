@@ -80,6 +80,10 @@
 #include "eggtimer.h"
 #endif
 
+#ifdef CONFIG_SIDEREAL
+#include "sidereal.h"
+#endif
+
 
 // *************************************************************************************************
 // Prototypes section
@@ -154,6 +158,24 @@ void Timer0_Stop(void)
 	// Set Timer0 count register to 0x0000
 	TA0R = 0;                             
 }
+
+
+void Timer0_A1_Start(void)
+{
+	// Set interrupt frequency to 1Hz
+	TA0CCR1   = TA0R + 32678 ;
+
+	// Enable timer interrupt
+	TA0CCTL1 |= CCIE;
+	
+}
+
+void Timer0_A1_Stop(void)
+{
+	// Clear timer interrupt    
+	TA0CCTL1 &= ~CCIE; 
+}
+
 
 
 // *************************************************************************************************
@@ -534,7 +556,33 @@ __interrupt void TIMER0_A1_5_ISR(void)
 					BRRX_TimerTask_v();
 					break;
 	#endif
-
+	#ifdef CONFIG_SIDEREAL
+		// Timer0_A1	Used for sidereal time until CCR0 becomes free
+		case 0x02:  // Timer0_A1 handler
+				// Disable IE 
+				TA0CCTL1 &= ~CCIE;
+				// Reset IRQ flag  
+				TA0CCTL1 &= ~CCIFG;  
+				//for sidereal time we need 32768/1.00273790935=32678.529149 clock cycles for one second
+				//32678.5 clock cycles gives a deviation of ~0.9e-7~0.1s/day which is likely less than the ozillator deviation
+				if(sSidereal_time.second & 1)
+				{
+					TA0CCR1+=32678;
+				}
+				else
+				{
+					TA0CCR1+=32679;
+				}
+				// Enable IE 
+				TA0CCTL1 |= CCIE;
+				
+				// Add 1 second to global time
+				sidereal_clock_tick();
+				
+				// Set clock update flag
+				display.flag.update_sidereal_time = 1;
+				break;
+	#endif
 		// Timer0_A2	1/1 or 1/100 sec Stopwatch				
 		case 0x04:	// Timer0_A2 handler
 					// Disable IE 
