@@ -507,6 +507,7 @@ void display_chars(u8 segments, u8 * str, u8 mode)
 		case LCD_SEG_L2_5_2:	length=4; char_start=LCD_SEG_L2_5; break;
 		case LCD_SEG_L2_3_2:	length=2; char_start=LCD_SEG_L2_3; break;
 		case LCD_SEG_L2_4_2: 	length=3; char_start=LCD_SEG_L2_4; break;
+		case LCD_SEG_L2_4_3: 	length=2; char_start=LCD_SEG_L2_4; break;
 	}
 	
 	// Write to consecutive digits

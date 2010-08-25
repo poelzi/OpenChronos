@@ -221,6 +221,7 @@ extern volatile s_display_flags display;
 #define LCD_SEG_L2_3_2				96
 #define LCD_SEG_L2_5_4				97
 #define LCD_SEG_L2_4_2				98
+#define LCD_SEG_L2_4_3				99
 
 
 // LCD controller memory map
