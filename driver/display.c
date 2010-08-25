@@ -481,6 +481,13 @@ void display_chars(u8 segments, u8 * str, u8 mode)
 	u8 length = 0;			// Write length
 	u8 char_start;			// Starting point for consecutive write
 	
+	//single charakter
+	if ((segments >= LCD_SEG_L1_3) && (segments <= LCD_SEG_L2_DP))
+	{
+		length=1;
+		char_start=segments;
+	}
+	//multiple charakters
 	switch (segments)
 	{
 		// LINE1
