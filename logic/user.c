@@ -103,6 +103,7 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 	u8 doRound = 0;
 	u8 stopwatch_state;
 	u32 val;
+	s32 orig_val=*value;
 	
 	// Clear button flags
 	button.all_flags = 0;
@@ -238,10 +239,34 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 			{
 				val = *value;
 			}
-
-			// Display function can either display value directly, modify value before displaying 
-			// or display a string referenced by the value
-			fptr_setValue_display_function1(segments, val, digits, blanks, SEG_ON_BLINK_ON);
+			
+			if((mode & SETVALUE_DISPLAY_SYMBOL) == SETVALUE_DISPLAY_SYMBOL)
+			{	
+				display_symbol(segments,SEG_ON_BLINK_ON);
+				// return when value is changed
+				if( orig_val != *value ) break;
+			}
+			else if( (mode & SETVALUE_SWITCH_ARROWS) == SETVALUE_SWITCH_ARROWS )
+			{
+				//show up arrow if value is odd
+				if( val & 0x1 )
+				{
+					display_symbol(LCD_SYMB_ARROW_UP,SEG_ON_BLINK_ON);
+					display_symbol(LCD_SYMB_ARROW_DOWN,SEG_OFF_BLINK_OFF);
+				}
+				//show down arrow if value is even
+				else
+				{
+					display_symbol(LCD_SYMB_ARROW_DOWN,SEG_ON_BLINK_ON);
+					display_symbol(LCD_SYMB_ARROW_UP,SEG_OFF_BLINK_OFF);
+				}
+			}
+			else
+			{
+				// Display function can either display value directly, modify value before displaying
+				// or display a string referenced by the value
+				fptr_setValue_display_function1(segments, val, digits, blanks, SEG_ON_BLINK_ON);
+			}
 
 			// Clear update flag
 			update = 0;
@@ -252,9 +277,11 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 		
 	}
 	
-	// Clear up and down arrows
-	display_symbol(LCD_SYMB_ARROW_UP, SEG_OFF);
-	display_symbol(LCD_SYMB_ARROW_DOWN, SEG_OFF);
+	//switch symbol
+	if((mode & SETVALUE_DISPLAY_SYMBOL) == SETVALUE_DISPLAY_SYMBOL)
+	{
+		display_symbol(segments,SEG_OFF);
+	}
 	
 	// Set blinking rate to 1Hz and stop
 	set_blink_rate(BIT7 + BIT6 + BIT5);

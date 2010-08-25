@@ -39,13 +39,23 @@
 
 // *************************************************************************************************
 // Defines section
+
+//if value reache lower or upper limit, restart at other end of range
 #define SETVALUE_ROLLOVER_VALUE				BIT0
+//nop
 #define SETVALUE_DISPLAY_VALUE				BIT1
+//display arrows corresponding to sign of value
 #define SETVALUE_DISPLAY_ARROWS				BIT2
+//nop
 #define SETVALUE_DISPLAY_SELECTION			BIT3
+//accelerate selection when button is held pressed
 #define SETVALUE_FAST_MODE					BIT4
+//exit when num is pressed
 #define SETVALUE_NEXT_VALUE					BIT5
-	
+//display single symbol, exit when value is changed from 0
+#define SETVALUE_DISPLAY_SYMBOL				BIT6
+//choose direction with array symbols (up: value odd, down: value even)
+#define SETVALUE_SWITCH_ARROWS				BIT7
 
 // *************************************************************************************************
 // Prototypes section	
