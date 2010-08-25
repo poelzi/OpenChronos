@@ -324,8 +324,8 @@ void mx_sidereal(u8 line)
 	display_chars(LCD_SEG_L2_1_0, str, SEG_ON);
 	display_symbol(LCD_SEG_L2_DP, SEG_ON);
 				
-	str = itoa(sync,2,0);
-	display_chars(LCD_SEG_L2_3_2, str, SEG_ON);
+	str = itoa(sync,1,0);
+	display_char(LCD_SEG_L2_3, *str, SEG_ON);
 	display_char(LCD_SEG_L2_4, 'A', SEG_ON);
 
 	// Loop values until all are set or user breaks	set
@@ -385,7 +385,7 @@ void mx_sidereal(u8 line)
 				select = 3;
 				break;
 			case 3: 	// Set Automatic Sync setings
-				set_value(&sync, 2, 0, 0, 2, SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_3_2, display_value1);
+				set_value(&sync, 1, 0, 0, 2, SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_3, display_value1);
 				select =0;
 				break;
 		}
