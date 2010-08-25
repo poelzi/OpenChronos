@@ -288,6 +288,7 @@ void sidereal_clock_tick(void)
 // *************************************************************************************************
 // @fn          mx_sidereal
 // @brief       Sidereal Clock set routine.
+//              has three layers of different configuration sets
 // @param       u8 line		LINE1, LINE2
 // @return      none
 // *************************************************************************************************
@@ -297,7 +298,13 @@ void mx_sidereal(u8 line)
 	s32 hours;
 	s32 minutes;
 	s32 seconds;
+	s32 lon_degrees;
+	s32 lon_minutes;
+	s32 lon_seconds;
 	s32 sync;
+	s32 heart;
+	s32 direction;
+	s32 UTCoffset;
 	u8 * str;
 
 	// Clear display
@@ -307,26 +314,30 @@ void mx_sidereal(u8 line)
 	hours		= sSidereal_time.hour;
 	minutes 	= sSidereal_time.minute;
 	seconds 	= sSidereal_time.second;
+	
 	sync		= sSidereal_time.sync;
+	
+	heart =0;
+	
+	if(sSidereal_time.lonDeg<0 || sSidereal_time.lonMin<0 || sSidereal_time.lonSec<0)
+	{
+		direction=0;
+		lon_degrees = -sSidereal_time.lonDeg;
+		lon_minutes = -sSidereal_time.lonMin;
+		lon_seconds = -sSidereal_time.lonSec;
+	}
+	else
+	{
+		direction=1;
+		lon_degrees = sSidereal_time.lonDeg;
+		lon_minutes = sSidereal_time.lonMin;
+		lon_seconds = sSidereal_time.lonSec;
+	}
+	
+	UTCoffset = sTime.UTCoffset;
 
 	// Init value index (start with Auto Sync selection)
-	select = 3;	
-	
-	// Display HH:MM (LINE1) and As .SS (LINE2)
-	str = itoa(hours, 2, 0);
-	display_chars(LCD_SEG_L1_3_2, str, SEG_ON);
-	display_symbol(LCD_SEG_L1_COL, SEG_ON);
-
-	str = itoa(minutes, 2, 0);
-	display_chars(LCD_SEG_L1_1_0, str, SEG_ON);
-
-	str = itoa(seconds, 2, 0);
-	display_chars(LCD_SEG_L2_1_0, str, SEG_ON);
-	display_symbol(LCD_SEG_L2_DP, SEG_ON);
-				
-	str = itoa(sync,1,0);
-	display_char(LCD_SEG_L2_3, *str, SEG_ON);
-	display_char(LCD_SEG_L2_4, 'A', SEG_ON);
+	select = 0;
 
 	// Loop values until all are set or user breaks	set
 	while(1)
@@ -335,14 +346,66 @@ void mx_sidereal(u8 line)
 		if (sys.flag.idle_timeout)
 		{
 			display_symbol(LCD_SYMB_AM, SEG_OFF);
+			display_symbol(LCD_UNIT_L1_DEGREE, SEG_OFF);
+			display_symbol(LCD_SYMB_ARROW_UP, SEG_OFF);
+			display_symbol(LCD_SYMB_ARROW_DOWN, SEG_OFF);
 			break;
 		}
+		
+		if( heart!=0 )
+		{
+			if(select<=4)
+			{
+				select=5;
+				clear_display_all();
+				display_symbol(LCD_SYMB_AM, SEG_OFF);
+			}
+			else if(select<=9)
+			{
+				if(heart<0)
+				{
+					select=0;
+				}
+				else
+				{
+					select=10;
+				}
+				clear_display_all();
+				display_symbol(LCD_UNIT_L1_DEGREE, SEG_OFF);
+				display_symbol(LCD_SYMB_ARROW_UP, SEG_OFF);
+				display_symbol(LCD_SYMB_ARROW_DOWN, SEG_OFF);
+			}
+			else
+			{
+				select=5;
+				clear_display_all();
+				display_symbol(LCD_SYMB_ARROW_UP, SEG_OFF);
+				display_symbol(LCD_SYMB_ARROW_DOWN, SEG_OFF);
+			}
+			heart =0;
+		}
+			
 
 		// Button STAR (short): save, then exit
 		if (button.flag.star)
 		{
 			//store sync settings
 			sSidereal_time.sync=sync;
+			
+			sTime.UTCoffset = UTCoffset;
+			
+			if(direction & 0x1)
+			{
+				sSidereal_time.lonDeg = lon_degrees;
+				sSidereal_time.lonMin = lon_minutes;
+				sSidereal_time.lonSec = lon_seconds;
+			}
+			else
+			{
+				sSidereal_time.lonDeg = -lon_degrees;
+				sSidereal_time.lonMin = -lon_minutes;
+				sSidereal_time.lonSec = -lon_seconds;
+			}
 			
 			//sync time if desired
 			if(sync >=1)
@@ -365,28 +428,128 @@ void mx_sidereal(u8 line)
 			
 			// Full display update is done when returning from function
 			display_symbol(LCD_SYMB_AM, SEG_OFF);
+			display_symbol(LCD_SYMB_ARROW_UP, SEG_OFF);
+			display_symbol(LCD_SYMB_ARROW_DOWN, SEG_OFF);
+			display_symbol(LCD_UNIT_L1_DEGREE, SEG_OFF);
 			break;
 		}
 
 		switch (select)
 		{
-			case 0:		// Set hours
+			case 0: 	// Heart Symbol to switch to longitude settings
+				// Display HH:MM (LINE1) and As .SS (LINE2)
+				str = itoa(hours, 2, 0);
+				display_chars(LCD_SEG_L1_3_2, str, SEG_ON);
+				display_symbol(LCD_SEG_L1_COL, SEG_ON);
+
+				str = itoa(minutes, 2, 0);
+				display_chars(LCD_SEG_L1_1_0, str, SEG_ON);
+
+				str = itoa(seconds, 2, 0);
+				display_chars(LCD_SEG_L2_1_0, str, SEG_ON);
+				display_symbol(LCD_SEG_L2_DP, SEG_ON);
+							
+				str = itoa(sync,1,0);
+				display_char(LCD_SEG_L2_3, *str, SEG_ON);
+				display_char(LCD_SEG_L2_4, 'A', SEG_ON);
+				
+				heart =0;
+				set_value(&heart, 0, 0, 0, 1, SETVALUE_DISPLAY_SYMBOL + SETVALUE_NEXT_VALUE, LCD_ICON_HEART, display_value1);
+				select =1;
+				break;
+			case 1: 	// Set Automatic Sync setings
+				set_value(&sync, 1, 0, 0, 2, SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_3, display_value1);
+				select =2;
+				break;
+			case 2:		// Set hours
 				set_value(&hours, 2, 0, 0, 23, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_2, display_hours_12_or_24);
-				select = 1;
-				break;
-
-			case 1:		// Set minutes
-				set_value(&minutes, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_1_0, display_value1);
-				select = 2;
-				break;
-
-			case 2:		// Set seconds
-				set_value(&seconds, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
 				select = 3;
 				break;
-			case 3: 	// Set Automatic Sync setings
-				set_value(&sync, 1, 0, 0, 2, SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_3, display_value1);
-				select =0;
+
+			case 3:		// Set minutes
+				set_value(&minutes, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_1_0, display_value1);
+				select = 4;
+				break;
+
+			case 4:		// Set seconds
+				set_value(&seconds, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
+				select = 0;
+				break;
+				
+			/*=============================================*/
+				
+			case 5: 	// Heart Symbol to switch to time settings or UTC offset
+				str = itoa(lon_degrees, 3, 0);
+				display_chars(LCD_SEG_L1_3_1, str, SEG_ON);
+				display_symbol(LCD_UNIT_L1_DEGREE, SEG_ON);
+
+				str = itoa(lon_minutes, 2, 0);
+				display_chars(LCD_SEG_L2_4_3, str, SEG_ON);
+
+				str = itoa(lon_seconds, 2, 0);
+				display_chars(LCD_SEG_L2_1_0, str, SEG_ON);
+				display_symbol(LCD_SEG_L2_COL0, SEG_ON);
+				if(direction & 0x1)
+				{
+					display_symbol(LCD_SYMB_ARROW_UP, SEG_ON);
+				}
+				else
+				{
+					display_symbol(LCD_SYMB_ARROW_DOWN, SEG_ON);
+				}
+				heart =0;
+				set_value(&heart, 0, 0, -1, 1, SETVALUE_DISPLAY_SYMBOL + SETVALUE_NEXT_VALUE, LCD_ICON_HEART, display_value1);
+				select =6;
+				break;
+				
+			case 6:		// Set orientation	
+				set_value(&direction, 0, 0, 0, 1, SETVALUE_ROLLOVER_VALUE +  SETVALUE_NEXT_VALUE + SETVALUE_SWITCH_ARROWS, 0, display_value1);
+				select = 7;
+				break;
+
+			case 7:		// Set degrees
+				set_value(&lon_degrees, 3, 0, 0, 180, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_1, display_value1);
+				select = 8;
+				break;
+			case 8:		// Set minutes
+				set_value(&lon_minutes, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_4_3, display_value1);
+				select = 9;
+				break;
+
+			case 9:		// Set seconds
+				set_value(&lon_seconds, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
+				select = 5;
+				break;
+					
+			/*=============================================*/
+				
+			case 10: 	// Heart Symbol to switch to longitude settings
+				if(UTCoffset >= 0)
+				{
+					str = itoa(UTCoffset, 2, 0);
+					if(UTCoffset>0)
+					{
+						display_symbol(LCD_SYMB_ARROW_UP, SEG_ON);
+					}
+				}
+				else
+				{
+					str = itoa( - UTCoffset, 2, 0);
+					display_symbol(LCD_SYMB_ARROW_DOWN, SEG_ON);
+				}
+				display_chars(LCD_SEG_L1_3_2, str, SEG_ON);
+				
+				memcpy(str,"UTC",3);
+				display_chars(LCD_SEG_L2_4_2, str, SEG_ON);
+				
+				heart =0;
+				set_value(&heart, 0, 0, -1, 0, SETVALUE_DISPLAY_SYMBOL + SETVALUE_NEXT_VALUE, LCD_ICON_HEART, display_value1);
+				select =11;
+				break;
+				
+			case 11:		// Set UTC OFFSET
+				set_value(&UTCoffset, 2, 0, -12, 12, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE + SETVALUE_DISPLAY_ARROWS, LCD_SEG_L1_3_2, display_value1);
+				select = 10;
 				break;
 		}
 	}
