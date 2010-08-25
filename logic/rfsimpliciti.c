@@ -69,6 +69,10 @@
 #include "phase_clock.h"
 #endif
 
+#ifdef CONFIG_SIDEREAL
+#include "sidereal.h"
+#endif
+
 
 // *************************************************************************************************
 // Prototypes section
@@ -687,6 +691,11 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										sAlt.altitude = (s16)((simpliciti_data[12]<<8) + simpliciti_data[13]);
 										update_pressure_table(sAlt.altitude, sAlt.pressure, sAlt.temperature);
 #endif
+#ifdef CONFIG_SIDEREAL
+										if(sSidereal_time.sync>0)
+											sync_sidereal();
+#endif
+
 										break;
 												
 		case SYNC_AP_CMD_GET_MEMORY_BLOCKS_MODE_1:	

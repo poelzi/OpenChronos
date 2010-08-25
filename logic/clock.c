@@ -57,6 +57,10 @@
 #include "bluerobin.h"
 #endif
 
+#ifdef CONFIG_SIDEREAL
+#include "sidereal.h"
+#endif
+
 #include "date.h"
 
 
@@ -110,6 +114,10 @@ void reset_clock(void)
 
 	// Reset timeout detection
 	sTime.last_activity 		  = 0;
+	
+	#ifdef CONFIG_SIDEREAL
+	sTime.UTCoffset				  =0;
+	#endif
 }
 
 
@@ -276,6 +284,12 @@ void mx_time(u8 line)
 
       // Full display update is done when returning from function
       display_symbol(LCD_SYMB_AM, SEG_OFF);
+
+      #ifdef CONFIG_SIDEREAL
+      if(sSidereal_time.sync>0)
+        sync_sidereal();
+      #endif
+
       break;
     }
 

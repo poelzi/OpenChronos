@@ -36,11 +36,14 @@
 // *************************************************************************************************
 
 
+
 // *************************************************************************************************
 // Include section
 
 // system
 #include "project.h"
+
+#ifdef CONFIG_SIDEREAL
 
 // driver
 #include "ports.h"
@@ -68,6 +71,41 @@ void sx_time(u8 line);
 // *************************************************************************************************
 // Defines section
 
+// for details on used formulas see
+// http://www.usno.navy.mil/USNO/astronomical-applications/astronomical-information-center/approx-sider-time
+
+//fixed starting point: 1. Jan 2000 12:00:00 UTC :: sid_seconds=18.697374558*60*60=67310.5484088
+//						1. Jan 2000 12:00:00 UTC +165s = 1.1.2000 12:02:45 UTC :: sid_seconds=67476.00016
+const u8 fix_sec=45;
+const u8 fix_min=2;
+const u8 fix_hour=12;
+const u8 fix_day=1;
+const u8 fix_month=1;
+const u16 fix_year=2000;
+
+const unsigned long fix_sidsec=67476;
+
+
+//rationalisations of 1.002737909350795
+const unsigned long rational[][2]={ {440501801,31055},{50828929,78494},{16958560,70591},{1776538,53402},{140253,54237},{46751,46879},{34698,34793},{12053,12086},{1461,1465},{1096,1099},{365,366},{183,184},{100,100},{1,1}};
+// rational[n][1] = round(1.002737909350795*rational[n][0]) % 86400
+// numbers where chosen to have very small errors from rounding
+
+// rational[n][0]:rational[n][1] ~ fabs(round(1.002737909350795*rational[n][0])-rational[n][1])
+//1:1 ~ 0.002737909351
+//183:184 ~ 0.4989625888
+//365:366 ~ 0.0006630869598
+//1096:1099 ~ 0.0007486484715
+//1461:1465 ~ 8.55615117e-05
+//12053:12086 ~ 2.140513243e-05
+//34698:34793 ~ 2.134610986e-05
+//46751:46879 ~ 5.902256817e-08
+//140253:140637 ~ 1.770677045e-07		1:54237
+//1776538:1781402 ~ 2.24285759e-06		20:53402
+//16958560:17004991 ~ 1.862645149e-08	196:70591
+//50828929:50968094 ~ 0					589:78494
+//440501801:441707855 ~ 0				5112:31055
+
 
 // *************************************************************************************************
 // Global Variable section
@@ -77,6 +115,110 @@ struct sidereal_time sSidereal_time;
 // *************************************************************************************************
 // Extern section
 
+
+// *************************************************************************************************
+// @fn          secs_since_fix
+// @brief       calculates time difference in seconds since defined fixed point
+//              (leap day calculation is simplified and only works for specific fixed points)
+// @param       components of time/date
+// @return      seconds since fixed time (in solar seconds)
+// *************************************************************************************************
+unsigned long secs_since_fix(u8 sec, u8 min, u8 hour, u8 day, u8 month, u16 year)
+{
+	const int days_till_month[12] = {0,31,59,90,120,151,181,212,243,273,304,334};
+	
+		//assumes fixed point in leap year (years 2000) before feb 29
+		short num_leap_years=(year-fix_year)/4;
+		if(((year-fix_year)%4>=1) || month>=3 || (month==2 && day==29)) num_leap_years++;
+		
+		unsigned long result=
+		(
+			(
+				(unsigned long)(
+					(short)365*(year-fix_year)
+					+(short)(days_till_month[month-1]-days_till_month[fix_month-1])
+					+(short)(day-fix_day)
+					+num_leap_years //days
+				)*24+(long)(hour-fix_hour) //hours
+			)*60+(short)(min-fix_min) //minutes
+		)*60+(short)sec-fix_sec; //seconds
+		
+	return result;
+};
+
+// *************************************************************************************************
+// @fn          sidereal_seconds
+// @brief       calculates sidereal second of the day (for Greenwich) (since 00:00:00) from the
+//              number of solar seconds since the fixed time.
+//              The sidereal seconds of the fixed time are used as a start point
+//              deviation from apparent sidereal time (the "real" value) should be less than 2 seconds
+// @param       solar seconds difference since fixed point
+// @return      sidereal seconds since 00:00:00
+// *************************************************************************************************
+unsigned long sidereal_seconds(unsigned long rawtime)
+{
+	unsigned long sidtime=fix_sidsec;
+	int currentindex=0;
+	while(rawtime>0){
+		//use rational approximation of 1.002737909350795 to prevent use of floating point
+		//some multiples of 86400 are already lost here
+		while(rational[currentindex][0]<=rawtime){
+			sidtime+=rational[currentindex][1];
+			rawtime-=rational[currentindex][0];
+		}
+		//skip to next (more inaccurate) rational approximation
+		currentindex++;
+	}
+	//get rid of multiples of days
+	return sidtime%86400;
+};
+
+
+// *************************************************************************************************
+// @fn          sync_sidereal
+// @brief       calculates local sidereal time from solar time and sets sidereal clock
+// @param       none
+// @return      none
+// *************************************************************************************************
+void sync_sidereal(void)
+{
+	unsigned long sidtime=sidereal_seconds(secs_since_fix(sTime.second, sTime.minute, sTime.hour, sDate.day, sDate.month, sDate.year)-3600*sTime.UTCoffset);
+
+	//calculate difference of local time from greenwich time
+	long localcorr=	(long)(sSidereal_time.lonDeg*60
+					+ sSidereal_time.lonMin)*4
+					+ (sSidereal_time.lonSec+7)/15; //round correctly
+	//prevent sidtime from becoming negative
+	if(localcorr<0 && -localcorr>sidtime)
+	{
+		sidtime+=86400;
+	}
+	sidtime+=localcorr;
+	//make sure the time is between 00:00:00 and 23:59:59
+	if(sidtime>=86400)
+	{
+		sidtime -=86400;
+	}
+	
+	// Disable interrupts to prevent race conditions
+	Timer0_A1_Stop();
+	// Set sidereal 24H time to calculated value
+	sSidereal_time.hour   = sidtime/3600;
+	sidtime %=3600;
+	sSidereal_time.minute = sidtime/60;
+	sidtime %=60;
+	sSidereal_time.second = sidtime;
+	// Set clock timer for one sidereal second in the future
+	Timer0_A1_Start();
+	
+	//sync=1: automatically sync only one time
+	if (sSidereal_time.sync==1)
+	{
+		sSidereal_time.sync=0;
+	}
+	
+}
+
 // *************************************************************************************************
 // @fn          reset_siderealclock
 // @brief       Resets sidereal clock time to 00:00:00, 24H time format.
@@ -85,14 +227,15 @@ struct sidereal_time sSidereal_time;
 // *************************************************************************************************
 void reset_sidereal_clock(void)
 {
-	// Disable interrupts to prevent race conditions
-	Timer0_A1_Stop();
-	// Set main 24H time to start value
-	sSidereal_time.hour   = 0;
-	sSidereal_time.minute = 0;
-	sSidereal_time.second = 0;
-	// Set clock timer for one sidereal second in the future
-	Timer0_A1_Start();
+	//Use values for Aachen (CEST) until it can be set
+	sTime.UTCoffset=2;
+	sSidereal_time.lonDeg=6;
+	sSidereal_time.lonMin=2;
+	sSidereal_time.lonSec=56;
+	
+	sSidereal_time.sync=2;
+	
+	sync_sidereal();
 
 	// Display style of both lines is default (HH:MM)
 	sSidereal_time.line1ViewStyle = DISPLAY_DEFAULT_VIEW;
@@ -154,6 +297,7 @@ void mx_sidereal(u8 line)
 	s32 hours;
 	s32 minutes;
 	s32 seconds;
+	s32 sync;
 	u8 * str;
 
 	// Clear display
@@ -163,9 +307,26 @@ void mx_sidereal(u8 line)
 	hours		= sSidereal_time.hour;
 	minutes 	= sSidereal_time.minute;
 	seconds 	= sSidereal_time.second;
+	sync		= sSidereal_time.sync;
 
-	// Init value index
-	select = 0;
+	// Init value index (start with Auto Sync selection)
+	select = 3;	
+	
+	// Display HH:MM (LINE1) and As .SS (LINE2)
+	str = itoa(hours, 2, 0);
+	display_chars(LCD_SEG_L1_3_2, str, SEG_ON);
+	display_symbol(LCD_SEG_L1_COL, SEG_ON);
+
+	str = itoa(minutes, 2, 0);
+	display_chars(LCD_SEG_L1_1_0, str, SEG_ON);
+
+	str = itoa(seconds, 2, 0);
+	display_chars(LCD_SEG_L2_1_0, str, SEG_ON);
+	display_symbol(LCD_SEG_L2_DP, SEG_ON);
+				
+	str = itoa(sync,2,0);
+	display_chars(LCD_SEG_L2_3_2, str, SEG_ON);
+	display_char(LCD_SEG_L2_4, 'A', SEG_ON);
 
 	// Loop values until all are set or user breaks	set
 	while(1)
@@ -180,17 +341,28 @@ void mx_sidereal(u8 line)
 		// Button STAR (short): save, then exit
 		if (button.flag.star)
 		{
-			// Disable interrupts to prevent race conditions
-			Timer0_A1_Stop();
+			//store sync settings
+			sSidereal_time.sync=sync;
+			
+			//sync time if desired
+			if(sync >=1)
+			{
+				sync_sidereal();
+			}
+			else
+			{
+				// Disable interrupts to prevent race conditions
+				Timer0_A1_Stop();
 
-			// Store local variables in global clock time
-			sSidereal_time.hour 	 = hours;
-			sSidereal_time.minute = minutes;
-			sSidereal_time.second = seconds;
+				// Store local variables in global sidereal clock time
+				sSidereal_time.hour   = hours;
+				sSidereal_time.minute = minutes;
+				sSidereal_time.second = seconds;
 
-			// Set clock timer for one sidereal second in the future
-			Timer0_A1_Start();
-
+				// Set clock timer for one sidereal second in the future
+				Timer0_A1_Start();
+			}
+			
 			// Full display update is done when returning from function
 			display_symbol(LCD_SYMB_AM, SEG_OFF);
 			break;
@@ -198,19 +370,7 @@ void mx_sidereal(u8 line)
 
 		switch (select)
 		{
-			case 0:		// Display HH:MM (LINE1) and .SS (LINE2)
-				str = itoa(hours, 2, 0);
-				display_chars(LCD_SEG_L1_3_2, str, SEG_ON);
-				display_symbol(LCD_SEG_L1_COL, SEG_ON);
-
-				str = itoa(minutes, 2, 0);
-				display_chars(LCD_SEG_L1_1_0, str, SEG_ON);
-
-				str = itoa(seconds, 2, 0);
-				display_chars(LCD_SEG_L2_1_0, str, SEG_ON);
-				display_symbol(LCD_SEG_L2_DP, SEG_ON);
-
-				// Set hours
+			case 0:		// Set hours
 				set_value(&hours, 2, 0, 0, 23, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_2, display_hours_12_or_24);
 				select = 1;
 				break;
@@ -222,7 +382,11 @@ void mx_sidereal(u8 line)
 
 			case 2:		// Set seconds
 				set_value(&seconds, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
-				select = 0;
+				select = 3;
+				break;
+			case 3: 	// Set Automatic Sync setings
+				set_value(&sync, 2, 0, 0, 2, SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_3_2, display_value1);
+				select =0;
 				break;
 		}
 	}
@@ -312,3 +476,4 @@ void display_sidereal(u8 line, u8 update)
 	}
 }
 
+#endif

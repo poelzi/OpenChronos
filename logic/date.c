@@ -51,6 +51,10 @@
 #include "user.h"
 #include "clock.h"
 
+#ifdef CONFIG_SIDEREAL
+#include "sidereal.h"
+#endif
+
 // *************************************************************************************************
 // Prototypes section
 void reset_date(void);
@@ -211,6 +215,10 @@ void mx_date(line_t line)
 			sDate.day = day;
 			sDate.month = month;
 			sDate.year = year;
+			#ifdef CONFIG_SIDEREAL
+			if(sSidereal_time.sync>0)
+				sync_sidereal();
+			#endif
 			
 			// Full display update is done when returning from function
 			break;

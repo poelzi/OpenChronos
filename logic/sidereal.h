@@ -41,6 +41,7 @@
 
 // *************************************************************************************************
 // Prototypes section
+extern void sync_sidereal(void);
 extern void reset_sidereal_clock(void);
 extern void sx_sidereal(u8 line);
 extern void mx_sidereal(u8 line);
@@ -62,6 +63,13 @@ struct sidereal_time
 	u8		hour;
 	u8		minute;
 	u8 		second;
+	
+	//current longitude >0:east, <0:west (all parts need the same sign)
+	int		lonDeg;
+	int		lonMin;
+	int		lonSec;
+	//synchronize to normal time automatically
+	u8		sync;
 };
 extern struct sidereal_time sSidereal_time;
 
