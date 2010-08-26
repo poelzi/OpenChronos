@@ -148,7 +148,11 @@ DATA["CONFIG_PROUT"] = {
 DATA["CONFIG_SIDEREAL"] = {
         "name": "Sidereal Time Clock",
         "depends": [],
-        "default": False}
+        "default": False,
+        "help": "Calculate and show local sidereal time (accurate to ~5s).\n"
+                "To work properly, the current time zone (that is set on the normal clock) and longitude have to be set on the watch. The clock does real sidereal second clock ticks. When desired the sidereal time can also be set manually.\n"
+                "This does NOT replace the normal clock which is still available and working."
+        }
 
 # not yet working
 
