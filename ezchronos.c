@@ -309,23 +309,11 @@ void init_global_variables(void)
 	// --------------------------------------------
 	// Apply default settings
 
+	menu_L1_position=0;
+	menu_L2_position=0;
 	// set menu pointers to default menu items
-	ptrMenu_L1 = &menu_L1_Time;
-//	ptrMenu_L1 = &menu_L1_Alarm;
-//	ptrMenu_L1 = &menu_L1_Heartrate;
-//	ptrMenu_L1 = &menu_L1_Speed;
-//	ptrMenu_L1 = &menu_L1_Temperature;
-//	ptrMenu_L1 = &menu_L1_Altitude;
-//	ptrMenu_L1 = &menu_L1_Acceleration;
-	ptrMenu_L2 = &menu_L2_Date;
-//	ptrMenu_L2 = &menu_L2_Stopwatch;
-//	ptrMenu_L2 = &menu_L2_Rf;
-//	ptrMenu_L2 = &menu_L2_Ppt;
-//	ptrMenu_L2 = &menu_L2_Sync;
-//	ptrMenu_L2 = &menu_L2_Distance;
-//	ptrMenu_L2 = &menu_L2_Calories;
-//	ptrMenu_L2 = &menu_L2_Battery;
-//	ptrMenu_L2 = &menu_L2_Phase;
+	ptrMenu_L1 = menu_L1[menu_L1_position];
+	ptrMenu_L2 = menu_L2[menu_L2_position];
 
 	// Assign LINE1 and LINE2 display functions
 	fptr_lcd_function_line1 = ptrMenu_L1->display_function;
@@ -777,9 +765,14 @@ void menu_skip_next(line_t line)
 	{
 		// Clean up display before activating next menu item
 		fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
-			
+		
+		if(++menu_L1_position>=menu_L1_size)
+		{
+			menu_L1_position=0;
+		}
+		
 		// Go to next menu entry
-		ptrMenu_L1 = ptrMenu_L1->next;
+		ptrMenu_L1 = menu_L1[menu_L1_position];
 			
 		// Assign new display function
 		fptr_lcd_function_line1 = ptrMenu_L1->display_function;
@@ -789,8 +782,11 @@ void menu_skip_next(line_t line)
 	// Clean up display before activating next menu item
 		fptr_lcd_function_line2(LINE2, DISPLAY_LINE_CLEAR);
 
+		if(++menu_L2_position>=menu_L2_size)
+			menu_L2_position=0;
+		
 		// Go to next menu entry
-		ptrMenu_L2 = ptrMenu_L2->next;
+		ptrMenu_L2 = menu_L2[menu_L2_position];
 
 		// Assign new display function
 		fptr_lcd_function_line2 = ptrMenu_L2->display_function;

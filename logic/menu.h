@@ -59,8 +59,6 @@ struct menu
 	void (*display_function)(u8 line, u8 mode);		 
 	// Display update trigger 
 	u8 (*display_update)(void); 	 
-	// Pointer to next menu item
-	const struct menu *next;
 };
 
 
@@ -70,6 +68,16 @@ struct menu
 
 // *************************************************************************************************
 // Extern section
+
+
+extern const struct menu *menu_L1[];
+extern const int menu_L1_size;
+extern int menu_L1_position;
+
+extern const struct menu *menu_L2[];
+extern const int menu_L2_size;
+extern int menu_L2_position;
+
 
 // Line1 navigation
 extern const struct menu menu_L1_Time;

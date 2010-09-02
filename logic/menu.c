@@ -93,7 +93,6 @@
 const struct menu * ptrMenu_L1 = NULL;
 const struct menu * ptrMenu_L2 = NULL;
 
-
 // *************************************************************************************************
 // Extern section
 extern void menu_skip_next(line_t line); //ezchronos.c
@@ -160,11 +159,6 @@ const struct menu menu_L1_Time =
 	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_time),		// display function
 	FUNCTION(update_time),		// new display data
-#ifdef CONFIG_SIDEREAL
-	&menu_L1_Sidereal,
-#else
-	&menu_L1_Alarm,
-#endif
 };
 
 #ifdef CONFIG_SIDEREAL
@@ -176,7 +170,6 @@ const struct menu menu_L1_Sidereal =
 	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_sidereal),	// display function
 	FUNCTION(update_sidereal),	// new display data
-	&menu_L1_Alarm,
 };
 #endif
 
@@ -188,7 +181,6 @@ const struct menu menu_L1_Alarm =
 	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_alarm),	// display function
 	FUNCTION(update_alarm),		// new display data
-	&menu_L1_Temperature,
 };
 // Line1 - Temperature
 const struct menu menu_L1_Temperature =
@@ -198,16 +190,6 @@ const struct menu menu_L1_Temperature =
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_temperature),		// display function
 	FUNCTION(update_temperature),		// new display data
-#ifdef CONFIG_ALTITUDE
-	&menu_L1_Altitude,
-#else
-#ifdef ELIMINATE_BLUEROBIN
-  &menu_L1_Acceleration,
-#else
-  &menu_L1_Heartrate,
-#endif
-#endif
-
 };
 
 #ifdef CONFIG_ALTITUDE
@@ -219,12 +201,6 @@ const struct menu menu_L1_Altitude =
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_altitude),			// display function
 	FUNCTION(update_time),				// new display data
-	//pfs
-	#ifdef ELIMINATE_BLUEROBIN
-	&menu_L1_Acceleration,
-	#else
-	&menu_L1_Heartrate,
-	#endif
 };
 #endif
 
@@ -238,7 +214,6 @@ const struct menu menu_L1_Heartrate =
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_heartrate),		// display function
 	FUNCTION(update_time),				// new display data
-	&menu_L1_Speed,
 };
 // Line1 - Speed
 const struct menu menu_L1_Speed =
@@ -248,7 +223,6 @@ const struct menu menu_L1_Speed =
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_speed),			// display function
 	FUNCTION(update_time),				// new display data
-	&menu_L1_Acceleration,
 };
 #endif
 // Line1 - Acceleration
@@ -259,7 +233,6 @@ const struct menu menu_L1_Acceleration =
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_acceleration),		// display function
 	FUNCTION(update_acceleration),		// new display data
-	&menu_L1_Time,
 };
 
 // Line2 - Date
@@ -270,12 +243,8 @@ const struct menu menu_L2_Date =
 	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_date),		// display function
 	FUNCTION(update_date),		// new display data
-#ifndef CONFIG_VARIO
-	&menu_L2_Stopwatch,
 };
-#else
-        &menu_L2_Vario,
-};
+#ifdef CONFIG_VARIO
 //Line 2 - Vario
 const struct menu menu_L2_Vario = 
   {
@@ -284,7 +253,6 @@ const struct menu menu_L2_Vario =
 	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_vario),		// display function
 	FUNCTION(update_vario),		// new display data
-        &menu_L2_Stopwatch,
 };
 
 #endif
@@ -296,12 +264,8 @@ const struct menu menu_L2_Stopwatch =
 	FUNCTION(mx_stopwatch),		// sub menu function
 	FUNCTION(display_stopwatch),// display function
 	FUNCTION(update_stopwatch),	// new display data
-#ifndef CONFIG_EGGTIMER
-	&menu_L2_Battery,
 };
-#else
-	&menu_L2_Eggtimer,
-};
+#ifdef CONFIG_EGGTIMER
 //  Line2 - Eggtimer (Counts down from set time)
 const struct menu menu_L2_Eggtimer =
 {
@@ -310,7 +274,6 @@ const struct menu menu_L2_Eggtimer =
         FUNCTION(menu_skip_next),	// next item function
         FUNCTION(display_eggtimer),// display function
         FUNCTION(update_eggtimer),      // new display data
-        &menu_L2_Battery,
 };
 #endif
 // Line2 - Battery 
@@ -321,12 +284,8 @@ const struct menu menu_L2_Battery =
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_battery_V),		// display function
 	FUNCTION(update_battery_voltage),	// new display data
-#ifndef CONFIG_PHASE_CLOCK
-	&menu_L2_Rf,
 };
-#else
-	&menu_L2_Phase,
-};
+#ifdef CONFIG_PHASE_CLOCK
 // Line2 - ACC (acceleration data + button events via SimpliciTI)
 const struct menu menu_L2_Phase =
 {
@@ -335,7 +294,6 @@ const struct menu menu_L2_Phase =
 	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_phase_clock),	// display function
 	FUNCTION(update_time),			// new display data
-	&menu_L2_Rf,
 };
 #endif
 // Line2 - ACC (acceleration data + button events via SimpliciTI)
@@ -346,7 +304,6 @@ const struct menu menu_L2_Rf =
 	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_rf),			// display function
 	FUNCTION(update_time),			// new display data
-	&menu_L2_Ppt,
 };
 // Line2 - PPT (button events via SimpliciTI)
 const struct menu menu_L2_Ppt =
@@ -356,7 +313,6 @@ const struct menu menu_L2_Ppt =
 	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_ppt),			// display function
 	FUNCTION(update_time),			// new display data
-	&menu_L2_Sync,
 };
 // Line2 - SXNC (synchronization/data download via SimpliciTI)
 const struct menu menu_L2_Sync =
@@ -366,12 +322,6 @@ const struct menu menu_L2_Sync =
 	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_sync),			// display function
 	FUNCTION(update_time),			// new display data
-	//pfs
-	#ifdef ELIMINATE_BLUEROBIN
-	&menu_L2_RFBSL,
-	#else
-	&menu_L2_CalDist,
-	#endif
 };
 #ifndef ELIMINATE_BLUEROBIN
 // Line2 - Calories/Distance
@@ -393,9 +343,9 @@ const struct menu menu_L2_RFBSL =
 	FUNCTION(nx_rfbsl),				// next item function
 	FUNCTION(display_rfbsl),		// display function
 	FUNCTION(update_time),			// new display data
-#ifdef CONFIG_PROUT
-        &menu_L2_Prout,
 };
+
+#ifdef CONFIG_PROUT
 // Line2 - PROUT
 const struct menu menu_L2_Prout =
 {
@@ -404,9 +354,55 @@ const struct menu menu_L2_Prout =
 	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_prout),		// display function
 	FUNCTION(update_time),			// new display data
-	&menu_L2_Date,
-#else
-	&menu_L2_Date,
+};
 #endif
+
+// *************************************************************************************************
+// menu array
+
+const struct menu *menu_L1[]={
+	&menu_L1_Time,
+	#ifdef CONFIG_SIDEREAL
+	&menu_L1_Sidereal,
+	#endif
+	&menu_L1_Alarm,
+	&menu_L1_Temperature,
+	#ifdef CONFIG_ALTITUDE
+	&menu_L1_Altitude,
+	#endif
+	#ifndef ELIMINATE_BLUEROBIN
+	&menu_L1_Heartrate,
+	#endif
+	&menu_L1_Acceleration,
 };
 
+const int menu_L1_size=sizeof(menu_L1)/sizeof(struct menu*);
+int menu_L1_position=0;
+
+const struct menu *menu_L2[]={
+	&menu_L2_Date,
+	#ifdef CONFIG_VARIO
+	&menu_L2_Vario,
+	#endif
+	&menu_L2_Stopwatch,
+	#ifdef CONFIG_EGGTIMER
+	&menu_L2_Eggtimer,
+	#endif
+	&menu_L2_Battery,
+	#ifdef CONFIG_PHASE_CLOCK
+	&menu_L2_Phase,
+	#endif
+	&menu_L2_Rf,
+	&menu_L2_Ppt,
+	&menu_L2_Sync,
+	#ifndef ELIMINATE_BLUEROBIN
+	&menu_L2_CalDist,
+	#endif
+	&menu_L2_RFBSL,
+	#ifdef CONFIG_PROUT
+	&menu_L2_Prout,
+	#endif	
+};
+
+const int menu_L2_size=sizeof(menu_L2)/sizeof(struct menu*);
+int menu_L2_position=0;
