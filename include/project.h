@@ -154,4 +154,10 @@ extern volatile s_message_flags message;
 // include firmware image
 #include "../config.h"
 
+#if defined(CONFIG_INFOMEM) &&  !defined(CONFIG_ADDAPPTHATUSESSTORAGE)
+	//undefine feature if it is not used by any option
+	#undef CONFIG_INFOMEM
+#endif
+
+
 #endif /*PROJECT_H_*/
