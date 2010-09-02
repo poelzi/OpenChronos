@@ -36,19 +36,22 @@
 #ifndef VTI_AS_H_
 #define VTI_AS_H_
 
-
 // *************************************************************************************************
 // Include section
 
 
 // *************************************************************************************************
 // Prototypes section
+#ifndef FEATURE_PROVIDE_ACCEL
+extern void as_disconnect(void);
+#else
 extern void as_init(void);
 extern void as_start(void);
 extern void as_stop(void);
 extern u8 as_read_register(u8 bAddress);
 extern u8 as_write_register(u8 bAddress, u8 bData);
 extern void as_get_data(u8 * data);
+#endif
 
 
 // *************************************************************************************************

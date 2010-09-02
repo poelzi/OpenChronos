@@ -63,7 +63,9 @@
 #include "temperature.h"
 #include "altitude.h"
 #include "battery.h"
+#ifdef FEATURE_PROVIDE_ACCEL
 #include "acceleration.h"
+#endif
 //pfs
 #ifndef ELIMINATE_BLUEROBIN 
 #include "bluerobin.h"
@@ -276,9 +278,13 @@ void init_application(void)
 	radio_reset();
 	radio_powerdown();	
 	
+	#ifdef FEATURE_PROVIDE_ACCEL
 	// ---------------------------------------------------------------------
 	// Init acceleration sensor
 	as_init();
+	#else
+	as_disconnect();
+	#endif
 	
 	// ---------------------------------------------------------------------
 	// Init LCD
@@ -365,8 +371,10 @@ void init_global_variables(void)
 	reset_altitude_measurement();
 #endif
 	
+	#ifdef FEATURE_PROVIDE_ACCEL
 	// Reset acceleration measurement
 	reset_acceleration();
+	#endif
 	
 	// Reset BlueRobin stack
 	//pfs
@@ -547,8 +555,10 @@ void process_requests(void)
   	if (request.flag.altitude_measurement) do_altitude_measurement(FILTER_ON);
 #endif
 	
+	#ifdef FEATURE_PROVIDE_ACCEL
 	// Do acceleration measurement
 	if (request.flag.acceleration_measurement) do_acceleration_measurement();
+	#endif
 	
 	// Do voltage measurement
 	if (request.flag.voltage_measurement) battery_measurement();

@@ -59,7 +59,9 @@ extern u8 is_rf(void);
 typedef enum
 {
   SIMPLICITI_OFF = 0,       // Not connected
+#ifdef CONFIG_ACCEL
   SIMPLICITI_ACCELERATION,	// Transmitting acceleration data and button events
+#endif
   SIMPLICITI_BUTTONS,		// Transmitting button events
   SIMPLICITI_SYNC,			// Syncing
 #ifdef CONFIG_PHASE_CLOCK

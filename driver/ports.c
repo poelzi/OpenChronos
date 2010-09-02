@@ -45,7 +45,9 @@
 // driver
 #include "ports.h"
 #include "buzzer.h"
+#ifdef FEATURE_PROVIDE_ACCEL
 #include "vti_as.h"
+#endif
 #include "vti_ps.h"
 #include "timer.h"
 #include "display.h"
@@ -317,6 +319,7 @@ __interrupt void PORT2_ISR(void)
 		Timer0_A4_Delay(CONV_MS_TO_TICKS(BUTTONS_DEBOUNCE_TIME_OUT));
 	}
 	
+	#ifdef FEATURE_PROVIDE_ACCEL
 	// ---------------------------------------------------
 	// Acceleration sensor IRQ
 	if (IRQ_TRIGGERED(int_flag, AS_INT_PIN))
@@ -324,7 +327,8 @@ __interrupt void PORT2_ISR(void)
 		// Get data from sensor
 		request.flag.acceleration_measurement = 1;
   	}
-  	
+	#endif
+	
   	// ---------------------------------------------------
 	// Pressure sensor IRQ
 	if (IRQ_TRIGGERED(int_flag, PS_INT_PIN)) 

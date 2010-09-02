@@ -41,12 +41,26 @@
 
 // system
 #include "project.h"
+#include "vti_as.h"
+
+#ifndef FEATURE_PROVIDE_ACCEL
+void as_disconnect(void)
+{
+	AS_PWR_OUT &= ~AS_PWR_PIN;            	// Power off
+	AS_INT_OUT &= ~AS_INT_PIN;            	// Pin to low to avoid floating pins
+	AS_SPI_OUT &= ~(AS_SDO_PIN + AS_SDI_PIN + AS_SCK_PIN); // Pin to low to avoid floating pins
+	AS_CSN_OUT &= ~AS_CSN_PIN; 				// Pin to low to avoid floating pins
+	AS_INT_DIR |= AS_INT_PIN;            	// Pin to output to avoid floating pins
+	AS_SPI_DIR |= AS_SDO_PIN + AS_SDI_PIN + AS_SCK_PIN;    // Pin to output to avoid floating pins
+	AS_CSN_DIR |= AS_CSN_PIN;				// Pin to output to avoid floating pins
+	AS_PWR_DIR |= AS_PWR_PIN;            	// Power pin to output direction
+}
+#else /* ifndef FEATURE_PROVIDE_ACCEL */
 
 // logic
 #include "simpliciti.h"
 
 // driver
-#include "vti_as.h"
 #include "timer.h"
 #include "display.h"
 
@@ -353,4 +367,4 @@ void as_get_data(u8 * data)
 	*(data+2) = as_read_register(0x08);
 }
 
-
+#endif

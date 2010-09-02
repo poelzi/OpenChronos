@@ -47,7 +47,9 @@
 #include "ports.h"
 #include "buzzer.h"
 #include "vti_ps.h"
+#ifdef FEATURE_PROVIDE_ACCEL
 #include "vti_as.h"
+#endif
 #include "display.h"
 
 // logic
@@ -59,7 +61,9 @@
 #include "display.h"
 #include "rfsimpliciti.h"
 #include "simpliciti.h"
+#ifdef FEATURE_PROVIDE_ACCEL
 #include "acceleration.h"
+#endif
 
 #ifdef CONFIG_PROUT
 #include "prout.h"
@@ -394,6 +398,7 @@ __interrupt void TIMER0_A0_ISR(void)
 	}	
 #endif
 
+#ifdef FEATURE_PROVIDE_ACCEL
 	// Count down timeout
 	if (is_acceleration_measurement()) 
 	{
@@ -406,6 +411,7 @@ __interrupt void TIMER0_A0_ISR(void)
 		// If DRDY is (still) high, request data again
 		if ((AS_INT_IN & AS_INT_PIN) == AS_INT_PIN) request.flag.acceleration_measurement = 1; 
 	}	
+#endif
 
 	//pfs
 #ifndef ELIMINATE_BLUEROBIN

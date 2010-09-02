@@ -41,6 +41,7 @@
 
 // system
 #include "project.h"
+#ifdef FEATURE_PROVIDE_ACCEL
 
 // driver
 #include "display.h"
@@ -278,3 +279,4 @@ void display_acceleration(u8 line, u8 update)
 		}
 	}
 }
+#endif

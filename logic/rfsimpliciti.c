@@ -45,13 +45,17 @@
 
 // driver
 #include "display.h"
+#ifdef FEATURE_PROVIDE_ACCEL
 #include "vti_as.h"
+#endif
 #include "ports.h"
 #include "timer.h"
 #include "radio.h"
 
 // logic
+#ifdef FEATURE_PROVIDE_ACCEL
 #include "acceleration.h"
+#endif
 #include "rfsimpliciti.h"
 //pfs
 #ifndef ELIMINATE_BLUEROBIN
@@ -158,8 +162,10 @@ void sx_rf(u8 line)
 	#ifndef ELIMINATE_BLUEROBIN
 	if (is_bluerobin()) return;
   	#endif
+	#ifdef CONFIG_ACCEL
   	// Start SimpliciTI in tx only mode
 	start_simpliciti_tx_only(SIMPLICITI_ACCELERATION);
+	#endif
 }
 
 
@@ -214,27 +220,30 @@ void sx_sync(u8 line)
 // *************************************************************************************************
 void start_simpliciti_tx_only(simpliciti_mode_t mode)
 {
-  	// Display time in line 1
-    u8 start_as = 0;
+	#ifdef FEATURE_PROVIDE_ACCEL
+	u8 start_as = 0;
+	#endif
+	// Display time in line 1
 	clear_line(LINE1);  	
 	fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
 	display_time(LINE1, DISPLAY_LINE_UPDATE_FULL);
-
+#ifdef CONFIG_ACCEL
 	// Preset simpliciti_data with mode (key or mouse click) and clear other data bytes
 	if (mode == SIMPLICITI_ACCELERATION)
 	{
 		simpliciti_data[0] = SIMPLICITI_MOUSE_EVENTS;
         start_as = 1;
 	}
+#endif
 #ifdef CONFIG_PHASE_CLOCK
-    else if (mode == SIMPLICITI_PHASE_CLOCK_START || mode == SIMPLICITI_PHASE_CLOCK)
+    if (mode == SIMPLICITI_PHASE_CLOCK_START || mode == SIMPLICITI_PHASE_CLOCK)
     {
         if(mode == SIMPLICITI_PHASE_CLOCK)
             start_as = 1;
     	display_symbol(LCD_ICON_RECORD, SEG_ON_BLINK_ON);
     }
 #endif
-	else
+	if (mode == SIMPLICITI_BUTTONS)
 	{
 		simpliciti_data[0] = SIMPLICITI_KEY_EVENTS;
 	}	
@@ -263,11 +272,13 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
 	// Exit with timeout or by a button DOWN press.
 	if (simpliciti_link())
 	{
+		#ifdef FEATURE_PROVIDE_ACCEL
 		if (start_as)
 		{
 			// Start acceleration sensor
 			as_start();
 		}
+		#endif
 
 		// Enter TX only routine. This will transfer button events and/or acceleration data to access point.
 		simpliciti_main_tx_only();
@@ -276,8 +287,10 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
 	// Set SimpliciTI state to OFF
 	sRFsmpl.mode = SIMPLICITI_OFF;
 
+	#ifdef FEATURE_PROVIDE_ACCEL
 	// Stop acceleration sensor
 	as_stop();
+	#endif
 
 	// Powerdown radio
 	close_radio();
@@ -384,6 +397,7 @@ void simpliciti_get_ed_data_callback(void)
     u8 i;
     u16 res;
 WDTCTL = WDTPW + WDTHOLD;
+#ifdef CONFIG_ACCEL
 	if (sRFsmpl.mode == SIMPLICITI_ACCELERATION)
 	{
 		// Wait for next sample
@@ -413,8 +427,10 @@ WDTCTL = WDTPW + WDTHOLD;
 				simpliciti_flag |= SIMPLICITI_TRIGGER_SEND_DATA;
 			}
 		}
+	}
+#endif
 #ifdef CONFIG_PHASE_CLOCK
-	} else if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK_START)
+	if (sRFsmpl.mode == SIMPLICITI_PHASE_CLOCK_START)
 	{
 		/* Initialisation phase. Get a Session id and send the
 		   program wanted */
@@ -506,9 +522,9 @@ WDTCTL = WDTPW + WDTHOLD;
             sRFsmpl.timeout = SIMPLICITI_TIMEOUT; 
 
 		}
-
+    }
 #endif
-    } else // transmit only button events
+	if (sRFsmpl.mode == SIMPLICITI_BUTTONS) // transmit only button events
 	{
 		// New button event is stored in data
 		if ((packet_counter == 0) && (simpliciti_data[0] & 0xF0) != 0)
@@ -552,7 +568,7 @@ WDTCTL = WDTPW + WDTHOLD;
 
 // *************************************************************************************************
 // @fn          simpliciti_get_rvc_callback
-// @brief       Callback when data wher received
+// @brief       Callback when data was received
 // @param       u8 lenght
 // @return      none
 // *************************************************************************************************
@@ -587,8 +603,10 @@ void start_simpliciti_sync(void)
 	clear_line(LINE1);  	
 	fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
 	
+	#ifdef FEATURE_PROVIDE_ACCEL
 	// Stop acceleration sensor
 	as_stop();
+	#endif
 
 	// Get updated altitude
 #ifdef CONFIG_ALTITUTDE

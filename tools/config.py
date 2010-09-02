@@ -154,12 +154,14 @@ DATA["CONFIG_SIDEREAL"] = {
                 "This does NOT replace the normal clock which is still available and working."
         }
 
-# not yet working
-
 DATA["CONFIG_ACCEL"] = {
         "name": "Acceleration",
         "depends": [],
-        "default": True}
+        "default": True,
+        "help": "Disable acceleration applications (display and transmission). When no other application uses the acceleration sensor, it is disabled completely"
+        }
+
+# not yet working
 DATA["CONFIG_ALARM"] = {
         "name": "Alarm",
         "depends": [],

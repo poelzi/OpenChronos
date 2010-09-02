@@ -46,13 +46,17 @@
 
 // driver
 #include "display.h"
+#ifdef FEATURE_PROVIDE_ACCEL
 #include "vti_as.h"
+#endif
 #include "vti_ps.h"
 #include "ports.h"
 #include "timer.h"
 
 // logic
+#ifdef FEATURE_PROVIDE_ACCEL
 #include "acceleration.h"
+#endif
 #include "altitude.h"
 #include "temperature.h"
 //pfs
@@ -173,6 +177,7 @@ void test_mode(void)
 								}
 								break;
 						case 3: // Acceleration measurement
+#ifdef FEATURE_PROVIDE_ACCEL
 								as_start();
 								for (i=0; i<4; i++)
 								{
@@ -184,6 +189,7 @@ void test_mode(void)
 									display_chars(LCD_SEG_L2_2_0, str, SEG_ON);
 								}
 								as_stop();
+#endif
 								break;
 						//pfs
 						#ifndef ELIMINATE_BLUEROBIN

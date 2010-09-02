@@ -59,8 +59,13 @@
 #ifndef ELIMINATE_BLUEROBIN
 #include "bluerobin.h"
 #endif
+
 #include "rfsimpliciti.h"
+
+#ifdef CONFIG_ACCEL
 #include "acceleration.h"
+#endif
+
 #include "rfbsl.h"
 
 #ifdef CONFIG_PHASE_CLOCK
@@ -225,6 +230,7 @@ const struct menu menu_L1_Speed =
 	FUNCTION(update_time),				// new display data
 };
 #endif
+#ifdef CONFIG_ACCEL
 // Line1 - Acceleration
 const struct menu menu_L1_Acceleration =
 {
@@ -234,6 +240,7 @@ const struct menu menu_L1_Acceleration =
 	FUNCTION(display_acceleration),		// display function
 	FUNCTION(update_acceleration),		// new display data
 };
+#endif
 
 // Line2 - Date
 const struct menu menu_L2_Date =
@@ -296,6 +303,7 @@ const struct menu menu_L2_Phase =
 	FUNCTION(update_time),			// new display data
 };
 #endif
+#ifdef CONFIG_ACCEL
 // Line2 - ACC (acceleration data + button events via SimpliciTI)
 const struct menu menu_L2_Rf =
 {
@@ -305,6 +313,7 @@ const struct menu menu_L2_Rf =
 	FUNCTION(display_rf),			// display function
 	FUNCTION(update_time),			// new display data
 };
+#endif
 // Line2 - PPT (button events via SimpliciTI)
 const struct menu menu_L2_Ppt =
 {
@@ -373,7 +382,9 @@ const struct menu *menu_L1[]={
 	#ifndef ELIMINATE_BLUEROBIN
 	&menu_L1_Heartrate,
 	#endif
+	#ifdef CONFIG_ACCEL
 	&menu_L1_Acceleration,
+	#endif
 };
 
 const int menu_L1_size=sizeof(menu_L1)/sizeof(struct menu*);
@@ -392,7 +403,9 @@ const struct menu *menu_L2[]={
 	#ifdef CONFIG_PHASE_CLOCK
 	&menu_L2_Phase,
 	#endif
+	#ifdef CONFIG_ACCEL
 	&menu_L2_Rf,
+	#endif
 	&menu_L2_Ppt,
 	&menu_L2_Sync,
 	#ifndef ELIMINATE_BLUEROBIN

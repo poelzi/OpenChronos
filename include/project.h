@@ -154,4 +154,8 @@ extern volatile s_message_flags message;
 // include firmware image
 #include "../config.h"
 
+#if defined( CONFIG_PHASE_CLOCK ) || defined( CONFIG_ACCEL)
+#define FEATURE_PROVIDE_ACCEL
+#endif
+
 #endif /*PROJECT_H_*/
