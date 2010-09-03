@@ -79,7 +79,7 @@ struct time
 	u32 	last_activity;
 	#ifdef CONFIG_SIDEREAL
 	// offset of local time from UTC (=1: set time is UTC+1 =CET)
-	int		UTCoffset;
+	s8		UTCoffset;
 	#endif
 };
 extern struct time sTime;

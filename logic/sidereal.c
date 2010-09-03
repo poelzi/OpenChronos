@@ -50,6 +50,10 @@
 #include "display.h"
 #include "timer.h"
 
+#ifdef CONFIG_INFOMEM
+#include "infomem.h"
+#endif
+
 // logic
 #include "menu.h"
 #include "clock.h"
@@ -58,6 +62,8 @@
 
 
 #include "date.h"
+
+#include <string.h>
 
 
 // *************************************************************************************************
@@ -185,9 +191,9 @@ void sync_sidereal(void)
 	unsigned long sidtime=sidereal_seconds(secs_since_fix(sTime.second, sTime.minute, sTime.hour, sDate.day, sDate.month, sDate.year)-3600*sTime.UTCoffset);
 
 	//calculate difference of local time from greenwich time
-	long localcorr=	(long)(sSidereal_time.lonDeg*60
-					+ sSidereal_time.lonMin)*4
-					+ (sSidereal_time.lonSec+7)/15; //round correctly
+	long localcorr=	(long)(sSidereal_time.lon.deg*60
+					+ sSidereal_time.lon.min)*4
+					+ (sSidereal_time.lon.sec+7)/15; //round correctly
 	//prevent sidtime from becoming negative
 	if(localcorr<0 && -localcorr>sidtime)
 	{
@@ -227,11 +233,25 @@ void sync_sidereal(void)
 // *************************************************************************************************
 void reset_sidereal_clock(void)
 {
-	//Use values for Aachen (CEST) until it can be set
-	sTime.UTCoffset=2;
-	sSidereal_time.lonDeg=6;
-	sSidereal_time.lonMin=2;
-	sSidereal_time.lonSec=56;
+	#ifdef CONFIG_INFOMEM
+	if(infomem_app_amount(SIDEREAL_INFOMEM_ID)==sizeof(struct longitude)/2 +1)
+	{
+		u16 buf[sizeof(struct longitude)/2+1];
+		infomem_app_read(SIDEREAL_INFOMEM_ID,buf,sizeof(struct longitude)/2+1,0);
+		sTime.UTCoffset=buf[0];
+		memcpy(&(sSidereal_time.lon), buf+1, sizeof(struct longitude));
+	}
+	else
+	{
+	#endif
+		//Use values for Greenwich
+		sTime.UTCoffset=0;
+		sSidereal_time.lon.deg=0;
+		sSidereal_time.lon.min=0;
+		sSidereal_time.lon.sec=0;
+	#ifdef CONFIG_INFOMEM
+	}
+	#endif
 	
 	sSidereal_time.sync=2;
 	
@@ -319,19 +339,19 @@ void mx_sidereal(u8 line)
 	
 	heart =0;
 	
-	if(sSidereal_time.lonDeg<0 || sSidereal_time.lonMin<0 || sSidereal_time.lonSec<0)
+	if(sSidereal_time.lon.deg<0 || sSidereal_time.lon.min<0 || sSidereal_time.lon.sec<0)
 	{
 		direction=0;
-		lon_degrees = -sSidereal_time.lonDeg;
-		lon_minutes = -sSidereal_time.lonMin;
-		lon_seconds = -sSidereal_time.lonSec;
+		lon_degrees = -sSidereal_time.lon.deg;
+		lon_minutes = -sSidereal_time.lon.min;
+		lon_seconds = -sSidereal_time.lon.sec;
 	}
 	else
 	{
 		direction=1;
-		lon_degrees = sSidereal_time.lonDeg;
-		lon_minutes = sSidereal_time.lonMin;
-		lon_seconds = sSidereal_time.lonSec;
+		lon_degrees = sSidereal_time.lon.deg;
+		lon_minutes = sSidereal_time.lon.min;
+		lon_seconds = sSidereal_time.lon.sec;
 	}
 	
 	UTCoffset = sTime.UTCoffset;
@@ -396,16 +416,23 @@ void mx_sidereal(u8 line)
 			
 			if(direction & 0x1)
 			{
-				sSidereal_time.lonDeg = lon_degrees;
-				sSidereal_time.lonMin = lon_minutes;
-				sSidereal_time.lonSec = lon_seconds;
+				sSidereal_time.lon.deg = lon_degrees;
+				sSidereal_time.lon.min = lon_minutes;
+				sSidereal_time.lon.sec = lon_seconds;
 			}
 			else
 			{
-				sSidereal_time.lonDeg = -lon_degrees;
-				sSidereal_time.lonMin = -lon_minutes;
-				sSidereal_time.lonSec = -lon_seconds;
+				sSidereal_time.lon.deg = -lon_degrees;
+				sSidereal_time.lon.min = -lon_minutes;
+				sSidereal_time.lon.sec = -lon_seconds;
 			}
+			
+			#ifdef CONFIG_INFOMEM
+			u16 buf[sizeof(struct longitude)/2+1];
+			buf[0]=sTime.UTCoffset;
+			memcpy(buf+1, &(sSidereal_time.lon),sizeof(struct longitude));
+			infomem_app_replace(SIDEREAL_INFOMEM_ID,buf,sizeof(struct longitude)/2+1);
+			#endif
 			
 			//sync time if desired
 			if(sync >=1)
