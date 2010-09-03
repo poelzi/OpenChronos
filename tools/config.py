@@ -25,7 +25,7 @@ DATA["CONFIG_FREQUENCY"] = {
         "depends": [],
         "default": 902,
         "type": "choices",
-        "values": [902, 869, 433],
+        "values": [902, 868, 433],
         "help": "Radio frequency for the clock"
 
 }

@@ -48,7 +48,7 @@ ALL_C = $(LOGIC_SOURCE) $(DRIVER_SOURCE) $(SIMPLICICTI_SOURCE) $(MAIN_SOURCE)
 
 USE_CFLAGS = $(CFLAGS_PRODUCTION)
 
-CONFIG_FLAGS ?= $(shell cat config.h | grep CONFIG_FREQUENCY | sed 's/.define CONFIG_FREQUENCY //' | sed 's/902/-DISM_US/' | sed 's/433/-DISM_LF/' | sed 's/869/-DISM_EU/')
+CONFIG_FLAGS ?= $(shell cat config.h | grep CONFIG_FREQUENCY | sed 's/.define CONFIG_FREQUENCY //' | sed 's/902/-DISM_US/' | sed 's/433/-DISM_LF/' | sed 's/868/-DISM_EU/')
 
 ifeq (debug,$(findstring debug,$(MAKECMDGOALS)))
 USE_CFLAGS = $(CFLAGS_DEBUG)
