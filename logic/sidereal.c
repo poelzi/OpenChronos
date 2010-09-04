@@ -191,9 +191,9 @@ void sync_sidereal(void)
 	unsigned long sidtime=sidereal_seconds(secs_since_fix(sTime.second, sTime.minute, sTime.hour, sDate.day, sDate.month, sDate.year)-3600*sTime.UTCoffset);
 
 	//calculate difference of local time from greenwich time
-	long localcorr=	(long)(sSidereal_time.lon.deg*60
-					+ sSidereal_time.lon.min)*4
-					+ (sSidereal_time.lon.sec+7)/15; //round correctly
+	long localcorr=	(long)(sSidereal_time.lon[sSidereal_time.lon_selection].deg*60
+					+ sSidereal_time.lon[sSidereal_time.lon_selection].min)*4
+					+ (sSidereal_time.lon[sSidereal_time.lon_selection].sec+7)/15; //round correctly
 	//prevent sidtime from becoming negative
 	if(localcorr<0 && -localcorr>sidtime)
 	{
@@ -233,23 +233,32 @@ void sync_sidereal(void)
 // *************************************************************************************************
 void reset_sidereal_clock(void)
 {
-	#ifdef CONFIG_INFOMEM
-	if(infomem_app_amount(SIDEREAL_INFOMEM_ID)==sizeof(struct longitude)/2 +1)
+	int i;
+	
+	//Use values for Greenwich
+	for(i=0;i<SIDEREAL_NUM_LON;i++)
 	{
-		u16 buf[sizeof(struct longitude)/2+1];
-		infomem_app_read(SIDEREAL_INFOMEM_ID,buf,sizeof(struct longitude)/2+1,0);
-		sTime.UTCoffset=buf[0];
-		memcpy(&(sSidereal_time.lon), buf+1, sizeof(struct longitude));
+		sSidereal_time.lon[i].deg=0;
+		sSidereal_time.lon[i].min=0;
+		sSidereal_time.lon[i].sec=0;
 	}
-	else
-	{
-	#endif
-		//Use values for Greenwich
-		sTime.UTCoffset=0;
-		sSidereal_time.lon.deg=0;
-		sSidereal_time.lon.min=0;
-		sSidereal_time.lon.sec=0;
+	sTime.UTCoffset=0;
+	sSidereal_time.lon_selection=0;
+	
+	
 	#ifdef CONFIG_INFOMEM
+	s16 read_size=infomem_app_amount(SIDEREAL_INFOMEM_ID);
+	if(read_size>=sizeof(struct longitude)/2 +1)
+	{
+		u16 buf[SIDEREAL_NUM_LON*sizeof(struct longitude)/2+1];
+		read_size=infomem_app_read(SIDEREAL_INFOMEM_ID,buf,SIDEREAL_NUM_LON*sizeof(struct longitude)/2+1,0);
+		sTime.UTCoffset=((u8*)buf)[0];
+		sSidereal_time.lon_selection=((u8*)buf)[1];
+		
+		read_size=(read_size-1)*2;
+		if(read_size>SIDEREAL_NUM_LON*sizeof(struct longitude))
+			read_size=SIDEREAL_NUM_LON*sizeof(struct longitude);
+		memcpy(&(sSidereal_time.lon), buf+1, read_size);
 	}
 	#endif
 	
@@ -318,15 +327,17 @@ void mx_sidereal(u8 line)
 	s32 hours;
 	s32 minutes;
 	s32 seconds;
-	s32 lon_degrees;
-	s32 lon_minutes;
-	s32 lon_seconds;
+	s32 lon_degrees[SIDEREAL_NUM_LON];
+	s32 lon_minutes[SIDEREAL_NUM_LON];
+	s32 lon_seconds[SIDEREAL_NUM_LON];
 	s32 sync;
 	s32 heart;
-	s32 direction;
+	u8 level;
+	s32 direction[SIDEREAL_NUM_LON];
 	s32 UTCoffset;
 	u8 * str;
-
+	int i;
+	
 	// Clear display
 	clear_display_all();
 
@@ -337,27 +348,31 @@ void mx_sidereal(u8 line)
 	
 	sync		= sSidereal_time.sync;
 	
-	heart =0;
-	
-	if(sSidereal_time.lon.deg<0 || sSidereal_time.lon.min<0 || sSidereal_time.lon.sec<0)
+	for(i=0; i<SIDEREAL_NUM_LON; i++)
 	{
-		direction=0;
-		lon_degrees = -sSidereal_time.lon.deg;
-		lon_minutes = -sSidereal_time.lon.min;
-		lon_seconds = -sSidereal_time.lon.sec;
-	}
-	else
-	{
-		direction=1;
-		lon_degrees = sSidereal_time.lon.deg;
-		lon_minutes = sSidereal_time.lon.min;
-		lon_seconds = sSidereal_time.lon.sec;
+		if(sSidereal_time.lon[i].deg<0 || sSidereal_time.lon[i].min<0 || sSidereal_time.lon[i].sec<0)
+		{
+			direction[i]=0;
+			lon_degrees[i] = -sSidereal_time.lon[i].deg;
+			lon_minutes[i] = -sSidereal_time.lon[i].min;
+			lon_seconds[i] = -sSidereal_time.lon[i].sec;
+		}
+		else
+		{
+			direction[i]=1;
+			lon_degrees[i] = sSidereal_time.lon[i].deg;
+			lon_minutes[i] = sSidereal_time.lon[i].min;
+			lon_seconds[i] = sSidereal_time.lon[i].sec;
+		}
 	}
 	
 	UTCoffset = sTime.UTCoffset;
 
 	// Init value index (start with Auto Sync selection)
 	select = 0;
+	
+	heart =0;
+	level=sSidereal_time.lon_selection;
 
 	// Loop values until all are set or user breaks	set
 	while(1)
@@ -376,7 +391,17 @@ void mx_sidereal(u8 line)
 		{
 			if(select<=4)
 			{
-				select=5;
+				//go to longitude settings
+				if(heart>0)
+				{
+					select=5;
+					level=0;
+				}
+				//go to time zone settings
+				else
+				{
+					select=10;
+				}
 				clear_display_all();
 				display_symbol(LCD_SYMB_AM, SEG_OFF);
 			}
@@ -384,11 +409,31 @@ void mx_sidereal(u8 line)
 			{
 				if(heart<0)
 				{
-					select=0;
+					//go to previous level
+					if(level>0)
+					{
+						level-=1;
+						select=5;
+					}
+					//go to time/sync settings
+					else
+					{
+						select=0;
+					}
 				}
 				else
 				{
-					select=10;
+					//go to next level
+					if(level<SIDEREAL_NUM_LON-1)
+					{
+						level+=1;
+						select=5;
+					}
+					//go to time zone settings
+					else
+					{
+						select=10;
+					}
 				}
 				clear_display_all();
 				display_symbol(LCD_UNIT_L1_DEGREE, SEG_OFF);
@@ -397,12 +442,22 @@ void mx_sidereal(u8 line)
 			}
 			else
 			{
-				select=5;
+				//go to time/sync settings
+				if(heart>0)
+				{
+					select=0;
+				}
+				//go to longitude settings
+				else
+				{
+					select=5;
+					level=SIDEREAL_NUM_LON-1;
+				}
 				clear_display_all();
 				display_symbol(LCD_SYMB_ARROW_UP, SEG_OFF);
 				display_symbol(LCD_SYMB_ARROW_DOWN, SEG_OFF);
 			}
-			heart =0;
+			heart=0;
 		}
 			
 
@@ -414,24 +469,35 @@ void mx_sidereal(u8 line)
 			
 			sTime.UTCoffset = UTCoffset;
 			
-			if(direction & 0x1)
+			for(i=0; i<SIDEREAL_NUM_LON; i++)
 			{
-				sSidereal_time.lon.deg = lon_degrees;
-				sSidereal_time.lon.min = lon_minutes;
-				sSidereal_time.lon.sec = lon_seconds;
+				//store direction as sign of longitude
+				if(direction[i] & 0x1)
+				{
+					sSidereal_time.lon[i].deg = lon_degrees[i];
+					sSidereal_time.lon[i].min = lon_minutes[i];
+					sSidereal_time.lon[i].sec = lon_seconds[i];
+				}
+				else
+				{
+					sSidereal_time.lon[i].deg = -lon_degrees[i];
+					sSidereal_time.lon[i].min = -lon_minutes[i];
+					sSidereal_time.lon[i].sec = -lon_seconds[i];
+				}
 			}
-			else
+			//only save new lon_selection when it is clear which level is selected
+			if(select<=9 && select>4)
 			{
-				sSidereal_time.lon.deg = -lon_degrees;
-				sSidereal_time.lon.min = -lon_minutes;
-				sSidereal_time.lon.sec = -lon_seconds;
+				sSidereal_time.lon_selection=level;
 			}
 			
 			#ifdef CONFIG_INFOMEM
-			u16 buf[sizeof(struct longitude)/2+1];
-			buf[0]=sTime.UTCoffset;
-			memcpy(buf+1, &(sSidereal_time.lon),sizeof(struct longitude));
-			infomem_app_replace(SIDEREAL_INFOMEM_ID,buf,sizeof(struct longitude)/2+1);
+			//store new longitude and time zone in information memory
+			u16 buf[SIDEREAL_NUM_LON*sizeof(struct longitude)/2+1];
+			((u8*)buf)[0]=sTime.UTCoffset;
+			((u8*)buf)[1]=sSidereal_time.lon_selection;
+			memcpy(buf+1, &(sSidereal_time.lon),SIDEREAL_NUM_LON*sizeof(struct longitude));
+			infomem_app_replace(SIDEREAL_INFOMEM_ID,buf,SIDEREAL_NUM_LON*sizeof(struct longitude)/2+1);
 			#endif
 			
 			//sync time if desired
@@ -480,8 +546,7 @@ void mx_sidereal(u8 line)
 				display_char(LCD_SEG_L2_3, *str, SEG_ON);
 				display_char(LCD_SEG_L2_4, 'A', SEG_ON);
 				
-				heart =0;
-				set_value(&heart, 0, 0, 0, 1, SETVALUE_DISPLAY_SYMBOL + SETVALUE_NEXT_VALUE, LCD_ICON_HEART, display_value1);
+				set_value(&heart, 0, 0, -1, 1, SETVALUE_DISPLAY_SYMBOL + SETVALUE_NEXT_VALUE, LCD_ICON_HEART, display_value1);
 				select =1;
 				break;
 			case 1: 	// Set Automatic Sync setings
@@ -506,17 +571,22 @@ void mx_sidereal(u8 line)
 			/*=============================================*/
 				
 			case 5: 	// Heart Symbol to switch to time settings or UTC offset
-				str = itoa(lon_degrees, 3, 0);
+				//display current level at free digit next to the degrees
+				str = itoa(level+1, 1, 0);
+				display_chars(LCD_SEG_L1_0, str, SEG_ON);
+
+				str = itoa(lon_degrees[level], 3, 0);
 				display_chars(LCD_SEG_L1_3_1, str, SEG_ON);
 				display_symbol(LCD_UNIT_L1_DEGREE, SEG_ON);
 
-				str = itoa(lon_minutes, 2, 0);
+				str = itoa(lon_minutes[level], 2, 0);
 				display_chars(LCD_SEG_L2_4_3, str, SEG_ON);
 
-				str = itoa(lon_seconds, 2, 0);
+				str = itoa(lon_seconds[level], 2, 0);
 				display_chars(LCD_SEG_L2_1_0, str, SEG_ON);
 				display_symbol(LCD_SEG_L2_COL0, SEG_ON);
-				if(direction & 0x1)
+
+				if(direction[level] & 0x1)
 				{
 					display_symbol(LCD_SYMB_ARROW_UP, SEG_ON);
 				}
@@ -524,27 +594,26 @@ void mx_sidereal(u8 line)
 				{
 					display_symbol(LCD_SYMB_ARROW_DOWN, SEG_ON);
 				}
-				heart =0;
 				set_value(&heart, 0, 0, -1, 1, SETVALUE_DISPLAY_SYMBOL + SETVALUE_NEXT_VALUE, LCD_ICON_HEART, display_value1);
 				select =6;
 				break;
 				
 			case 6:		// Set orientation	
-				set_value(&direction, 0, 0, 0, 1, SETVALUE_ROLLOVER_VALUE +  SETVALUE_NEXT_VALUE + SETVALUE_SWITCH_ARROWS, 0, display_value1);
+				set_value(direction+level, 0, 0, 0, 1, SETVALUE_ROLLOVER_VALUE +  SETVALUE_NEXT_VALUE + SETVALUE_SWITCH_ARROWS, 0, display_value1);
 				select = 7;
 				break;
 
 			case 7:		// Set degrees
-				set_value(&lon_degrees, 3, 0, 0, 180, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_1, display_value1);
+				set_value(lon_degrees+level, 3, 0, 0, 180, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L1_3_1, display_value1);
 				select = 8;
 				break;
 			case 8:		// Set minutes
-				set_value(&lon_minutes, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_4_3, display_value1);
+				set_value(lon_minutes+level, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_4_3, display_value1);
 				select = 9;
 				break;
 
 			case 9:		// Set seconds
-				set_value(&lon_seconds, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
+				set_value(lon_seconds+level, 2, 0, 0, 59, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE, LCD_SEG_L2_1_0, display_value1);
 				select = 5;
 				break;
 					
@@ -569,8 +638,7 @@ void mx_sidereal(u8 line)
 				memcpy(str,"UTC",3);
 				display_chars(LCD_SEG_L2_4_2, str, SEG_ON);
 				
-				heart =0;
-				set_value(&heart, 0, 0, -1, 0, SETVALUE_DISPLAY_SYMBOL + SETVALUE_NEXT_VALUE, LCD_ICON_HEART, display_value1);
+				set_value(&heart, 0, 0, -1, 1, SETVALUE_DISPLAY_SYMBOL + SETVALUE_NEXT_VALUE, LCD_ICON_HEART, display_value1);
 				select =11;
 				break;
 				

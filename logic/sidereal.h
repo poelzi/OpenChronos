@@ -51,6 +51,9 @@ extern void display_sidereal(u8 line, u8 update);
 // *************************************************************************************************
 // Global Variable section
 
+//count of different longitudes that can be stored and selected from
+#define SIDEREAL_NUM_LON 3
+
 //longitude >0:east, <0:west (the parts are not allowed to differ in sign)
 struct longitude
 {
@@ -74,7 +77,10 @@ struct sidereal_time
 	u8		minute;
 	u8 		second;
 	
-	struct longitude lon;
+	//SIDEREAL_NUM_LON different longitudes
+	struct longitude lon[SIDEREAL_NUM_LON];
+	//selected longitude to use for time calculation
+	u8		lon_selection;
 	
 	//synchronize to normal time automatically
 	u8		sync;
