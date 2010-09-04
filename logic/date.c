@@ -196,10 +196,10 @@ void mx_date(line_t line)
 	// LINE1: YYYY (will be drawn by set_value)
 	// LINE2: MM  DD
 	
-	str = itoa(day, 2, 0);
+	str = itoa(day, 2, 1);
 	display_chars(LCD_SEG_L2_1_0, str, SEG_ON);
 
-	str = itoa(month, 2, 0);
+	str = itoa(month, 2, 1);
 	display_chars(LCD_SEG_L2_5_4, str, SEG_ON);
 
 	// Loop values until all are set or user breaks	set
