@@ -3,7 +3,7 @@
 import sys
 import elf
 
-DEBUG = 0
+DEBUG = 1
 
 class FileFormatError(IOError):
     """file is not in the expected format"""
