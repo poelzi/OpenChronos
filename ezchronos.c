@@ -707,9 +707,9 @@ void idle_loop(void)
 	// To low power mode
 	to_lpm();
 
-#ifdef USE_WATCHDOG		
-	// Service watchdog
-	WDTCTL = WDTPW + WDTIS__512K + WDTSSEL__ACLK + WDTCNTCL;
+#ifdef USE_WATCHDOG
+	// Service watchdog (reset counter)
+	WDTCTL = (WDTCTL &0xff) | WDTPW | WDTCNTCL;
 #endif
 }
 
