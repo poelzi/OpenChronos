@@ -49,8 +49,11 @@ void infomem_write_flash_segment(u16* start, u16* data, u8 erase)
 		}
 	}
 	
+	#ifdef USE_WATCHDOG
 	//hold watch dog timer
-	WDTCTL = WDTPW + WDTHOLD;
+	WDTCTL = (WDTCTL &0xff) | WDTPW | WDTHOLD;
+	#endif
+	
 	infomem_waitbusy()
 	
 	//remove LOCK and LOCKA bit if needed (LOCKA is toggled if it is written as 1)
@@ -94,6 +97,11 @@ void infomem_write_flash_segment(u16* start, u16* data, u8 erase)
 	
 	//set LOCK bit
 	FCTL3 = FWKEY | (FCTL3 & 0xff) | LOCK;
+	
+	#ifdef USE_WATCHDOG
+	//restart and reset watchdog timer
+	WDTCTL = (WDTCTL &0xff & ~WDTHOLD ) | WDTPW | WDTCNTCL;
+	#endif
 }
 
 
