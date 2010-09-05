@@ -23,7 +23,7 @@ LOGIC_SOURCE = logic/acceleration.c logic/alarm.c logic/altitude.c logic/battery
 
 LOGIC_O = $(addsuffix .o,$(basename $(LOGIC_SOURCE)))
 
-DRIVER_SOURCE =  driver/adc12.c driver/buzzer.c driver/display.c driver/display1.c driver/pmm.c driver/ports.c driver/radio.c driver/rf1a.c   driver/timer.c  driver/vti_as.c driver/vti_ps.c driver/dsp.c
+DRIVER_SOURCE =  driver/adc12.c driver/buzzer.c driver/display.c driver/display1.c driver/pmm.c driver/ports.c driver/radio.c driver/rf1a.c   driver/timer.c  driver/vti_as.c driver/vti_ps.c driver/dsp.c driver/infomem.c
 
 DRIVER_O = $(addsuffix .o,$(basename $(DRIVER_SOURCE)))
 

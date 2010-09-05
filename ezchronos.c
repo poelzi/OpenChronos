@@ -85,6 +85,10 @@
 #include "sidereal.h"
 #endif
 
+#ifdef CONFIG_INFOMEM
+#include "infomem.h"
+#endif
+
 #include "mrfi.h"
 #include "nwk_types.h"
 
@@ -346,6 +350,14 @@ void init_global_variables(void)
 	
 	// Read calibration values from info memory
 	read_calibration_values();
+	
+	
+	#ifdef CONFIG_INFOMEM
+	if(infomem_ready()==-2)
+	{
+		infomem_init(INFOMEM_C, INFOMEM_C+2*INFOMEM_SEGMENT_SIZE);
+	}
+	#endif
 	
 	// Set system time to default value
 	reset_clock();
@@ -693,9 +705,9 @@ void idle_loop(void)
 	// To low power mode
 	to_lpm();
 
-#ifdef USE_WATCHDOG		
-	// Service watchdog
-	WDTCTL = WDTPW + WDTIS__512K + WDTSSEL__ACLK + WDTCNTCL;
+#ifdef USE_WATCHDOG
+	// Service watchdog (reset counter)
+	WDTCTL = (WDTCTL &0xff) | WDTPW | WDTCNTCL;
 #endif
 }
 

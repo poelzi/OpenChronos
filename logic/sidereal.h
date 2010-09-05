@@ -50,6 +50,19 @@ extern void display_sidereal(u8 line, u8 update);
 
 // *************************************************************************************************
 // Global Variable section
+
+//count of different longitudes that can be stored and selected from
+#define SIDEREAL_NUM_LON 3
+
+//longitude >0:east, <0:west (the parts are not allowed to differ in sign)
+struct longitude
+{
+	s16		deg;
+	s8		min;
+	s8		sec;
+};
+
+
 struct sidereal_time
 {
 	// Flag to minimize display updates
@@ -64,14 +77,16 @@ struct sidereal_time
 	u8		minute;
 	u8 		second;
 	
-	//current longitude >0:east, <0:west (all parts need the same sign)
-	int		lonDeg;
-	int		lonMin;
-	int		lonSec;
+	//SIDEREAL_NUM_LON different longitudes
+	struct longitude lon[SIDEREAL_NUM_LON];
+	//selected longitude to use for time calculation
+	u8		lon_selection;
+	
 	//synchronize to normal time automatically
 	u8		sync;
 };
 extern struct sidereal_time sSidereal_time;
 
+#define SIDEREAL_INFOMEM_ID 0x10
 
 #endif /*SIDEREALTIME_H_*/

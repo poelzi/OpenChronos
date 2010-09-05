@@ -154,6 +154,16 @@ DATA["CONFIG_SIDEREAL"] = {
                 "This does NOT replace the normal clock which is still available and working."
         }
 
+
+DATA["CONFIG_INFOMEM"] = {
+        "name": "Information Memory Driver",
+        "depends": [],
+        "default": False,
+        "help": "Build driver for usage of the Information Memory.\n"
+                "COMPILATION WILL LIKELY FAIL WITH mspgcc4 <20100829 !"
+        }
+
+
 DATA["CONFIG_ACCEL"] = {
         "name": "Acceleration",
         "depends": [],

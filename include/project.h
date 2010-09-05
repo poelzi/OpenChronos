@@ -155,7 +155,12 @@ extern volatile s_message_flags message;
 #include "../config.h"
 
 #if defined( CONFIG_PHASE_CLOCK ) || defined( CONFIG_ACCEL)
-#define FEATURE_PROVIDE_ACCEL
+	#define FEATURE_PROVIDE_ACCEL
+#endif
+
+#if defined(CONFIG_INFOMEM) &&  !defined(CONFIG_SIDEREAL)
+	//undefine feature if it is not used by any option
+	#undef CONFIG_INFOMEM
 #endif
 
 #endif /*PROJECT_H_*/
