@@ -188,7 +188,7 @@ unsigned long sidereal_seconds(unsigned long rawtime)
 // *************************************************************************************************
 void sync_sidereal(void)
 {
-	unsigned long sidtime=sidereal_seconds(secs_since_fix(sTime.second, sTime.minute, sTime.hour, sDate.day, sDate.month, sDate.year)-3600*sTime.UTCoffset);
+	unsigned long sidtime=sidereal_seconds(secs_since_fix(sTime.second, sTime.minute, sTime.hour, sDate.day, sDate.month, sDate.year)-360*sTime.UTCoffset);
 
 	//calculate difference of local time from greenwich time
 	long localcorr=	(long)(sSidereal_time.lon[sSidereal_time.lon_selection].deg*60
@@ -622,7 +622,7 @@ void mx_sidereal(u8 line)
 			case 10: 	// Heart Symbol to switch to longitude settings
 				if(UTCoffset >= 0)
 				{
-					str = itoa(UTCoffset, 2, 0);
+					str = itoa(UTCoffset, 3, 0);
 					if(UTCoffset>0)
 					{
 						display_symbol(LCD_SYMB_ARROW_UP, SEG_ON);
@@ -630,10 +630,11 @@ void mx_sidereal(u8 line)
 				}
 				else
 				{
-					str = itoa( - UTCoffset, 2, 0);
+					str = itoa( - UTCoffset, 3, 0);
 					display_symbol(LCD_SYMB_ARROW_DOWN, SEG_ON);
 				}
-				display_chars(LCD_SEG_L1_3_2, str, SEG_ON);
+				display_chars(LCD_SEG_L1_3_1, str, SEG_ON);
+				display_symbol(LCD_SEG_L1_DP1,SEG_ON);
 				
 				memcpy(str,"UTC",3);
 				display_chars(LCD_SEG_L2_4_2, str, SEG_ON);
@@ -643,7 +644,7 @@ void mx_sidereal(u8 line)
 				break;
 				
 			case 11:		// Set UTC OFFSET
-				set_value(&UTCoffset, 2, 0, -12, 12, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE + SETVALUE_DISPLAY_ARROWS, LCD_SEG_L1_3_2, display_value1);
+				set_value(&UTCoffset, 3, 0, -120, 120, SETVALUE_ROLLOVER_VALUE + SETVALUE_DISPLAY_VALUE + SETVALUE_NEXT_VALUE + SETVALUE_DISPLAY_ARROWS + SETVALUE_STEP_FIFE, LCD_SEG_L1_3_1, display_value1);
 				select = 10;
 				break;
 		}

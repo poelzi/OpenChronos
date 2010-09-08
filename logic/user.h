@@ -56,6 +56,8 @@
 #define SETVALUE_DISPLAY_SYMBOL				BIT6
 //choose direction with array symbols (up: value odd, down: value even)
 #define SETVALUE_SWITCH_ARROWS				BIT7
+//only allow steps of fife
+#define SETVALUE_STEP_FIFE					BIT8
 
 // *************************************************************************************************
 // Prototypes section	

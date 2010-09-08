@@ -99,7 +99,15 @@ void dummy(u8 line)
 void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u16 mode, u8 segments, void (*fptr_setValue_display_function1)(u8 segments, u32 value, u8 digits, u8 blanks, u8 disp_mode))
 {
 	u8 update;
-	s16 stepValue = 1;
+	s16 stepValue;
+	if((mode & SETVALUE_STEP_FIFE ) == SETVALUE_STEP_FIFE)
+	{
+		stepValue=5;
+	}
+	else
+	{
+		stepValue=1;
+	}
 	u8 doRound = 0;
 	u8 stopwatch_state;
 	u32 val;
@@ -159,7 +167,14 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 				else 																* value = limitHigh;				
 					
 				// Reset step size to default
-				stepValue = 1;	
+				if((mode & SETVALUE_STEP_FIFE ) == SETVALUE_STEP_FIFE)
+				{
+					stepValue=5;
+				}
+				else
+				{
+					stepValue=1;
+				}
 			}
 
 			// Trigger display update
@@ -183,7 +198,14 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 				else																* value = limitLow;
 					
 				// Reset step size to default
-				stepValue = 1;	
+				if((mode & SETVALUE_STEP_FIFE ) == SETVALUE_STEP_FIFE)
+				{
+					stepValue=5;
+				}
+				else
+				{
+					stepValue=1;
+				}
 			}
 
 			// Trigger display update
@@ -199,7 +221,7 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 		{
 			switch (sButton.repeats)
 			{
-				case 0:			stepValue = 1;		doRound = 0; 	break;
+				case 0:			if((mode & SETVALUE_STEP_FIFE ) == SETVALUE_STEP_FIFE){	stepValue=5;	doRound = 1; }	else {	stepValue=1;	doRound = 0; }	break;
 				case 10:		
 				case -10:		stepValue = 10;		doRound = 1; 	break;
 				case 20:			
