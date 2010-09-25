@@ -1,0 +1,160 @@
+OpenChronos for Extenders -*- mode: org; -*-
+#+TITLE:     OpenChronos for Extenders
+#+AUTHOR:    Konrad Anton
+#+EMAIL:     konrad@minus1.de
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+
+* Preface
+
+This is a work in progress. I document the interface between core and
+features as I discover it. It is not written from the perspective of
+someone who already knows everything about OpenChronos.
+
+Comments and corrections are welcome. [[konrad@minus1.de>][Konrad Anton]]
+
+** Reading
+   This document uses org-mode markup for outline and hyperlinks. It
+   is therefore best read in a recent Emacs with org-mode.
+
+* Overview
+This section describes several parts of the watch software.
+
+** Buttons
+   
+   If you look at your watch, it has two lines of LCD and five buttons:
+
+#+BEGIN_SRC 
+  
+         .-----------. 
+   STAR [| LCD row 1 |] UP
+         |           |
+         |           |] BACKLIGHT
+         |           |
+   NUM  [| LCD row 2 |] DOWN
+         `-----------'
+
+#+END_SRC
+
+The port driver produces a global structure called [[file:../driver/ports.c::volatile%20s_button_flags%20button][=button=]] of type
+[[file:../driver/ports.h::s_button_flags][=s_button_flags=]].  When the user presses a button, the [[file:../driver/ports.c::interrupt%20PORT2_VECTOR%20PORT2_ISR%20void][Port 2 interrupt
+handler]] sets the bits corresponding to the last-pressed buttons and
+clears the rest. 
+
+There are also flags for long presses of STAR and NUM in s_button_flags.
+They, however, are computed in the [[file:../driver/timer.c::__interrupt%20void%20TIMER0_A0_ISR%20void][Timer0_A0 interrupt handler]].
+
+The function [[file:../ezchronos.c::fn%20wakeup_event][=wakeup_event=]] reads the button flags, clears them
+and calls the corresponding [[*Callbacks][Callbacks]], so you may never have to read
+the bits directly.
+
+
+** Initialization Phase
+
+The [[file:../ezchronos.c::int main void][=main()=]] function begins by initializing the application
+([[file:../ezchronos.c::void init_the_application void][=init_application()=]]), ...
+
+** Main loop
+
+   The [[file:../ezchronos.c::Main%20control%20loop%20wait%20in%20low%20power%20mode%20until%20some%20event%20needs%20to%20be%20processed][main loop]] consists of:
+   - Sleeping (this spends time in a low-power state until an
+     interrupt handler decides to wake up the system)
+   - Event processing: [[file:../ezchronos.c::fn%20wakeup_event][=wakeup_event=]] forwards button-press events
+     to the current modes.
+   - Measurement: [[file:../ezchronos.c::fn%20process_requests][=process_requests=]] for long-running measurements
+   - Display Update: [[file:../ezchronos.c::fn%20display_update][=display_update=]] updates the display (see also
+     [[display_function][=display_function=]] and [[display_update][=display_update=]] callbacks)
+
+** 1Hz Timer Interrupt Handler
+
+   Once per second, timer 0 calls the interrupt handler [[file:/media/Flash8/Projekte/430/OpenChronos/driver/timer.c::interrupt%20TIMER0_A0_VECTOR%20TIMER0_A0_ISR%20void][=TIMER_A0_ISR=]].
+   You can just put your 1Hz jobs into that handler's body.
+   You can also set a flag and do your work in =process_requests=. 
+
+* Anatomy of an Extension
+This section describes what steps need to be taken when adding new
+functionality to the watch. It assumes that the new functionality can
+be realized as a mode.
+
+** Menu Entry
+   Each extension contributes a *menu entry*. Menu entries are
+   instances of the [[file:../logic/menu.h::struct%20menu][menu struct type]], which consists of five
+   callbacks:
+
+   - [[sx_function][=sx_function=]]
+   - [[mx_function][=mx_function=]]
+   - [[nx_function][=nx_function=]]
+   - [[display_function][=display_function=]]
+   - [[display_update][=display_update=]]
+
+   
+*** Callbacks
+
+**** The sx_function Callback
+#<<sx_function>>
+#+BEGIN_SRC c
+     void (*sx_function)(u8 line);		 
+#+END_SRC 
+
+     When UP or DOWN is pressed, [[file:../ezchronos.c::fn%20wakeup_event][=wakeup_event=]] calls this callback of 
+     the currently active menu entry in the line corresponding to the button.
+     It passes the corresponding line as parameter.
+
+**** The mx_function Callback
+#<<mx_function>>
+#+BEGIN_SRC c
+     void (*mx_function)(u8 line);		 
+#+END_SRC 
+
+     When STAR or NUM is pressed for a long time, [[file:../ezchronos.c::fn%20wakeup_event][=wakeup_event=]] calls this callback of 
+     the currently active menu entry in the line corresponding to the button.
+     It passes the corresponding line as parameter.
+
+     This callback is only called once per long press, as soon as the
+     press has been judged long enough.
+
+**** The nx_function Callback
+#<<nx_function>>
+#+BEGIN_SRC c
+     void (*nx_function)(u8 line);	
+#+END_SRC 
+
+     When STAR or NUM is pressed, [[file:../ezchronos.c::fn%20wakeup_event][=wakeup_event=]] calls this callback of 
+     the currently active menu entry in the line corresponding to the button.
+     It passes the corresponding line as parameter.
+     
+
+     The user expects the watch to switch to the next mode,
+     so most menu entries will point to [[file:../ezchronos.c::void%20menu_skip_next%20line_t%20line][=menu_skip_next=]].
+
+**** The display_function Callback
+#<<display_function>>
+#+BEGIN_SRC c
+     void (*display_function)(u8 line, u8 mode);		 
+#+END_SRC 
+     
+     When the main loop reaches the display-update phase
+     The display function is called from
+     [[file:../ezchronos.c::fn%20display_update][=display_update=]] 
+
+     The pointers to the two current display functions are cached in 
+     [[file:../ezchronos.c::void%20fptr_lcd_function_line1%20u8%20line%20u8%20update][=fptr_lcd_function_line1=]] and ..2. 
+
+     
+
+**** The display_update Callback
+#<<display_update>>
+#+BEGIN_SRC c
+     u8 (*display_update)(void); 	 
+#+END_SRC 
+     To be called in the beginning of the display-update phase. 
+     Returns a true value iff the mode has something new to display.
+     
