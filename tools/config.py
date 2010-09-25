@@ -171,6 +171,13 @@ DATA["CONFIG_ACCEL"] = {
         "help": "Disable acceleration applications (display and transmission). When no other application uses the acceleration sensor, it is disabled completely"
         }
 
+DATA["CONFIG_STRENGTH"] = {
+    "name": "Strength training timer",
+    "depends": [],
+    "default": False,
+    "help": "Timer for strength training studios which have you perform repetitions for 90 seconds, e.g. Kieser Training"
+}
+
 # not yet working
 DATA["CONFIG_ALARM"] = {
         "name": "Alarm",

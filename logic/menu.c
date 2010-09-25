@@ -88,6 +88,10 @@
 #include "sidereal.h"
 #endif
 
+#ifdef CONFIG_STRENGTH
+#include "strength.h"
+#endif
+
 // *************************************************************************************************
 // Defines section
 #define FUNCTION(function)  function
@@ -366,6 +370,18 @@ const struct menu menu_L2_Prout =
 };
 #endif
 
+#ifdef CONFIG_STRENGTH
+// Line2 - Kieser Training timer
+const struct menu menu_L2_Strength =
+{
+	FUNCTION(dummy),					// direct function
+	FUNCTION(dummy),					// sub menu function
+	FUNCTION(menu_skip_next),			// next item function
+	FUNCTION(display_strength_time),		// display function
+	FUNCTION(update_stopwatch),	// new display data
+};
+#endif
+
 // *************************************************************************************************
 // menu array
 
@@ -392,6 +408,9 @@ int menu_L1_position=0;
 
 const struct menu *menu_L2[]={
 	&menu_L2_Date,
+	#ifdef CONFIG_STRENGTH
+	&menu_L2_Strength,
+	#endif
 	#ifdef CONFIG_VARIO
 	&menu_L2_Vario,
 	#endif
