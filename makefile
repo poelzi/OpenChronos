@@ -90,6 +90,9 @@ debug_asm: $(ALL_S)
 source_index: $(ALL_S)
 	for i in $(ALL_S); do echo analyze $$i && m4s init < $$i; done
 
+etags: $(ALL_C) 
+	etags $^
+
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
 	msp430-gcc -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o even_in_range.o
