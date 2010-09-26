@@ -54,7 +54,7 @@ ifeq (debug,$(findstring debug,$(MAKECMDGOALS)))
 USE_CFLAGS = $(CFLAGS_DEBUG)
 endif
 
-main: config.h even_in_range $(ALL_O) $(EXTRA_O) build
+main: build config.h even_in_range $(ALL_O) $(EXTRA_O) build
 	@echo $(findstring debug,$(MAKEFLAGS))
 	@echo "Compiling $@ for $(CPU)..."
 	$(CC) $(CC_CMACH) $(CFLAGS_PRODUCTION) -o $(BUILD_DIR)/eZChronos.elf $(ALL_O) $(EXTRA_O)
@@ -78,7 +78,7 @@ $(ALL_S): %.s: %.o config.h include/project.h
 #             $(CC) -c $(CFLAGS) $< -o $@
 
 
-debug:	even_in_range $(ALL_O)
+debug:	build even_in_range $(ALL_O)
 	@echo "Compiling $@ for $(CPU) in debug"
 	$(CC) $(CC_CMACH) $(CFLAGS_DEBUG) -o $(BUILD_DIR)/eZChronos.dbg.elf $(ALL_O) $(EXTRA_O)
 	@echo "Convert to TI Hex file"
@@ -103,7 +103,7 @@ clean:
 	rm -rf build/*
 
 build:
-	mkdir build
+	mkdir -p build
 
 config.h:
 	python tools/config.py
