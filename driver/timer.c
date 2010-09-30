@@ -372,6 +372,16 @@ __interrupt void TIMER0_A0_ISR(void)
         if(is_vario()) vario_tick();
 #endif
 
+#ifdef CONFIG_STRENGTH
+        // One more second gone by.
+        if(is_strength()) 
+	{
+	    
+	}
+        
+            
+#endif
+
 	// Do a temperature measurement each second while menu item is active
 	if (is_temp_measurement()) request.flag.temperature_measurement = 1;
 	
@@ -637,7 +647,4 @@ __interrupt void TIMER0_A1_5_ISR(void)
 	// Exit from LPM3 on RETI
 	_BIC_SR_IRQ(LPM3_bits);               
 }
-
-
-
 
