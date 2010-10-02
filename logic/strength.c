@@ -28,7 +28,7 @@ void display_strength_time(u8 line, u8 update)
 	else 
 	{
 		// yeah, we're the Strength mode.
-		display_chars(LCD_SEG_L1_3_0, "Stre", SEG_ON);
+		display_chars(LCD_SEG_L1_3_0, "STRE", SEG_ON);
 	}
 	strength_data.flags.redisplay_requested = 0;
 }
