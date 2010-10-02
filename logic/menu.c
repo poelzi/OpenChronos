@@ -371,8 +371,8 @@ const struct menu menu_L2_Prout =
 #endif
 
 #ifdef CONFIG_STRENGTH
-// Line2 - Kieser Training timer
-const struct menu menu_L2_Strength =
+// Line1 - Kieser Training timer
+const struct menu menu_L1_Strength =
 {
 	FUNCTION(strength_sx),					// direct function
 	FUNCTION(dummy),					// sub menu function
@@ -387,6 +387,9 @@ const struct menu menu_L2_Strength =
 
 const struct menu *menu_L1[]={
 	&menu_L1_Time,
+	#ifdef CONFIG_STRENGTH
+	&menu_L1_Strength,
+	#endif
 	#ifdef CONFIG_SIDEREAL
 	&menu_L1_Sidereal,
 	#endif
@@ -408,9 +411,6 @@ int menu_L1_position=0;
 
 const struct menu *menu_L2[]={
 	&menu_L2_Date,
-	#ifdef CONFIG_STRENGTH
-	&menu_L2_Strength,
-	#endif
 	#ifdef CONFIG_VARIO
 	&menu_L2_Vario,
 	#endif
