@@ -19,8 +19,17 @@ void display_strength_time(u8 line, u8 update)
 {
 	u8 secs = strength_data.seconds_since_start;
 	
-
-	display_chars(LCD_SEG_L1_2_0, strength_data.time, SEG_ON);
+	// if there is anything to display, display that
+	if(strength_data.flags.running 
+	   || strength_data.seconds_since_start != 0) 
+	{
+		display_chars(LCD_SEG_L1_2_0, strength_data.time, SEG_ON);
+	}
+	else 
+	{
+		// yeah, we're the Strength mode.
+		display_chars(LCD_SEG_L1_3_0, "Stre", SEG_ON);
+	}
 	strength_data.flags.redisplay_requested = 0;
 }
 /*
@@ -102,13 +111,21 @@ void strength_sx(u8 line)
 {
 	if(strength_data.flags.running) 
 	{
+		// stop running, but display the result
 		strength_data.flags.running = 0;
-		// leave junk values in seconds_since_start and num_beeps
 	}
 	else 
 	{
-		strength_reset();
-		strength_data.flags.running = 1;
+		// not running. If a result is being displayed,
+		// clear it. Otherwise start running.
+		if(strength_data.seconds_since_start != 0) 
+		{
+			strength_reset();
+		}
+		else
+		{	
+			strength_data.flags.running = 1;
+		}
 	}
 	strength_data.flags.redisplay_requested = 1;
 }
