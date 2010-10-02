@@ -19,6 +19,7 @@ typedef struct
 	} flags;
 	u8 num_beeps;
 	u8 seconds_since_start;
+	u8 time[4];
 } strength_data_t;
 
 extern strength_data_t strength_data;
