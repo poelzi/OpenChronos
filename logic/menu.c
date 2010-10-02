@@ -374,11 +374,11 @@ const struct menu menu_L2_Prout =
 // Line2 - Kieser Training timer
 const struct menu menu_L2_Strength =
 {
-	FUNCTION(dummy),					// direct function
+	FUNCTION(strength_sx),					// direct function
 	FUNCTION(dummy),					// sub menu function
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_strength_time),		// display function
-	FUNCTION(update_stopwatch),	// new display data
+	FUNCTION(strength_display_needs_updating),	// new display data
 };
 #endif
 

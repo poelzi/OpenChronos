@@ -88,6 +88,9 @@
 #ifdef CONFIG_INFOMEM
 #include "infomem.h"
 #endif
+#ifdef CONFIG_STRENGTH
+#include "strength.h"
+#endif
 
 #include "mrfi.h"
 #include "nwk_types.h"
@@ -578,6 +581,15 @@ void process_requests(void)
 	// Generate alarm (two signals every second)
 	if (request.flag.buzzer) start_buzzer(2, BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
 	
+#ifdef CONFIG_STRENGTH
+	if(strength_data.num_beeps != 0) 
+	{
+		start_buzzer(strength_data.num_beeps, 
+			     STRENGTH_BUZZER_ON_TICKS, 
+			     STRENGTH_BUZZER_OFF_TICKS);
+	}
+#endif
+
 	// Reset request flag
 	request.all_flags = 0;
 }

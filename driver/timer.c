@@ -88,6 +88,9 @@
 #include "sidereal.h"
 #endif
 
+#ifdef CONFIG_STRENGTH
+#include "strength.h"
+#endif
 
 // *************************************************************************************************
 // Prototypes section
@@ -374,12 +377,10 @@ __interrupt void TIMER0_A0_ISR(void)
 
 #ifdef CONFIG_STRENGTH
         // One more second gone by.
-        if(is_strength()) 
+        if(is_strength())
 	{
-	    
-	}
-        
-            
+		strength_tick();
+	}            
 #endif
 
 	// Do a temperature measurement each second while menu item is active
