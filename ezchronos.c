@@ -587,6 +587,7 @@ void process_requests(void)
 		start_buzzer(strength_data.num_beeps, 
 			     STRENGTH_BUZZER_ON_TICKS, 
 			     STRENGTH_BUZZER_OFF_TICKS);
+		strength_data.num_beeps = 0;
 	}
 #endif
 
