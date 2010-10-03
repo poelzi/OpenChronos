@@ -1,4 +1,13 @@
-/* TODO add copyright header */
+/*
+ * A timer for strength training (particularly for those strength training facilities
+ * where exercises are performed for a given amount of time instead of a given
+ * number of repetitions, e.g. Kieser Training(TM))
+ * 
+ * This watch function contributes a menu entry in the first row. 
+ * It has three states: initial, running and stopped. In initial state,
+ * the display reads 'STRE'. If the user presses UP in initial state,
+ * the watch goes into the running state. 
+ */
 // *************************************************************************************************
 // Include section
 
