@@ -12,9 +12,20 @@
 #include "menu.h"
 #include "strength.h"
 
+// ----------------------------------------------------------------------
+// Data section
+
+// All the static data
+// Fortunately, all-zeros is reset enough.
 strength_data_t strength_data = { } ;
 
-/* TODO add display function */
+// *************************************************************************************************
+// @fn          display_strength_time
+// @brief       Redisplay the strength time or the strength banner
+// @param       line LINE1 or LINE2 (but we pretend to be LINE1 anyway)
+// @param       update whether a full update is requested (but we do a full update anyway)
+// @return      none
+// *************************************************************************************************
 void display_strength_time(u8 line, u8 update) 
 {
 	u8 secs = strength_data.seconds_since_start;
@@ -32,9 +43,13 @@ void display_strength_time(u8 line, u8 update)
 	}
 	strength_data.flags.redisplay_requested = 0;
 }
-/*
- * Pre: running.
- */
+
+// *************************************************************************************************
+// @fn          strength_tick
+// @brief       A second has passed. Recompute strength state. To be called from timer int handler.
+// @return      none
+// Precondition: the running flag is true. (Just don't call this if Strength is in stopped state)
+// *************************************************************************************************
 void strength_tick(void)
 {
 	u8 secs = strength_data.seconds_since_start + 1;
@@ -101,7 +116,11 @@ void strength_tick(void)
 	
 }
 
-
+// *************************************************************************************************
+// @fn          strength_reset
+// @brief       Reset strength state.
+// @return      none
+// *************************************************************************************************
 void strength_reset(){
 	strength_data.num_beeps = 0;
 	strength_data.flags.running = 0;
@@ -113,8 +132,12 @@ void strength_reset(){
 	strength_data.time[3] = '\0';
 }
 
-/* User presses the right-hand button
- */
+// *************************************************************************************************
+// @fn          strength_sx
+// @brief       User has pressed the UP button while in Strength mode; start, stop or reset the time.
+// @param       line LINE1 or LINE2 (assumed to be LINE1)
+// @return      none
+// *************************************************************************************************
 void strength_sx(u8 line)
 {
 	if(strength_data.flags.running) 
@@ -138,6 +161,11 @@ void strength_sx(u8 line)
 	strength_data.flags.redisplay_requested = 1;
 }
 
+// *************************************************************************************************
+// @fn          strength_display_needs_updating
+// @brief       Has the Strength module the desire to redisplay?
+// @return      true iff the Strength data has something new to be displayed
+// *************************************************************************************************
 u8 strength_display_needs_updating(void)
 {
 	return strength_data.flags.redisplay_requested;
