@@ -5,3 +5,4 @@
 .pida-metadata
 build
 TAGS
+doc/*.html
