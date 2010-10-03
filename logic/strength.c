@@ -21,6 +21,9 @@
 #include "menu.h"
 #include "strength.h"
 
+// only compile all of this if the user wants it
+#ifdef CONFIG_STRENGTH
+
 // ----------------------------------------------------------------------
 // Data section
 
@@ -179,3 +182,5 @@ u8 strength_display_needs_updating(void)
 {
 	return strength_data.flags.redisplay_requested;
 }
+
+#endif // ifdef CONFIG_STRENGTH
