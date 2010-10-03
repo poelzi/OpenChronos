@@ -69,7 +69,9 @@ The [[file:../ezchronos.c::int main void][=main()=]] function begins by initiali
      interrupt handler decides to wake up the system)
    - Event processing: [[file:../ezchronos.c::fn%20wakeup_event][=wakeup_event=]] forwards button-press events
      to the current modes.
-   - Measurement: [[file:../ezchronos.c::fn%20process_requests][=process_requests=]] for long-running measurements
+   - Measurement: [[file:../ezchronos.c::fn%20process_requests][=process_requests=]] for long-running measurements. 
+     This function is only called if at least one flag in [[file:../ezchronos.c::volatile%20s_request_flags%20request][=request=]]
+     is set.
    - Display Update: [[file:../ezchronos.c::fn%20display_update][=display_update=]] updates the display (see also
      [[display_function][=display_function=]] and [[display_update][=display_update=]] callbacks)
 

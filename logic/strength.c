@@ -90,6 +90,14 @@ void strength_tick(void)
 		}
 	}
 
+	// strength_data.num_beeps describes the beeping pattern,
+	// but since beeping is done in the process_requests phase,
+	// we have to set a request flag so that process_requests 
+	// is called at all.
+	if (strength_data.num_beeps != 0) 
+	{
+		request.flag.strength_buzzer = 1;
+	}
 	
 }
 
