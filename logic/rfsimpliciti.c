@@ -722,7 +722,9 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										if(sSidereal_time.sync>0)
 											sync_sidereal();
 #endif
-
+#ifdef CONFIG_USE_SYNC_TOSET_TIME
+										simpliciti_flag |= SIMPLICITI_TRIGGER_STOP;
+#endif
 										break;
 												
 		case SYNC_AP_CMD_GET_MEMORY_BLOCKS_MODE_1:	
