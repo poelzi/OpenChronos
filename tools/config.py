@@ -209,6 +209,12 @@ DATA["CONFIG_TEMP"] = {
         "default": True}
 
 
+###IMPLEMENTED BY LeanChronos. gventosa 09.10.2010
+DATA["CONFIG_USEPPT"] = {
+        "name": "Use PPT",
+        "depends": [],
+        "default": True}
+
 
 HEADER = """
 #ifndef _CONFIG_H_

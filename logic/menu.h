@@ -105,7 +105,11 @@ extern const struct menu menu_L2_Rf;
 #ifdef CONFIG_PHASE_CLOCK
 extern const struct menu menu_L2_Phase;
 #endif
+
+#ifdef CONFIG_USEPPT
 extern const struct menu menu_L2_Ppt;
+#endif
+
 extern const struct menu menu_L2_Sync;
 extern const struct menu menu_L2_CalDist;
 extern const struct menu menu_L2_RFBSL;

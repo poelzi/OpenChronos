@@ -318,6 +318,8 @@ const struct menu menu_L2_Rf =
 	FUNCTION(update_time),			// new display data
 };
 #endif
+
+#ifdef CONFIG_USEPPT
 // Line2 - PPT (button events via SimpliciTI)
 const struct menu menu_L2_Ppt =
 {
@@ -327,6 +329,8 @@ const struct menu menu_L2_Ppt =
 	FUNCTION(display_ppt),			// display function
 	FUNCTION(update_time),			// new display data
 };
+#endif
+
 // Line2 - SXNC (synchronization/data download via SimpliciTI)
 const struct menu menu_L2_Sync =
 {
@@ -425,7 +429,9 @@ const struct menu *menu_L2[]={
 	#ifdef CONFIG_ACCEL
 	&menu_L2_Rf,
 	#endif
+	#ifdef CONFIG_USEPPT
 	&menu_L2_Ppt,
+	#endif
 	&menu_L2_Sync,
 	#ifndef ELIMINATE_BLUEROBIN
 	&menu_L2_CalDist,

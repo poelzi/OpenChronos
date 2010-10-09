@@ -88,6 +88,11 @@ int simpliciti_get_rvc_callback(u8 len) __attribute__((noinline));
 // *************************************************************************************************
 // Defines section
 
+#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || (CONFIG_ACCEL)
+#define SIMPLICITI_TX_ONLY_REQ
+#endif
+
+
 // Each packet index requires 2 bytes, so we can have 9 packet indizes in 18 bytes usable payload
 #define BM_SYNC_BURST_PACKETS_IN_DATA		(9u)
 
@@ -169,6 +174,7 @@ void sx_rf(u8 line)
 }
 
 
+#ifdef CONFIG_USEPPT
 // *************************************************************************************************
 // @fn          sx_ppt
 // @brief       Start SimpliciTI. Button DOWN connects/disconnects to access point.
@@ -189,6 +195,7 @@ void sx_ppt(u8 line)
   	// Start SimpliciTI in tx only mode
 	start_simpliciti_tx_only(SIMPLICITI_BUTTONS);
 }
+#endif
 
 
 // *************************************************************************************************
@@ -211,7 +218,7 @@ void sx_sync(u8 line)
 	start_simpliciti_sync();
 }
 
-
+#ifdef SIMPLICITY_TX_ONLY_REQ
 // *************************************************************************************************
 // @fn          start_simpliciti_tx_only
 // @brief       Start SimpliciTI (tx only). 
@@ -321,7 +328,7 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
 	display.flag.full_update = 1;	
 	
 }
-
+#endif
 
 // *************************************************************************************************
 // @fn          display_rf
@@ -338,7 +345,7 @@ void display_rf(u8 line, u8 update)
 	}
 }
 
-
+#ifdef CONFIG_USE_PPT
 // *************************************************************************************************
 // @fn          display_ppt
 // @brief       SimpliciTI display routine. 
@@ -353,6 +360,7 @@ void display_ppt(u8 line, u8 update)
 		display_chars(LCD_SEG_L2_5_0, (u8 *)"   PPT", SEG_ON);
 	}
 }
+#endif
 
 
 // *************************************************************************************************
