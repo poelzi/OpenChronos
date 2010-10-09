@@ -331,6 +331,7 @@ const struct menu menu_L2_Ppt =
 };
 #endif
 
+#ifndef CONFIG_USE_SYNC_TOSET_TIME
 // Line2 - SXNC (synchronization/data download via SimpliciTI)
 const struct menu menu_L2_Sync =
 {
@@ -340,6 +341,8 @@ const struct menu menu_L2_Sync =
 	FUNCTION(display_sync),			// display function
 	FUNCTION(update_time),			// new display data
 };
+#endif
+
 #ifndef ELIMINATE_BLUEROBIN
 // Line2 - Calories/Distance
 const struct menu menu_L2_CalDist =
@@ -432,7 +435,9 @@ const struct menu *menu_L2[]={
 	#ifdef CONFIG_USEPPT
 	&menu_L2_Ppt,
 	#endif
+	#ifndef CONFIG_USE_SYNC_TOSET_TIME
 	&menu_L2_Sync,
+	#endif
 	#ifndef ELIMINATE_BLUEROBIN
 	&menu_L2_CalDist,
 	#endif

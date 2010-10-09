@@ -215,6 +215,10 @@ DATA["CONFIG_USEPPT"] = {
         "depends": [],
         "default": True}
 
+DATA["CONFIG_USE_SYNC_TOSET_TIME"] = {
+	"name": "Sync is the only way to set clocks data/time",
+	"depends": [],
+	"default": True}
 
 HEADER = """
 #ifndef _CONFIG_H_

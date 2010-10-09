@@ -10,6 +10,7 @@ BUILD_DIR = build
 CFLAGS_PRODUCTION = -Os -Wall#-Wl,--gc-sections # -ffunction-sections # -fdata-sections  -fno-inline-functions# -O optimizes
 # more optimizion flags
 CFLAGS_PRODUCTION +=  -fomit-frame-pointer -fno-force-addr -finline-limit=1 -fno-schedule-insns 
+CFLAGS_PRODUCTION += -Wl,-Map=output.map
 CFLAGS_DEBUG= -g -Os # -g enables debugging symbol table, -O0 for NO optimization
 
 CC_CMACH	= -mmcu=cc430x6137

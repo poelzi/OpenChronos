@@ -197,7 +197,7 @@ void sx_ppt(u8 line)
 }
 #endif
 
-
+#ifndef CONFIG_USE_SYNC_TOSET_TIME
 // *************************************************************************************************
 // @fn          sx_sync
 // @brief       Start SimpliciTI. Button DOWN connects/disconnects to access point.
@@ -217,6 +217,7 @@ void sx_sync(u8 line)
   	// Start SimpliciTI in sync mode
 	start_simpliciti_sync();
 }
+#endif
 
 #ifdef SIMPLICITY_TX_ONLY_REQ
 // *************************************************************************************************
@@ -608,8 +609,8 @@ int simpliciti_get_rvc_callback(u8 len)
 void start_simpliciti_sync(void)
 {
   	// Clear LINE1
-	clear_line(LINE1);  	
-	fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
+	//clear_line(LINE1);
+	//fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
 	
 	#ifdef FEATURE_PROVIDE_ACCEL
 	// Stop acceleration sensor
