@@ -64,7 +64,7 @@ u8 locked = 1;
 // Extern section
 extern void menu_skip_next(line_t line); //ezchronos.c
 
-
+#ifndef CONFIG_USE_DISCRET_RFBSL
 // *************************************************************************************************
 // @fn          mx_rfbsl
 // @brief       This functions starts the RFBSL
@@ -103,7 +103,7 @@ void mx_rfbsl(u8 line)
 
 
 }
-
+#endif
 // *************************************************************************************************
 // @fn          sx_rfbsl
 // @brief       This functions locks/unlocks the RFBSL
@@ -155,6 +155,7 @@ void sx_rfbsl(u8 line)
 #endif
 }
 
+#ifndef CONFIG_USE_DISCRET_RFBSL
 // *************************************************************************************************
 // @fn          nx_rfbsl
 // @brief       This function locks the RFBSL and switches to next menu item
@@ -166,7 +167,7 @@ void nx_rfbsl(u8 line)
 	locked = 1;
 	menu_skip_next(line);
 }
-
+#endif
 
 // *************************************************************************************************
 // @fn          display_rfbsl

@@ -112,8 +112,10 @@ extern unsigned char simpliciti_flag;
 
 // *************************************************************************************************
 // Extern section
-
+#ifdef SIMPLICITY_TX_ONLY_REQ
 extern void start_simpliciti_tx_only(simpliciti_mode_t mode);
+#endif
+
 extern int simpliciti_get_rvc_callback(u8 len) __attribute__((noinline));
 
 
