@@ -92,6 +92,11 @@
 #include "strength.h"
 #endif
 
+#ifdef CONFIG_USE_GPS
+#include "gps.h"
+#endif
+
+
 // *************************************************************************************************
 // Defines section
 #define FUNCTION(function)  function
@@ -395,6 +400,18 @@ const struct menu menu_L1_Strength =
 };
 #endif
 
+#ifdef CONFIG_USE_GPS
+// Line 2 GPS functions menu entry
+const struct menu menu_L2_Gps =
+{
+		FUNCTION(sx_gps),			//direct gps functions
+		FUNCTION(mx_gps),			//sub menu function
+		FUNCTION(menu_skip_next),	//next item function
+		FUNCTION(display_gps),		//Display gps function
+		FUNCTION(update_time),		//new display data
+};
+#endif
+
 // *************************************************************************************************
 // menu array
 
@@ -453,6 +470,9 @@ const struct menu *menu_L2[]={
 	#ifdef CONFIG_PROUT
 	&menu_L2_Prout,
 	#endif	
+	#ifdef CONFIG_USE_GPS
+	&menu_L2_Gps,
+	#endif
 };
 
 const int menu_L2_size=sizeof(menu_L2)/sizeof(struct menu*);
