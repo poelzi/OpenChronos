@@ -225,6 +225,12 @@ DATA["CONFIG_USE_DISCRET_RFBSL"] = {
 	"depends": [],
 	"default": True}
 
+DATA["CONFIG_USE_GPS"] = {
+	"name": "GPS Functions enabled",
+	"depends": [],
+	"default": True}
+
+
 HEADER = """
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
