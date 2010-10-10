@@ -26,6 +26,7 @@
 #include "clock.h"
 #include "user.h"
 #include "gps.h"
+#include "sequence.h"
 
 //pfs
 #ifndef ELIMINATE_BLUEROBIN
@@ -47,6 +48,10 @@ void mx_gps(u8 line);
 void display_gps(u8 line, u8 update);
 
 
+void doorlock_signal_success();
+void doorlock_signal_failure();
+void doorlock_signal_timeout();
+void doorlock_signal_invalid();
 
 
 // *************************************************************************************************
@@ -57,6 +62,12 @@ void display_gps(u8 line, u8 update);
 // *************************************************************************************************
 void sx_gps(u8 line)
 {
+	u8 sequence[DOORLOCK_SEQUENCE_MAX_LENGTH] = {0};
+	u8 sequence_again[DOORLOCK_SEQUENCE_MAX_LENGTH] = {0};
+	u8 error = DOORLOCK_ERROR_SUCCESS;
+	u8 i = 0;
+	u16 avg = 0;
+
 	// Enable idle timeout
 	sys.flag.idle_timeout_enabled = 1;
 
@@ -86,26 +97,29 @@ void sx_gps(u8 line)
 		     {
 			  // Clear display
 			  clear_display_all();
+
 			  display_chars(LCD_SEG_L1_3_0, (u8*)"CODE", SEG_ON);
 			  display_chars(LCD_SEG_L2_4_0, (u8*)"PLEAS", SEG_ON);
-			  while(1)
-			  {
-				  if (sys.flag.idle_timeout)
-				  			{
-				  				// Clear timeout flag
-				  				sys.flag.idle_timeout = 0;
 
-				  				// Clear display
-				  				clear_display();
-				  				break;
-				  				// Set display update flags
-				  				//display.flag.full_update = 1;
+			  error = doorlock_sequence(sequence);
 
-				  			}
-				  idle_loop();
-			  }
-			  break;
-		     }
+			  if (error == DOORLOCK_ERROR_SUCCESS)
+			  	{
+			  		display_chars(LCD_SEG_L1_3_0, (u8*)"DOOR", SEG_ON);
+					display_chars(LCD_SEG_L2_4_0, (u8*)"CHECK", SEG_ON);
+			        doorlock_signal_success();
+			  	}
+			  	else
+			  	{
+			          display_chars(LCD_SEG_L1_3_0, (u8*)"CODE", SEG_ON);
+			          display_chars(LCD_SEG_L2_4_0, (u8*)"FAIL", SEG_ON);
+			          doorlock_signal_failure();
+			  	}
+
+				break;
+				}
+
+		idle_loop();
 	    }
 
 		// Clear timeout flag
@@ -143,4 +157,63 @@ void display_gps(u8 line, u8 update)
 		{
 			display_chars(LCD_SEG_L2_5_0, (u8 *)"   GPS", SEG_ON);
 		}
+}
+
+
+
+// *************************************************************************************************
+// Simple user notification via buzzer
+// *************************************************************************************************
+
+// *************************************************************************************************
+// @fn          doorlock_signal_success
+// @brief       simple two beeps means success
+// @param       none
+// @return      none
+// *************************************************************************************************
+void doorlock_signal_success()
+{
+	start_buzzer(2, CONV_MS_TO_TICKS(100), CONV_MS_TO_TICKS(50));
+    Timer0_A4_Delay(CONV_MS_TO_TICKS(300));
+    stop_buzzer();
+}
+
+// *************************************************************************************************
+// @fn          doorlock_signal_failure
+// @brief       3 beeps means failure
+// @param       none
+// @return      none
+// *************************************************************************************************
+void doorlock_signal_failure()
+{
+	start_buzzer(3, CONV_MS_TO_TICKS(100), CONV_MS_TO_TICKS(50));
+    //Timer0_A4_Delay(CONV_MS_TO_TICKS(450));
+	Timer0_A4_Delay(CONV_MS_TO_TICKS(700));
+    stop_buzzer();
+}
+
+// *************************************************************************************************
+// @fn          doorlock_signal_timeout
+// @brief       4 beeps means timeout
+// @param       none
+// @return      none
+// *************************************************************************************************
+void doorlock_signal_timeout()
+{
+	start_buzzer(4, CONV_MS_TO_TICKS(100), CONV_MS_TO_TICKS(50));
+    Timer0_A4_Delay(CONV_MS_TO_TICKS(600));
+    stop_buzzer();
+}
+
+// *************************************************************************************************
+// @fn          doorlock_signal_invalid
+// @brief       5 beeps means something terrible has happened, e.g. someone is trying to hack us
+// @param       none
+// @return      none
+// *************************************************************************************************
+void doorlock_signal_invalid()
+{
+	start_buzzer(1, CONV_MS_TO_TICKS(1000), CONV_MS_TO_TICKS(10));
+    Timer0_A4_Delay(CONV_MS_TO_TICKS(1010));
+    stop_buzzer();
 }

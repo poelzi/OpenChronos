@@ -76,7 +76,16 @@
 #ifdef CONFIG_SIDEREAL
 #include "sidereal.h"
 #endif
+// *************************************************************************************************
+// Defines section
 
+#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL) || defined(CONFIG_USE_GPS)
+#define SIMPLICITI_TX_ONLY_REQ
+#endif
+
+
+// Each packet index requires 2 bytes, so we can have 9 packet indizes in 18 bytes usable payload
+#define BM_SYNC_BURST_PACKETS_IN_DATA		(9u)
 
 // *************************************************************************************************
 // Prototypes section
@@ -84,17 +93,6 @@ void simpliciti_get_data_callback(void);
 void start_simpliciti_tx_only(simpliciti_mode_t mode);
 void start_simpliciti_sync(void);
 int simpliciti_get_rvc_callback(u8 len) __attribute__((noinline));
-
-// *************************************************************************************************
-// Defines section
-
-#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || (CONFIG_ACCEL)
-#define SIMPLICITI_TX_ONLY_REQ
-#endif
-
-
-// Each packet index requires 2 bytes, so we can have 9 packet indizes in 18 bytes usable payload
-#define BM_SYNC_BURST_PACKETS_IN_DATA		(9u)
 
 
 // *************************************************************************************************
@@ -169,7 +167,7 @@ void sx_rf(u8 line)
   	#endif
 	#ifdef CONFIG_ACCEL
   	// Start SimpliciTI in tx only mode
-	start_simpliciti_tx_only(SIMPLICITI_ACCELERATION);
+	//start_simpliciti_tx_only(SIMPLICITI_ACCELERATION);
 	#endif
 }
 
