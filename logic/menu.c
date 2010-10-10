@@ -291,7 +291,11 @@ const struct menu menu_L2_Eggtimer =
 const struct menu menu_L2_Battery =
 {
 	FUNCTION(dummy),					// direct function
+	#ifndef CONFIG_USE_DISCRET_RFBSL
 	FUNCTION(dummy),					// sub menu function
+	#else
+	FUNCTION(sx_rfbsl),					//sub function calls RFBSL
+	#endif
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_battery_V),		// display function
 	FUNCTION(update_battery_voltage),	// new display data
@@ -352,9 +356,10 @@ const struct menu menu_L2_CalDist =
 	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_caldist),		// display function
 	FUNCTION(update_time),			// new display data
-	&menu_L2_RFBSL,
+	//&menu_L2_RFBSL,
 };
 #endif
+#ifndef CONFIG_USE_DISCRET_RFBSL
 // Line2 - RFBSL
 const struct menu menu_L2_RFBSL =
 {
@@ -364,6 +369,7 @@ const struct menu menu_L2_RFBSL =
 	FUNCTION(display_rfbsl),		// display function
 	FUNCTION(update_time),			// new display data
 };
+#endif
 
 #ifdef CONFIG_PROUT
 // Line2 - PROUT
@@ -441,7 +447,9 @@ const struct menu *menu_L2[]={
 	#ifndef ELIMINATE_BLUEROBIN
 	&menu_L2_CalDist,
 	#endif
+	#ifndef CONFIG_USE_DISCRET_RFBSL
 	&menu_L2_RFBSL,
+	#endif
 	#ifdef CONFIG_PROUT
 	&menu_L2_Prout,
 	#endif	

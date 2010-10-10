@@ -112,6 +112,38 @@ void mx_rfbsl(u8 line)
 // *************************************************************************************************
 void sx_rfbsl(u8 line)
 {
+#ifdef CONFIG_USE_DISCRET_RFBSL
+	clear_line(LINE2);
+	display_rfbsl(LINE2, DISPLAY_LINE_UPDATE_FULL);
+
+	// Loop values until all are set or user breaks	set
+	 while(1)
+	  {
+	    // Idle timeout: exit without saving
+	    if (sys.flag.idle_timeout || button.flag.num)
+	    {
+	      // Exit
+	      break;
+	    }
+	    if (button.flag.down)
+	      {
+	    	// Exit if SimpliciTI stack is active
+	    	if (is_rf()) return;
+
+	    	// Before entering RFBSL clear the LINE1 Symbols
+	    	display_symbol(LCD_SYMB_AM, SEG_OFF);
+
+	    	clear_line(LINE1);
+
+	    	// Write RAM to indicate we will be downloading the RAM Updater first
+	    	display_chars(LCD_SEG_L1_3_0, (u8 *)" RAM", SEG_ON);
+
+	    	// Call RFBSL
+	    	CALL_RFSBL();
+	      }
+	  }
+
+#else
     message.flag.prepare = 1;
     if(locked) {
         message.flag.type_unlocked = 1;
@@ -120,6 +152,7 @@ void sx_rfbsl(u8 line)
         message.flag.type_locked = 1;
         locked = 1;
     }
+#endif
 }
 
 // *************************************************************************************************

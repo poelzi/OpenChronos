@@ -110,9 +110,16 @@ extern const struct menu menu_L2_Phase;
 extern const struct menu menu_L2_Ppt;
 #endif
 
+#ifndef CONFIG_USE_SYNC_TOSET_TIME
 extern const struct menu menu_L2_Sync;
+#endif
+
 extern const struct menu menu_L2_CalDist;
+
+#ifndef CONFIG_USE_DISCRET_RFBSL
 extern const struct menu menu_L2_RFBSL;
+#endif
+
 #ifdef CONFIG_PROUT
 extern const struct menu menu_L2_Prout;
 #endif

@@ -220,6 +220,11 @@ DATA["CONFIG_USE_SYNC_TOSET_TIME"] = {
 	"depends": [],
 	"default": True}
 
+DATA["CONFIG_USE_DISCRET_RFBSL"] = {
+	"name": "RFBSL is hidden behind battery",
+	"depends": [],
+	"default": True}
+
 HEADER = """
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
