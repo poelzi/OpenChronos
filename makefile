@@ -11,7 +11,7 @@ CFLAGS_PRODUCTION = -Os -Wall#-Wl,--gc-sections # -ffunction-sections # -fdata-s
 # more optimizion flags
 CFLAGS_PRODUCTION +=  -fomit-frame-pointer -fno-force-addr -finline-limit=1 -fno-schedule-insns 
 CFLAGS_PRODUCTION += -Wl,-Map=output.map
-CFLAGS_DEBUG= -g -Os # -g enables debugging symbol table, -O0 for NO optimization
+CFLAGS_DEBUG= -g -O1 # -g enables debugging symbol table, -O0 for NO optimization
 
 CC_CMACH	= -mmcu=cc430x6137
 CC_DMACH	= -D__MSP430_6137__ -DMRFI_CC430 -D__CC430F6137__ #-DCC__MSPGCC didn't need mspgcc defines __GNUC__

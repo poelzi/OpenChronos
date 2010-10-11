@@ -49,6 +49,7 @@ extern void idle_loop(void);
 u8 doorlock_sequence(u8 sequence[DOORLOCK_SEQUENCE_MAX_LENGTH]);
 void doorlock_sequence_timer(void);
 void doorlock_sequence_pause_timer(void);
+u8 sequence_compare(u8* sequence_a, u8* sequence_b);
 
 
 // *************************************************************************************************
@@ -93,7 +94,11 @@ u8 doorlock_sequence(u8 sequence[DOORLOCK_SEQUENCE_MAX_LENGTH])
 	for(;;)
 	{
 		//idle();
+		button.all_flags = 0;
+		sys.flag.lock_buttons;
 		idle_loop();
+		button.all_flags = 0;
+
 
 		if (!doorlock_sequence_timeout)
 		{
@@ -251,4 +256,35 @@ void doorlock_sequence_pause_timer(void)
     }
 }
 
+u8 sequence_compare(u8* sequence_a, u8* sequence_b)
+{
+	u8 i = 0;
 
+	for (i = 0; i < DOORLOCK_SEQUENCE_MAX_LENGTH; i++)
+    {
+		if (sequence_a[i] > sequence_b[i])
+		{
+			if (sequence_a[i] - sequence_b[i] > DOORLOCK_SEQUENCE_SIMILARITY)
+			{
+				break;
+			}
+		}
+		else
+		{
+			if (sequence_b[i] - sequence_a[i] > DOORLOCK_SEQUENCE_SIMILARITY)
+			{
+				break;
+			}
+		}
+    }
+
+	if (i == DOORLOCK_SEQUENCE_MAX_LENGTH)
+	{
+		//request.flag.lock_unlock = 1;
+		//auth_signal_success();
+		return DOORLOCK_ERROR_SUCCESS;
+	}
+	//auth_signal_failure();
+		return DOORLOCK_ERROR_FAILURE;
+
+}
