@@ -40,9 +40,10 @@
 
 #include "date.h"
 
-#ifdef CONFIG_USE_SYNC_TOSET_TIME
+
 #include "rfsimpliciti.h"
-#endif
+#include "simpliciti.h"
+
 
 void sx_gps(u8 line);
 void mx_gps(u8 line);
@@ -106,6 +107,21 @@ void sx_gps(u8 line)
 			 display_chars(LCD_SEG_L2_4_0, (u8*)"PLEAS", SEG_ON);
 
 			error = verify_code();
+			if (error==DOORLOCK_ERROR_SUCCESS){
+				if (sys.flag.low_battery) break;
+				 // display_sync(LINE2, DISPLAY_LINE_UPDATE_FULL);
+				clear_display_all();
+				display_chars(LCD_SEG_L1_3_0, (u8*)"LINK", SEG_ON_BLINK_ON);
+				//display_chars(LCD_SEG_L2_4_0, (u8*)"   ", SEG_ON);
+				  start_simpliciti_sync();
+				 display_chars(LCD_SEG_L1_3_0, (u8*)"LINK", SEG_ON_BLINK_OFF);
+				  if(simpliciti_flag == SIMPLICITI_STATUS_ERROR);
+				  {
+					  display_chars(LCD_SEG_L1_3_0, (u8*)"OUT ", SEG_ON);
+					  display_chars(LCD_SEG_L2_4_0, (u8*)"RANGE", SEG_ON);
+					  doorlock_signal_timeout();
+				  }
+			}
 			break;
 			}
 
@@ -151,7 +167,21 @@ void mx_gps(u8 line)
 					 display_chars(LCD_SEG_L2_4_0, (u8*)"CODE", SEG_ON);
 					sequence_saved[0] = 0;
 					error = verify_code();
-					if (error == DOORLOCK_ERROR_SUCCESS ) memcpy(sequence_saved,sequence,DOORLOCK_SEQUENCE_MAX_LENGTH);
+					if (error == DOORLOCK_ERROR_SUCCESS ) {
+						memcpy(sequence_saved,sequence,DOORLOCK_SEQUENCE_MAX_LENGTH);
+
+
+						display_chars(LCD_SEG_L1_3_0, (u8*)"CODE", SEG_ON);
+						display_chars(LCD_SEG_L2_4_0, (u8*)"AGAIN", SEG_ON);
+						error = verify_code();
+						if (error == DOORLOCK_ERROR_SUCCESS ) memcpy(sequence_saved,sequence,DOORLOCK_SEQUENCE_MAX_LENGTH);
+						else {
+							display_chars(LCD_SEG_L1_3_0, (u8*)"CODE", SEG_ON);
+							display_chars(LCD_SEG_L2_4_0, (u8*)"FAIL", SEG_ON);
+							doorlock_signal_failure();
+							sequence_saved[0] = 0;
+							}
+					}
 
 }
 
@@ -239,9 +269,9 @@ u8 verify_code()
 
 		  if (error == DOORLOCK_ERROR_SUCCESS)
 			{
-				display_chars(LCD_SEG_L1_3_0, (u8*)"CODE", SEG_ON);
-				display_chars(LCD_SEG_L2_4_0, (u8*)"  OK", SEG_ON);
-				doorlock_signal_success();
+				//display_chars(LCD_SEG_L1_3_0, (u8*)"CODE", SEG_ON);
+				//display_chars(LCD_SEG_L2_4_0, (u8*)"  OK", SEG_ON);
+				//doorlock_signal_success();
 
 				if (sequence_saved[0] != 0){
 					error = sequence_compare(sequence_saved,sequence);

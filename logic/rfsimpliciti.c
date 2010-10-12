@@ -79,7 +79,7 @@
 // *************************************************************************************************
 // Defines section
 
-#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL) || defined(CONFIG_USE_GPS)
+#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL)
 #define SIMPLICITI_TX_ONLY_REQ
 #endif
 
@@ -167,7 +167,7 @@ void sx_rf(u8 line)
   	#endif
 	#ifdef CONFIG_ACCEL
   	// Start SimpliciTI in tx only mode
-	//start_simpliciti_tx_only(SIMPLICITI_ACCELERATION);
+	start_simpliciti_tx_only(SIMPLICITI_ACCELERATION);
 	#endif
 }
 
