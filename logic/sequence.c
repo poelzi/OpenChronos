@@ -93,16 +93,25 @@ u8 doorlock_sequence(u8 sequence[DOORLOCK_SEQUENCE_MAX_LENGTH])
 
 	for(;;)
 	{
-		//idle();
-		button.all_flags = 0;
-		sys.flag.lock_buttons;
+
+		    // Reset IRQ flags
+		BUTTONS_IFG &= ~ALL_BUTTONS;
+
+			// Enable button interrupts
+		BUTTONS_IE &= ~ALL_BUTTONS;
+
 		idle_loop();
-		button.all_flags = 0;
+
 
 
 		if (!doorlock_sequence_timeout)
 		{
 			as_stop();
+			// Reset IRQ flags
+				BUTTONS_IFG &= ~ALL_BUTTONS;
+
+				// Enable button interrupts
+				BUTTONS_IE |= ALL_BUTTONS;
 			return DOORLOCK_ERROR_TIMEOUT;
 		}
 
@@ -201,6 +210,11 @@ u8 doorlock_sequence(u8 sequence[DOORLOCK_SEQUENCE_MAX_LENGTH])
 			{
 				// reset data when exiting this state
 				memset(sequence, 0, sizeof(u8) * DOORLOCK_SEQUENCE_MAX_LENGTH);
+				// Reset IRQ flags
+					BUTTONS_IFG &= ~ALL_BUTTONS;
+
+					// Enable button interrupts
+					BUTTONS_IE |= ALL_BUTTONS;
 				return DOORLOCK_ERROR_FAILURE;
 			}
 		}
@@ -211,6 +225,11 @@ u8 doorlock_sequence(u8 sequence[DOORLOCK_SEQUENCE_MAX_LENGTH])
 		{
 			sequence[i] *= ratio;
 		}
+		// Reset IRQ flags
+			BUTTONS_IFG &= ~ALL_BUTTONS;
+
+			// Enable button interrupts
+			BUTTONS_IE |= ALL_BUTTONS;
 		return DOORLOCK_ERROR_SUCCESS;
 	}
 
