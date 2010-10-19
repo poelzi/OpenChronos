@@ -88,7 +88,7 @@ extern void menu_skip_next(line_t line); //ezchronos.c
 void update_stopwatch_timer(void)
 {
 	u16 value;
-
+	if(!(sStopwatch.state & STOPWATCH_RUN)) return;
 	// Load CCR register with next capture time
 	if (sStopwatch.viewStyle == DISPLAY_DEFAULT_VIEW) 
 	{
@@ -133,6 +133,7 @@ void stopwatch_tick(void)
 {
 	static u8 delay = 0;
 	
+	if(!(sStopwatch.state & STOPWATCH_RUN)) return;
 	// Default view (< 20 minutes): display and count MM:SS:hh
 	if (sStopwatch.viewStyle == DISPLAY_DEFAULT_VIEW)
 	{
