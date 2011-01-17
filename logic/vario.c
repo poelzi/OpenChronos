@@ -1,6 +1,9 @@
 /*
-    Vario function for ez430 chronos watch.
-    Copyright (C) 2010 Marc Poulhiès <dkm@kataplop.net>
+    Altivario function for ez430 chronos watch.
+
+    Copyright (C) 2011, Marc Bongartz <mbong@free.fr>
+
+    Build environment Copyright (C) 2010 Marc Poulhi<E8>s <dkm@kataplop.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -55,152 +58,388 @@
 #ifdef CONFIG_VARIO
 
 // driver
-#include "altitude.h"
 #include "display.h"
-#include "vti_ps.h"
-#include "ports.h"
-#include "timer.h"
-
-#include "stopwatch.h"
+#include "buzzer.h"
 
 // logic
-#include "user.h"
 #include "vario.h"
 
-#include "menu.h"
+//
+// Module internal definitions.
+//
 
-struct vario svario;
-
-void hist_add(s16 alt);
-u8 hist_ready(void);
-
-#define HIST_GET_OLD() svario.hist_alts[(svario.hist_pos+1)%VARIO_HIST_SIZE]
-#define HIST_GET_NEW() svario.hist_alts[svario.hist_pos]
-
-/**
- * called every sec
- */
-void vario_tick()
+//
+// Global struct with all our variables.
+//
+static struct
 {
-  if (is_altitude_measurement()){
-    hist_add(sAlt.altitude);
-    if (!hist_ready()){
-        display_symbol(LCD_ICON_RECORD, SEG_ON_BLINK_ON);
-    } else {
-        display_symbol(LCD_ICON_RECORD, SEG_OFF);
-    }
-  }
-  display_vario(0, 0);
+   u32 pressure;  // updated by altitude.c - need a mutex ?
+   u32 prev_pa;   // pressure at last scan
+   u8 p_valid;    // mutex for pressure field
+   u8 view_mode;  // view mode, controlled by "v" key
+   u8 beep_mode;  // beeper mode, controlled by "#" key
+   struct
+     {
+	s16 vzmin; // Vz min in Pascal
+	s16 vzmax; // Vz max in Pascal
+     } stats;
+} G_vario;
+
+enum
+{
+   VARIO_BEEPMODE_OFF = 0,    // default beep mode
+   VARIO_BEEPMODE_ON,
+   VARIO_BEEPMODE_MAX
+};
+
+enum 
+{
+   VARIO_VIEWMODE_ALT_M = 0,  // Vario in m/s, default view mode
+   VARIO_VIEWMODE_ALT_PA,     // Vario in Pascal
+   VARIO_VIEWMODE_PA,         // Display current pressure
+   VARIO_VIEWMODE_VZMAX,      // Max Vario (positive)
+   VARIO_VIEWMODE_VZMIN,      // Max Vario (positive)
+   VARIO_VIEWMODE_MAX
+};
+
+//
+// Clear statistics
+//
+static void
+_clear_stats( void )
+{
+   G_vario.stats.vzmin = 0;
+   G_vario.stats.vzmax = 0;
 }
 
-u8 is_vario(void)
+// "v" button press changes display mode
+extern void
+sx_vario(u8 line)
 {
-  return (svario.state == VARIO_RUN &&  (ptrMenu_L2 == &menu_L2_Vario));
+   G_vario.view_mode++;
+   G_vario.view_mode %= VARIO_VIEWMODE_MAX;
 }
 
-void update_vario()
+//
+// Long "#" press will turn on/off vario sound if in vario display,
+// or clear stats if in stats view mode.
+// 
+extern void
+mx_vario(u8 line)
 {
+   switch( G_vario.view_mode )
+     {
+      case VARIO_VIEWMODE_ALT_M:
+      case VARIO_VIEWMODE_ALT_PA:
+	G_vario.beep_mode++;
+	G_vario.beep_mode %= VARIO_BEEPMODE_MAX;
+	break;
+      
+      case VARIO_VIEWMODE_PA:
+	break;
+
+      case VARIO_VIEWMODE_VZMAX:
+      case VARIO_VIEWMODE_VZMIN:
+	_clear_stats();
+	break;
+
+      case VARIO_VIEWMODE_MAX:
+	break;
+     }
 }
 
-void start_vario()
+//
+// Mutex for accessing G_vario.pressure from altitude.c (write) and vario.c (read)
+// This prevents badly timed updates, for example on button press. It also helped
+// me figure a problem with calls to display_vario() from interrupt level.
+//
+extern void
+vario_p_write( u32 p )
 {
+   if ( !G_vario.p_valid )
+     {	
+	G_vario.pressure = p;
+	G_vario.p_valid++;
+     }
+}
 
-  svario.state = VARIO_RUN;
+int vario_p_read( u32 *retp )
+{
+   if ( G_vario.p_valid )
+     {
+	*retp = G_vario.pressure;
+	G_vario.p_valid = 0;
+	return 0;
+     }
+   return 1; // error
+}
+
+//
+// This function could definitely take some work to produce a better sound...
+//
+void chirp( s16 pdiff )
+{
+   static struct 
+     {
+	s16 d;
+	u8 ticks;
+	u8 on_ms;
+	u8 off_ms;
+     } ctab[] = 
+     {
+	{   1, 1, 25, 25 },
+	{   2, 2, 25, 25 },
+	{   3, 3, 25, 25 },
+	{   4, 4, 25, 25 },
+	{   5, 5, 25, 25 },
+	{  11, 1, 50, 50 },
+	{  20, 2, 50, 50 },
+	{  30, 3, 50, 50 },
+	{  40, 1, 70, 70 },
+	{  50, 2, 70, 70 },
+	{  60, 3, 70, 70 },
+	{  70, 1, 100, 100 },
+	{  0,  2, 100, 100 }, // end of table
+     };
+   int i;
+
+   // No descent tones until we can produce different tone frequencies.
+   if ( pdiff < 1 ) return;
+
+   for ( i = 0;
+	 ctab[i].d && (ctab[i].d < pdiff);
+	 ++i )
+     ;
+
+   start_buzzer( ctab[i].ticks,
+		 CONV_MS_TO_TICKS( ctab[i].on_ms*2 ),
+		 CONV_MS_TO_TICKS( ctab[i].off_ms*2 ) );
+
+}
+
+//
+// _display_fraction() - display a fraction on the second line, nnnn.nn
+// 
+// Used to display pressure (in Pascal) as hPa and cm/s as m/s.
+//
+static void
+_display_fraction( s32 value )
+{
+   u8 *str;
+   u16 m;
+   int i;
+   int is_neg;
+   
+   if ( value < 0 )
+     {
+	is_neg = 1;
+	value *= -1;
+     }
+   else
+     {
+	is_neg = 0;
+     }
+
+   m = value / 100;
+
+   str = itoa( m, 4, 3 );
+
+   for ( i = 0; (is_neg && (str[i] == ' ')); i++ )
+     {
+	if (str[i+1] != ' ')
+	  str[i] = '-';
+     }
+
+   display_chars( LCD_SEG_L2_5_0, str, SEG_ON );
+
+   display_symbol( LCD_SEG_L2_DP, SEG_ON );
+
+   m = (u32)value - (u32)((u32)m*100);
+   str = itoa( m, 2, 0 );
+   display_chars( LCD_SEG_L2_1_0, str, SEG_ON );		       
+}
+
+//
+// _display_signed() - display a signed int on the second line, nnnnnn
+// 
+// Used to display pressure (in Pascal) as hPa and cm/s as m/s.
+//
+static void
+_display_signed( int value )
+{
+   u8 *str;
+   int i;
+   int is_neg;
+   
+   if ( value < 0 )
+     {
+	is_neg = 1;
+	value *= -1;
+     }
+   else
+     {
+	is_neg = 0;
+     }
+
+   str = itoa( value, 6, 5 );
+
+   for ( i = 0; (is_neg && (str[i] == ' ')); i++ )
+     {
+	if (str[i+1] != ' ')
+	  str[i] = '-';
+     }
+
+   display_chars( LCD_SEG_L2_5_0, str, SEG_ON );
+
+}
+
+// convert barometric value to vz.
+// This really depends on altitude and temp, but for
+// a rough estimation we can take 1Pa = 10cm (0.1m)
+// TBS -- allow non-metric display...
+static inline s32
+_pascal_to_vz( s32 pa )
+{
+   return pa * 10; // multiply by 8, return value is in cm.
+}
+
+//
+// Vario display update function. Theorethically called once per second.
+// In practice, this also gets called on button presses, so careful if
+// you rely on it for a 1Hz frequency.
+//
+
+extern void
+display_vario( u8 line, u8 update )
+{
+   static u8 _idone; // initialisation helper
+   static u8 _vbeat; // heartbeat
+
+   u32 pressure;
+
+   switch( update )
+     {
+      case DISPLAY_LINE_CLEAR:
+
+	stop_buzzer();
+	display_symbol( LCD_ICON_BEEPER1, SEG_OFF );
+	display_symbol( LCD_ICON_RECORD,  SEG_OFF );
+	display_symbol( LCD_SYMB_MAX,     SEG_OFF );
+	return;
+
+      case DISPLAY_LINE_UPDATE_FULL:
+
+	display_symbol( LCD_ICON_BEEPER1, (G_vario.beep_mode) ? SEG_ON : SEG_OFF );
+
+	//
+	// fall through to partial update
+	//
+      case DISPLAY_LINE_UPDATE_PARTIAL:
+	break;
+     }
+   
+   //
+   // Partial or full update. Make sure pressure sensor is being sampled, ie,
+   // that line 1 is in altimeter mode.
+   //
+
+   if ( is_altitude_measurement() )
+     {
+	u8 *str;
+	s16 diff;
+
+	if ( vario_p_read( &pressure ) )
+	  {
+	     // Happens during key presses, never mind.
+	     return; // no data, wait for update
+	  }
+
+	//
+	// If this is the very first time we are here, we have no previous
+	// pressure, handle that situation.
+	//
+	if ( !_idone  )
+	  {
+	     diff = 0;
+	     ++_idone;
+	  }
+	else
+	  {
+	     //
+	     // Calculate difference in Pascal - we will need it anyway for the
+	     // buzzer. Pressure decreases with altitude, ensure going lower is
+	     // negative.
+	     // 
+	     diff = G_vario.prev_pa - pressure;
+
+	     // update stats as we may want to see these after the flight.
+
+	     if ( diff > G_vario.stats.vzmax ) G_vario.stats.vzmax = diff;
+	     if ( diff < G_vario.stats.vzmin ) G_vario.stats.vzmin = diff;
+	  }
+
+
+	// Pulse the vario heartbeat indicator.
+	++_vbeat;
+	display_symbol( LCD_ICON_RECORD, ( _vbeat & 1 ) ? SEG_ON : SEG_OFF );
+
+	display_symbol( LCD_SYMB_MAX, SEG_OFF);
+
+	// Now see what value to display.
+
+	switch( G_vario.view_mode )
+	  {
+	   case VARIO_VIEWMODE_ALT_M:
+	     //
+	     // convert the difference in Pa to a vertical velocity.
+	     //
+	     _display_fraction( _pascal_to_vz( diff ) );
+	     break;
+
+	   case VARIO_VIEWMODE_ALT_PA:
+	     //
+	     // display raw difference in Pascal.
+	     //
+	     _display_signed( diff );
+	     break;
+
+	   case VARIO_VIEWMODE_PA:
+	     //
+	     // display pressure as hhhh.pp (hPa and Pa)
+	     //
+	     _display_fraction( pressure );
+	     break;
+
+	   case VARIO_VIEWMODE_VZMAX:
+	     display_symbol( LCD_SYMB_MAX, SEG_ON);
+	     _display_fraction( _pascal_to_vz( G_vario.stats.vzmax )  );
+	     break;
+
+	   case VARIO_VIEWMODE_VZMIN:
+	     display_symbol( LCD_SYMB_MAX, SEG_ON);
+	     _display_fraction( _pascal_to_vz( G_vario.stats.vzmin ) );
+	     break;
+
+	   case VARIO_VIEWMODE_MAX:
+	     break;
+
+	  } // switch view mode
+
+	// If beeper is enabled, beep.
+	if ( diff && G_vario.beep_mode )
+	  {
+	     chirp( diff );
+	  }
 	
-  display_symbol(LCD_ICON_HEART, SEG_ON_BLINK_ON);
-}
+	// update previous pressure measurement.
 
-void stop_vario()
-{
-  svario.state = VARIO_STOP;
-	
-  display_symbol(LCD_ICON_HEART, SEG_OFF);
+	G_vario.prev_pa = pressure;
 
-  // Call draw routine immediately
-  display_vario(LINE2, DISPLAY_LINE_UPDATE_FULL);
-}
-
-void sx_vario(u8 line)
-{
-  if (button.flag.down)
-    {
-      if (svario.state == VARIO_STOP){
-        start_vario();
-      } else {
-        stop_vario();
-      }
-    }
-}
-
-void mx_vario(u8 line)
-{
-}
-
-void display_vario(u8 line, u8 update)
-{
-
-  if (svario.state == VARIO_STOP) {
-    display_chars(LCD_SEG_L2_5_0, (u8*) " idle", SEG_ON);
-  } else if (is_altitude_measurement()){
-    if (!hist_ready()) {
-      display_chars(LCD_SEG_L2_5_0, (u8*)" wait", SEG_ON_BLINK_ON);
-    } else {
-      u8 *str;
-
-      s16 diff = HIST_GET_OLD() - HIST_GET_NEW();
-      u8 is_neg = 0;
-      u8 i;
-
-      if (diff == 0){
-        display_chars(LCD_SEG_L2_5_0, (u8*) "     0", SEG_ON);
-      } else {
-        if (diff < 0){
-          is_neg = 1;
-          diff = diff*(-1);
-        }
-        diff = diff / VARIO_HIST_SIZE;
-
-        str = itoa(diff, 6, 7);
-
-        for (i=0; i<7; i++){
-          if (str[i] == '0' || str[i] == ' '){
-            if (is_neg)
-              str[i] = '-';
-            else
-              str[i] = ' ';
-          } else {
-            break;
-          }
-        }
-        display_chars(LCD_SEG_L2_5_0, str, SEG_ON);
-      }
-    }
-  } else {
-    display_chars(LCD_SEG_L2_5_0, (u8*) " NOALT", SEG_ON);
-  }
-}
-
-u8 hist_ready(void) {
-  return (svario.hist_count == VARIO_HIST_SIZE);
-}
-
-/* s8 hist_size(void) { */
-/*   if (svario.previous_end == -1) return 0; */
-/*   if (svario.previous_end == svario.previous_start) return VARIO_HIST_SIZE; */
-/*   return ((svario.previous_end-svario.previous_start)>0 ? VARIO_HIST_SIZE-svario.previous_end+svario.previous_start : svario.previous_start-svario.previous_end); */
-/* } */
-
-void hist_add(s16 alt) {
-  if (svario.hist_count != VARIO_HIST_SIZE) svario.hist_count++;
-
-  svario.hist_alts[svario.hist_pos] = alt;
-  svario.hist_pos = (svario.hist_pos+1)%VARIO_HIST_SIZE;
-}
-
-void reset_vario(void)
-{
-  svario.state = VARIO_STOP;
-  svario.hist_pos = svario.hist_count = 0;
+     } // L1 is in altimeter mode
+   else
+     {
+	display_chars(LCD_SEG_L2_5_0, (u8*) " NOALT", SEG_ON);
+     }
 }
 
 #endif /* CONFIG_VARIO */

@@ -1,6 +1,8 @@
 /*
-    Vario function for ez430 chronos watch.
-    Copyright (C) 2010 Marc Poulhiès <dkm@kataplop.net>
+    Altivario function for ez430 chronos watch.
+    Copyright (C) 2011, Marc Bongartz <mbong@free.fr>
+
+    Build environment Copyright (C) 2010 Marc Poulhi<E8>s <dkm@kataplop.net>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,27 +56,12 @@
 #ifndef VARIO_H_
 #define VARIO_H_
 
-// menu functions
+// menu function callbacks
 extern void sx_vario(u8 line);
 extern void mx_vario(u8 line);
 extern void display_vario(u8 line, u8 update);
 
-extern void reset_vario(void);
-extern void vario_tick(void);
-extern void update_vario(void);
-extern u8 is_vario(void);
+// external function to update the pressure value.
+extern void vario_p_write(u32);
 
-#define VARIO_STOP	(0u)
-#define VARIO_RUN	(1u)
-
-#define VARIO_HIST_SIZE 10
-
-struct vario
-{
-  u8 state;
-  u8 hist_alts[VARIO_HIST_SIZE];
-  u8 hist_count, hist_pos;
-};
-
-extern struct vario svario;
 #endif
