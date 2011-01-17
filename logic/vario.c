@@ -161,6 +161,17 @@ vario_p_write( u32 p )
 	G_vario.pressure = p;
 	G_vario.p_valid++;
      }
+   else
+     {
+	//
+	// Pressure has not been read by the vario (called once per second)
+	// since last write from altimeter (called about once every second in
+	// ultra low power mode, more often for other modes, or on demand for
+	// low power with external trigger mode), average in the new pressure
+	// value.
+	//
+	G_vario.pressure = (G_vario.pressure + p) >> 1;
+     }
 }
 
 int vario_p_read( u32 *retp )
@@ -169,9 +180,9 @@ int vario_p_read( u32 *retp )
      {
 	*retp = G_vario.pressure;
 	G_vario.p_valid = 0;
-	return 0;
+	return 0; // success, a new pressure value is available.
      }
-   return 1; // error
+   return 1; // error, no new pressure value available.
 }
 
 //
@@ -181,7 +192,7 @@ void chirp( s16 pdiff )
 {
    static struct 
      {
-	s16 d;
+	s8 d;
 	u8 ticks;
 	u8 on_ms;
 	u8 off_ms;
@@ -293,14 +304,17 @@ _display_signed( int value )
 
 }
 
-// convert barometric value to vz.
-// This really depends on altitude and temp, but for
+//
+// Convert barometric value to vz.
+// This really depends on altitude and temp, also humidity, but for
 // a rough estimation we can take 1Pa = 10cm (0.1m)
+//
 // TBS -- allow non-metric display...
+//
 static inline s32
 _pascal_to_vz( s32 pa )
 {
-   return pa * 10; // multiply by 8, return value is in cm.
+   return pa * 10;
 }
 
 //
