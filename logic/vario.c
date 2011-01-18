@@ -71,7 +71,7 @@
 //
 // Global struct with all our variables.
 //
-static struct
+struct
 {
    u32 pressure;  // updated by altitude.c - need a mutex ?
    u32 prev_pa;   // pressure at last scan
@@ -85,10 +85,18 @@ static struct
      } stats;
 } G_vario;
 
+//
+// Note the beepmode enum changes are reflected in the beepmode symbol.
+// For visual feedback during settings, the beeper2 symbol is turned on
+// when beepmode ASCENT_0 or BOTH are selected. Update the corresponding
+// logic if you change the beepmode enum order or add a new enum value.
+// 
 enum
 {
    VARIO_BEEPMODE_OFF = 0,    // default beep mode
-   VARIO_BEEPMODE_ON,
+   VARIO_BEEPMODE_ASCENT_0,   // ascent only, beep at zero
+   VARIO_BEEPMODE_ASCENT_1,   // ascent only, beep at one
+   VARIO_BEEPMODE_BOTH,       // ascent and descent
    VARIO_BEEPMODE_MAX
 };
 
@@ -105,7 +113,7 @@ enum
 //
 // Clear statistics
 //
-static void
+static inline void
 _clear_stats( void )
 {
    G_vario.stats.vzmin = 0;
@@ -135,14 +143,12 @@ mx_vario(u8 line)
 	G_vario.beep_mode %= VARIO_BEEPMODE_MAX;
 	break;
       
-      case VARIO_VIEWMODE_PA:
-	break;
-
       case VARIO_VIEWMODE_VZMAX:
       case VARIO_VIEWMODE_VZMIN:
 	_clear_stats();
 	break;
 
+      case VARIO_VIEWMODE_PA:  // no settings for pressure display
       case VARIO_VIEWMODE_MAX:
 	break;
      }
@@ -186,46 +192,37 @@ int vario_p_read( u32 *retp )
 }
 
 //
-// This function could definitely take some work to produce a better sound...
+// Produce a sound depending on the ascent/descent rate.
 //
 void chirp( s16 pdiff )
 {
-   static struct 
-     {
-	s8 d;
-	u8 ticks;
-	u8 on_ms;
-	u8 off_ms;
-     } ctab[] = 
-     {
-	{   1, 1, 25, 25 },
-	{   2, 2, 25, 25 },
-	{   3, 3, 25, 25 },
-	{   4, 4, 25, 25 },
-	{   5, 5, 25, 25 },
-	{  11, 1, 50, 50 },
-	{  20, 2, 50, 50 },
-	{  30, 3, 50, 50 },
-	{  40, 1, 70, 70 },
-	{  50, 2, 70, 70 },
-	{  60, 3, 70, 70 },
-	{  70, 1, 100, 100 },
-	{  0,  2, 100, 100 }, // end of table
-     };
-   int i;
+   const u8 center_steps = 8;
+   const u8 range_steps  = 5;
+   u8 bsteps;
+   u8 nchirps;
+   u8 on_time;
 
-   // No descent tones until we can produce different tone frequencies.
-   if ( pdiff < 1 ) return;
+   //
+   // Buzzer steps (see driver/buzzer) 3..23 provide a frequency
+   // of 4096Hz..682Hz, well within the human audible range. But
+   // the lower frequencies have a rather faint volume, may not
+   // be ideal in flight. Using 3..13 (4096..1170Hz).
+   //
+   bsteps = center_steps - (pdiff % range_steps); // buzzer steps
+   if ( pdiff < 0 ) pdiff *= -1;                  // need positive value now
+   nchirps = 1 + (pdiff / range_steps);           // number of chirps.
 
-   for ( i = 0;
-	 ctab[i].d && (ctab[i].d < pdiff);
-	 ++i )
-     ;
+   //
+   // Make sure we make our noises in less than 1s, before the next
+   // update comes along.
+   //
+   if ( nchirps > 50 ) nchirps = 50;   // Wouah, 25m/s - up or down?
+   on_time = 500 / nchirps;            // 500ms on time max, same for off time
 
-   start_buzzer( ctab[i].ticks,
-		 CONV_MS_TO_TICKS( ctab[i].on_ms*2 ),
-		 CONV_MS_TO_TICKS( ctab[i].off_ms*2 ) );
-
+   start_buzzer_steps( nchirps, 
+		       CONV_MS_TO_TICKS( on_time ),
+		       CONV_MS_TO_TICKS( on_time ),
+		       bsteps );
 }
 
 //
@@ -237,23 +234,15 @@ static void
 _display_fraction( s32 value )
 {
    u8 *str;
-   u16 m;
+//   u16 m;
    int i;
    int is_neg;
-   
-   if ( value < 0 )
-     {
-	is_neg = 1;
+
+   is_neg = ( value < 0 );
+   if ( is_neg )
 	value *= -1;
-     }
-   else
-     {
-	is_neg = 0;
-     }
 
-   m = value / 100;
-
-   str = itoa( m, 4, 3 );
+   str = itoa( value, 6, 3 );
 
    for ( i = 0; (is_neg && (str[i] == ' ')); i++ )
      {
@@ -265,9 +254,6 @@ _display_fraction( s32 value )
 
    display_symbol( LCD_SEG_L2_DP, SEG_ON );
 
-   m = (u32)value - (u32)((u32)m*100);
-   str = itoa( m, 2, 0 );
-   display_chars( LCD_SEG_L2_1_0, str, SEG_ON );		       
 }
 
 //
@@ -282,14 +268,11 @@ _display_signed( int value )
    int i;
    int is_neg;
    
-   if ( value < 0 )
+   is_neg = ( value < 0 );
+   if ( is_neg )
      {
 	is_neg = 1;
 	value *= -1;
-     }
-   else
-     {
-	is_neg = 0;
      }
 
    str = itoa( value, 6, 5 );
@@ -337,14 +320,20 @@ display_vario( u8 line, u8 update )
 
 	stop_buzzer();
 	display_symbol( LCD_ICON_BEEPER1, SEG_OFF );
+	display_symbol( LCD_ICON_BEEPER2, SEG_OFF );
 	display_symbol( LCD_ICON_RECORD,  SEG_OFF );
 	display_symbol( LCD_SYMB_MAX,     SEG_OFF );
 	return;
 
       case DISPLAY_LINE_UPDATE_FULL:
 
-	display_symbol( LCD_ICON_BEEPER1, (G_vario.beep_mode) ? SEG_ON : SEG_OFF );
+	display_symbol( LCD_ICON_BEEPER1,
+			( G_vario.beep_mode ) ? SEG_ON : SEG_OFF );
 
+	display_symbol( LCD_ICON_BEEPER2,
+			(  ( G_vario.beep_mode == VARIO_BEEPMODE_ASCENT_0 )
+			|| ( G_vario.beep_mode == VARIO_BEEPMODE_BOTH ))
+			  ? SEG_ON : SEG_OFF );
 	//
 	// fall through to partial update
 	//
@@ -440,9 +429,20 @@ display_vario( u8 line, u8 update )
 	  } // switch view mode
 
 	// If beeper is enabled, beep.
-	if ( diff && G_vario.beep_mode )
+	switch ( G_vario.beep_mode )
 	  {
-	     chirp( diff );
+	   case VARIO_BEEPMODE_ASCENT_0:
+	     if ( diff >= 0 ) chirp( diff );
+	     break;
+	   case VARIO_BEEPMODE_ASCENT_1:
+	     if ( diff > 0 ) chirp( diff );
+	     break;
+	   case VARIO_BEEPMODE_BOTH:
+	     if ( diff ) chirp( diff );
+	     break;
+	   case VARIO_BEEPMODE_OFF:
+	   case VARIO_BEEPMODE_MAX:
+	     break;
 	  }
 	
 	// update previous pressure measurement.
