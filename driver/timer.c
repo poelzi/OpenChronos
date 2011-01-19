@@ -279,8 +279,10 @@ void Timer0_A4_Delay(u16 ticks)
 		// Service watchdog
 		WDTCTL = WDTPW + WDTIS__512K + WDTSSEL__ACLK + WDTCNTCL;
 #endif
+#ifdef CONFIG_STOP_WATCH
 		// Redraw stopwatch display
 		if (is_stopwatch_run()) display_stopwatch(LINE2, DISPLAY_LINE_UPDATE_PARTIAL);
+#endif
 
 		// Check stop condition
 		if (sys.flag.delay_over) break;
@@ -634,14 +636,18 @@ __interrupt void TIMER0_A1_5_ISR(void)
 					// Reset IRQ flag  
 					TA0CCTL2 &= ~CCIFG;  
 					// Load CCR register with next capture point
+#ifdef CONFIG_STOP_WATCH
 					update_stopwatch_timer();
+#endif
 #ifdef CONFIG_EGGTIMER
 					update_eggtimer_timer();
 #endif
 					// Enable timer interrupt    
 					TA0CCTL2 |= CCIE; 	
 					// Increase stopwatch counter
+#ifdef CONFIG_STOP_WATCH
 					stopwatch_tick();
+#endif
 #ifdef CONFIG_EGGTIMER
 					eggtimer_tick();
 #endif

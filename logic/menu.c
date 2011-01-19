@@ -118,10 +118,12 @@ u8 update_time(void)
 {
 	return (display.flag.update_time);
 }
+#ifdef CONFIG_STOP_WATCH
 u8 update_stopwatch(void)
 {
 	return (display.flag.update_stopwatch);
 }
+#endif
 u8 update_date(void)
 {
 	return (display.flag.update_date);
@@ -279,6 +281,7 @@ const struct menu menu_L2_Vario =
 #endif
 
 // Line2 - Stopwatch
+#ifdef CONFIG_STOP_WATCH
 const struct menu menu_L2_Stopwatch =
 {
 	FUNCTION(sx_stopwatch),		// direct function
@@ -287,6 +290,7 @@ const struct menu menu_L2_Stopwatch =
 	FUNCTION(display_stopwatch),// display function
 	FUNCTION(update_stopwatch),	// new display data
 };
+#endif
 #ifdef CONFIG_EGGTIMER
 //  Line2 - Eggtimer (Counts down from set time)
 const struct menu menu_L2_Eggtimer =
@@ -454,7 +458,9 @@ const struct menu *menu_L2[]={
 	#ifdef CONFIG_VARIO
 	&menu_L2_Vario,
 	#endif
+	#ifdef CONFIG_STOP_WATCH
 	&menu_L2_Stopwatch,
+	#endif
 	#ifdef CONFIG_EGGTIMER
 	&menu_L2_Eggtimer,
 	#endif
