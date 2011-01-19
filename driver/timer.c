@@ -342,8 +342,10 @@ __interrupt void TIMER0_A0_ISR(void)
 	// Service modules that require 1/min processing
 	if (sTime.drawFlag >= 2) 
 	{
+		#ifdef CONFIG_BATTERY
 		// Measure battery voltage to keep track of remaining battery life
 		request.flag.voltage_measurement = 1;
+		#endif
 		
 		#ifdef CONFIG_ALARM
 		// Check if alarm needs to be turned on
@@ -434,6 +436,7 @@ __interrupt void TIMER0_A0_ISR(void)
 	if (is_bluerobin()) get_bluerobin_data();
 #endif
 	
+	#ifdef CONFIG_BATTERY
 	// If battery is low, decrement display counter
 	if (sys.flag.low_battery)
 	{
@@ -444,6 +447,7 @@ __interrupt void TIMER0_A0_ISR(void)
 			sBatt.lobatt_display = BATTERY_LOW_MESSAGE_CYCLE;
 		}
 	}
+	#endif
 	
 	// If a message has to be displayed, set display flag
 	if (message.all_flags)

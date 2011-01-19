@@ -131,10 +131,12 @@ u8 update_temperature(void)
 {
 	return (display.flag.update_temperature);
 }
+#ifdef CONFIG_BATTERY
 u8 update_battery_voltage(void)
 {
 	return (display.flag.update_battery_voltage);
 }
+#endif
 u8 update_acceleration(void)
 {
 	return (display.flag.update_acceleration);
@@ -292,6 +294,7 @@ const struct menu menu_L2_Eggtimer =
 };
 #endif
 // Line2 - Battery 
+#ifdef CONFIG_BATTERY
 const struct menu menu_L2_Battery =
 {
 	FUNCTION(dummy),					// direct function
@@ -300,6 +303,7 @@ const struct menu menu_L2_Battery =
 	FUNCTION(display_battery_V),		// display function
 	FUNCTION(update_battery_voltage),	// new display data
 };
+#endif
 #ifdef CONFIG_PHASE_CLOCK
 // Line2 - ACC (acceleration data + button events via SimpliciTI)
 const struct menu menu_L2_Phase =
@@ -424,7 +428,9 @@ const struct menu *menu_L2[]={
 	#ifdef CONFIG_EGGTIMER
 	&menu_L2_Eggtimer,
 	#endif
+	#ifdef CONFIG_BATTERY
 	&menu_L2_Battery,
+	#endif
 	#ifdef CONFIG_PHASE_CLOCK
 	&menu_L2_Phase,
 	#endif
