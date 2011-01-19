@@ -305,12 +305,15 @@ __interrupt void PORT2_ISR(void)
 	if (buzzer)
 	{
 		// Any button event stops active alarm
+		#ifdef CONFIG_ALARM
 		if (sAlarm.state == ALARM_ON) 
 		{
 			stop_alarm();
 			button.all_flags = 0;
 		}
-		else if (!sys.flag.up_down_repeat_enabled && !sys.flag.no_beep)
+		else 
+		#endif
+		if (!sys.flag.up_down_repeat_enabled && !sys.flag.no_beep)
 		{
 			start_buzzer(1, CONV_MS_TO_TICKS(20), CONV_MS_TO_TICKS(150));
 		}

@@ -701,8 +701,10 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										sDate.year 			= (simpliciti_data[4]<<8) + simpliciti_data[5];
 										sDate.month 		= simpliciti_data[6];
 										sDate.day 			= simpliciti_data[7];
+										#ifdef CONFIG_ALARM
 										sAlarm.hour			= simpliciti_data[8];
 										sAlarm.minute		= simpliciti_data[9];
+										#endif
 										// Set temperature and temperature offset
 										t1 = (s16)((simpliciti_data[10]<<8) + simpliciti_data[11]);
 										offset = t1 - (sTemp.degrees - sTemp.offset);
@@ -780,8 +782,13 @@ void simpliciti_sync_get_data_callback(unsigned int index)
 										simpliciti_data[5]  = sDate.year & 0xFF;
 										simpliciti_data[6]  = sDate.month;
 										simpliciti_data[7]  = sDate.day;
+										#ifdef CONFIG_ALARM
 										simpliciti_data[8]  = sAlarm.hour;
 										simpliciti_data[9]  = sAlarm.minute;
+										#else
+										simpliciti_data[8]  = 4;
+										simpliciti_data[9]  = 30;
+										#endif
 										simpliciti_data[10] = sTemp.degrees >> 8;
 										simpliciti_data[11] = sTemp.degrees & 0xFF;
 #ifdef CONFIG_ALTITUDE

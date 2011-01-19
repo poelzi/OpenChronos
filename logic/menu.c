@@ -126,10 +126,12 @@ u8 update_date(void)
 {
 	return (display.flag.update_date);
 }
+#ifdef CONFIG_ALARM
 u8 update_alarm(void)
 {
 	return (display.flag.update_alarm);
 }
+#endif
 u8 update_temperature(void)
 {
 	return (display.flag.update_temperature);
@@ -188,6 +190,7 @@ const struct menu menu_L1_Sidereal =
 #endif
 
 // Line1 - Alarm
+#ifdef CONFIG_ALARM
 const struct menu menu_L1_Alarm =
 {
 	FUNCTION(sx_alarm),			// direct function
@@ -196,6 +199,7 @@ const struct menu menu_L1_Alarm =
 	FUNCTION(display_alarm),	// display function
 	FUNCTION(update_alarm),		// new display data
 };
+#endif
 // Line1 - Temperature
 const struct menu menu_L1_Temperature =
 {
@@ -423,7 +427,9 @@ const struct menu *menu_L1[]={
 	#ifdef CONFIG_SIDEREAL
 	&menu_L1_Sidereal,
 	#endif
+	#ifdef CONFIG_ALARM
 	&menu_L1_Alarm,
+	#endif
 	&menu_L1_Temperature,
 	#ifdef CONFIG_ALTITUDE
 	&menu_L1_Altitude,

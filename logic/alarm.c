@@ -41,6 +41,7 @@
 
 // system
 #include "project.h"
+#ifdef CONFIG_ALARM
 
 // driver
 #include "display.h"
@@ -268,3 +269,4 @@ void display_alarm(u8 line, u8 update)
 	  }
 	}
 }
+#endif /* CONFIG_ALARM */
