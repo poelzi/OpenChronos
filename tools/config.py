@@ -40,14 +40,14 @@ DATA["OPTION_TIME_DISPLAY"] = {
 }
 
 DATA["CONFIG_METRIC_ONLY"] = {
-        "name": "Metric only code",
+        "name": "Metric only code (-286 bytes)",
         "depends": [],
         "default": False,
         "help": "Only add code for Metric units (meter/celsius) to reduce image size",
 }
 
 DATA["FIXEDPOINT"] = {
-        "name": "Fixedpoint",
+        "name": "Fixedpoint (-5078 bytes)",
         "depends": [],
         "default": False,
         "help": "Tries to use fix point aritmetric. If no module is using it, it reduces the code size dramaticly. EXPERIMENTAL",
@@ -63,13 +63,13 @@ DATA["THIS_DEVICE_ADDRESS"] = {
 
 
 DATA["USE_LCD_CHARGE_PUMP"] = {
-        "name": "Use LCD Charge Pump",
+        "name": "Use LCD Charge Pump (6 bytes)",
         "default": False,
         "help": "Use the internal charge pump to make the display contrast contstant through the whole battery lifetime. As a downside this increases currency and reduces battery lifetime.",
 }
 
 DATA["USE_WATCHDOG"] = {
-        "name": "Use Watchdog",
+        "name": "Use Watchdog (20 bytes)",
         "default": True,
         "help": "Protects the clock against deadlocks by rebooting it.",
 }
@@ -91,14 +91,14 @@ DATA["DEBUG"] = {
 # modules
 
 DATA["CONFIG_DAY_OF_WEEK"] = {
-        "name": "Date: Day of Week",
+        "name": "Date: Day of Week (496 bytes)",
         "depends": [],
         "default": True,
         "help": "Shows day of week on the date module",
 }
 
 DATA["CONFIG_TEST"] = {
-        "name": "Test Mode",
+        "name": "Test Mode (614 bytes)",
         "depends": [],
         "default": True,
         "help": "Test module to test some functionalities when the clock started",
@@ -112,14 +112,14 @@ DATA["TEXT_MODULES"] = {
 #### MODULES ####
 
 DATA["CONFIG_EGGTIMER"] = {
-        "name": "Eggtimer",
+        "name": "Eggtimer (1524 bytes)",
         "depends": [],
         "default": False,
         "help": "Countdown timer to count down from 1 minute - 20 hours to 0 and start an alarm",
 }
 
 DATA["CONFIG_PHASE_CLOCK"] = {
-        "name": "Phase Clock",
+        "name": "Phase Clock (918 bytes)",
         "depends": [],
         "default": False,
         "help": "Messures sleep phase by recording body movement and sending the data to the accesspoint.\n"
@@ -127,7 +127,7 @@ DATA["CONFIG_PHASE_CLOCK"] = {
 }
 
 DATA["CONFIG_ALTITUDE"] = {
-        "name": "Altitude",
+        "name": "Altitude (1202 bytes)",
         "depends": [],
         "default": True,
         "help": "Messures altitude"
@@ -135,18 +135,18 @@ DATA["CONFIG_ALTITUDE"] = {
 
 
 DATA["CONFIG_VARIO"] = {
-        "name": "Combined with alti, gives vertical speed",
+        "name": "Combined with alti, gives vertical speed (478 bytes)",
         "depends": [],
         "default": False}
 
 DATA["CONFIG_PROUT"] = {
-        "name": "Simple example that displays a text",
+        "name": "Simple example that displays a text (238 bytes)",
         "depends": [],
         "default": False}
 
 
 DATA["CONFIG_SIDEREAL"] = {
-        "name": "Sidereal Time Clock",
+        "name": "Sidereal Time Clock (3418 bytes)",
         "depends": [],
         "default": False,
         "help": "Calculate and show local sidereal time (accurate to ~5s).\n"
@@ -156,7 +156,7 @@ DATA["CONFIG_SIDEREAL"] = {
 
 
 DATA["CONFIG_INFOMEM"] = {
-        "name": "Information Memory Driver",
+        "name": "Information Memory Driver (2934 bytes, requires sidereal clock)",
         "depends": [],
         "default": False,
         "help": "Build driver for usage of the Information Memory.\n"
@@ -165,14 +165,14 @@ DATA["CONFIG_INFOMEM"] = {
 
 
 DATA["CONFIG_ACCEL"] = {
-        "name": "Acceleration",
+        "name": "Acceleration (1232 bytes)",
         "depends": [],
         "default": True,
         "help": "Acceleration applications (display and transmission). When no other application uses the acceleration sensor, it is disabled completely"
         }
 
 DATA["CONFIG_STRENGTH"] = {
-    "name": "Strength training timer",
+    "name": "Strength training timer (380 bytes)",
     "depends": [],
     "default": False,
     "help": "Timer for strength training studios which have you perform repetitions for 90 seconds, e.g. Kieser Training"
@@ -180,11 +180,11 @@ DATA["CONFIG_STRENGTH"] = {
 
 # not yet working
 DATA["CONFIG_ALARM"] = {
-        "name": "Alarm",
+        "name": "Alarm (608 bytes)",
         "depends": [],
         "default": True}
 DATA["CONFIG_BATTERY"] = {
-        "name": "Battery",
+        "name": "Battery (360 bytes)",
         "depends": [],
         "default": True}
 DATA["CONFIG_CLOCK"] = {
@@ -200,7 +200,7 @@ DATA["CONFIG_RFBSL"] = {
         "depends": [],
         "default": True}
 DATA["CONFIG_STOP_WATCH"] = {
-        "name": "Stop Watch",
+        "name": "Stop Watch (1202 bytes)",
         "depends": [],
         "default": True}
 DATA["CONFIG_TEMP"] = {
