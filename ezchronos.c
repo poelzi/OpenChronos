@@ -379,8 +379,10 @@ void init_global_variables(void)
 	// Set buzzer to default value
 	reset_buzzer();
 	
+#ifdef CONFIG_STOP_WATCH
 	// Reset stopwatch
 	reset_stopwatch();
+#endif
 	
 	// Reset altitude measurement
 #ifdef CONFIG_ALTITUDE

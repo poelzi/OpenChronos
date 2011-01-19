@@ -41,6 +41,7 @@
 
 // system
 #include "project.h"
+#ifdef CONFIG_STOP_WATCH
 #include <string.h>
 
 // driver
@@ -526,3 +527,4 @@ void display_stopwatch(u8 line, u8 update)
 		// Clean up symbols when leaving function
 	}
 }
+#endif /* CONFIG_STOP_WATCH */

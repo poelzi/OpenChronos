@@ -229,6 +229,7 @@ __interrupt void PORT2_ISR(void)
 				
 				if( !sys.flag.lock_buttons)
 				{
+					#ifdef CONFIG_STOP_WATCH
 					// Faster reaction for stopwatch split button press
 					if (is_stopwatch_run())
 					{
@@ -236,6 +237,7 @@ __interrupt void PORT2_ISR(void)
 						button.flag.num = 0;
 						
 					}
+					#endif
 				}
 			}
 		}
@@ -266,6 +268,7 @@ __interrupt void PORT2_ISR(void)
 				
 				if( !sys.flag.lock_buttons)
 				{
+					#ifdef CONFIG_STOP_WATCH
 					// Faster reaction for stopwatch stop button press
 					if (is_stopwatch_run())
 					{
@@ -278,6 +281,7 @@ __interrupt void PORT2_ISR(void)
 						start_stopwatch();
 						button.flag.down = 0;
 					}
+					#endif
 				}
 			}
 		}
