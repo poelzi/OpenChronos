@@ -200,7 +200,7 @@ void chirp( s16 pdiff )
    const u8 range_steps  = 5;
    u8 bsteps;
    u8 nchirps;
-   u8 on_time;
+   u16 on_time;
 
    //
    // Buzzer steps (see driver/buzzer) 3..23 provide a frequency
@@ -217,11 +217,11 @@ void chirp( s16 pdiff )
    // update comes along.
    //
    if ( nchirps > 50 ) nchirps = 50;   // Wouah, 25m/s - up or down?
-   on_time = 500 / nchirps;            // 500ms on time max, same for off time
+   on_time = 500 / nchirps;            // 500ms on time max, half for off time
 
    start_buzzer_steps( nchirps, 
 		       CONV_MS_TO_TICKS( on_time ),
-		       CONV_MS_TO_TICKS( on_time ),
+		       CONV_MS_TO_TICKS( on_time / 2 ),
 		       bsteps );
 }
 
