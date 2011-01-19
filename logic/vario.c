@@ -453,6 +453,7 @@ display_vario( u8 line, u8 update )
    else
      {
 	display_chars(LCD_SEG_L2_5_0, (u8*) " NOALT", SEG_ON);
+	_idone = 0; // avoid false peaks when re-enabling the altimeter
      }
 }
 
