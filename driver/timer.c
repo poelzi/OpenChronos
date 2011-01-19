@@ -345,13 +345,16 @@ __interrupt void TIMER0_A0_ISR(void)
 		// Measure battery voltage to keep track of remaining battery life
 		request.flag.voltage_measurement = 1;
 		
+		#ifdef CONFIG_ALARM
 		// Check if alarm needs to be turned on
 		check_alarm();
+		#endif
 	}
 
 	// -------------------------------------------------------------------
 	// Service active modules that require 1/s processing
 	
+	#ifdef CONFIG_ALARM  // N8VI NOTE eventually, eggtimer should use this code too
 	// Generate alarm signal
 	if (sAlarm.state == ALARM_ON) 
 	{
@@ -366,6 +369,7 @@ __interrupt void TIMER0_A0_ISR(void)
 			stop_alarm();
 		}
 	}
+	#endif
 
 #ifdef CONFIG_PROUT
         if (is_prout()) prout_tick();

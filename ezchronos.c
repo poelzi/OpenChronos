@@ -372,8 +372,10 @@ void init_global_variables(void)
 	reset_sidereal_clock();
 	#endif
 	
+	#ifdef CONFIG_ALARM
 	// Set alarm time to default value 
 	reset_alarm();
+	#endif
 	
 	// Set buzzer to default value
 	reset_buzzer();
@@ -578,8 +580,10 @@ void process_requests(void)
 	// Do voltage measurement
 	if (request.flag.voltage_measurement) battery_measurement();
 	
+	#ifdef CONFIG_ALARM  // N8VI NOTE eggtimer may want in on this
 	// Generate alarm (two signals every second)
 	if (request.flag.buzzer) start_buzzer(2, BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
+	#endif
 	
 #ifdef CONFIG_STRENGTH
 	if (request.flag.strength_buzzer && strength_data.num_beeps != 0) 
@@ -645,6 +649,7 @@ void display_update(void)
 		else if (message.flag.type_lobatt)		memcpy(string, "LOBATT", 6);
 		else if (message.flag.type_no_beep_on)  memcpy(string, " SILNC", 6);
 		else if (message.flag.type_no_beep_off) memcpy(string, "  BEEP", 6);
+		#ifdef CONFIG_ALARM 
 		else if (message.flag.type_alarm_on)	
 		{
 			memcpy(string, "  ON", 4);
@@ -655,6 +660,7 @@ void display_update(void)
 			memcpy(string, " OFF", 4);
 			line = LINE1;
 		}
+		#endif
         
 		
 		// Clear previous content
