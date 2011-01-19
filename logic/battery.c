@@ -41,6 +41,7 @@
 
 // system
 #include "project.h"
+#ifdef CONFIG_BATTERY
 
 // driver
 #include "display.h"
@@ -192,4 +193,4 @@ void display_battery_V(u8 line, u8 update)
 }
 
 
-
+#endif /* CONFIG_BATTERY */

@@ -62,7 +62,6 @@
 #include "battery.h"
 #include "temperature.h"
 #include "altitude.h"
-#include "battery.h"
 #ifdef FEATURE_PROVIDE_ACCEL
 #include "acceleration.h"
 #endif
@@ -420,9 +419,11 @@ void init_global_variables(void)
 	// Reset temperature measurement 
 	reset_temp_measurement();
 
+	#ifdef CONFIG_BATTERY
 	// Reset battery measurement
 	reset_batt_measurement();
 	battery_measurement();
+	#endif
 }
 
 
@@ -573,8 +574,10 @@ void process_requests(void)
 	if (request.flag.acceleration_measurement) do_acceleration_measurement();
 	#endif
 	
+	#ifdef CONFIG_BATTERY
 	// Do voltage measurement
 	if (request.flag.voltage_measurement) battery_measurement();
+	#endif
 	
 	#ifdef CONFIG_ALARM  // N8VI NOTE eggtimer may want in on this
 	// Generate alarm (two signals every second)
@@ -752,7 +755,9 @@ void read_calibration_values(void)
 		// If no values are available (i.e. INFO D memory has been erased by user), assign experimentally derived values	
 		rf_frequoffset	= 4;
 		sTemp.offset 	= -250;
+		#ifdef CONFIG_BATTERY
 		sBatt.offset 	= -10;	
+		#endif
 		simpliciti_ed_address[0] = sMyROMAddress.addr[0];
 		simpliciti_ed_address[1] = sMyROMAddress.addr[1];
 		simpliciti_ed_address[2] = sMyROMAddress.addr[2];
@@ -771,7 +776,9 @@ void read_calibration_values(void)
 			rf_frequoffset = 0;
 		} 
 		sTemp.offset 	= (s16)((cal_data[2] << 8) + cal_data[3]);
+		#ifdef CONFIG_BATTERY
 		sBatt.offset 	= (s16)((cal_data[4] << 8) + cal_data[5]);
+		#endif
 		simpliciti_ed_address[0] = cal_data[6];
 		simpliciti_ed_address[1] = cal_data[7];
 		simpliciti_ed_address[2] = cal_data[8];
