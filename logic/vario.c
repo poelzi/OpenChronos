@@ -62,6 +62,7 @@
 #include "buzzer.h"
 
 // logic
+#include "altitude.h"
 #include "vario.h"
 
 //
@@ -82,6 +83,7 @@ struct
      {
 	s16 vzmin; // Vz min in Pascal
 	s16 vzmax; // Vz max in Pascal
+	u16 altmax; // altitude max
      } stats;
 } G_vario;
 
@@ -107,6 +109,7 @@ enum
    VARIO_VIEWMODE_PA,         // Display current pressure
    VARIO_VIEWMODE_VZMAX,      // Max Vario (positive)
    VARIO_VIEWMODE_VZMIN,      // Max Vario (positive)
+   VARIO_VIEWMODE_ALT_MAX,    // Max altitude
    VARIO_VIEWMODE_MAX
 };
 
@@ -118,6 +121,7 @@ _clear_stats( void )
 {
    G_vario.stats.vzmin = 0;
    G_vario.stats.vzmax = 0;
+   G_vario.stats.altmax = 0;
 }
 
 // "v" button press changes display mode
@@ -142,7 +146,8 @@ mx_vario(u8 line)
 	G_vario.beep_mode++;
 	G_vario.beep_mode %= VARIO_BEEPMODE_MAX;
 	break;
-      
+
+      case VARIO_VIEWMODE_ALT_MAX:
       case VARIO_VIEWMODE_VZMAX:
       case VARIO_VIEWMODE_VZMIN:
 	_clear_stats();
@@ -353,6 +358,10 @@ display_vario( u8 line, u8 update )
 
 	     if ( diff > G_vario.stats.vzmax ) G_vario.stats.vzmax = diff;
 	     if ( diff < G_vario.stats.vzmin ) G_vario.stats.vzmin = diff;
+
+	     // Peek at current altitude in altimeter data.
+	     if ( G_vario.stats.altmax < sAlt.altitude )
+	       G_vario.stats.altmax = sAlt.altitude;
 	  }
 
 
@@ -395,6 +404,11 @@ display_vario( u8 line, u8 update )
 	   case VARIO_VIEWMODE_VZMIN:
 	     display_symbol( LCD_SYMB_MAX, SEG_ON);
 	     _display_signed( _pascal_to_vz( G_vario.stats.vzmin ), 1 );
+	     break;
+
+	   case VARIO_VIEWMODE_ALT_MAX:
+	     display_symbol( LCD_SYMB_MAX, SEG_ON);
+	     _display_signed( G_vario.stats.altmax, 0 );
 	     break;
 
 	   case VARIO_VIEWMODE_MAX:

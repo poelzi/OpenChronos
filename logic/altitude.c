@@ -247,17 +247,17 @@ void do_altitude_measurement(u8 filter)
 		sAlt.pressure = pressure;
 	}
 
-#ifdef CONFIG_VARIO
-   // Stash a copy to the vario after filtering. If doing so before, there
-   // is just too much unnecessary fluctuation, up to +/- 7Pa seen.
-   vario_p_write( pressure );
-#endif
-	
 	// Convert pressure (Pa) and temperature (?K) to altitude (m).
 #ifdef FIXEDPOINT
 	sAlt.altitude = conv_pa_to_altitude(sAlt.pressure, sAlt.temperature);
 #else
     sAlt.altitude = conv_pa_to_meter(sAlt.pressure, sAlt.temperature);
+#endif
+
+#ifdef CONFIG_VARIO
+   // Stash a copy to the vario after filtering. If doing so before, there
+   // is just too much unnecessary fluctuation, up to +/- 7Pa seen.
+   vario_p_write( pressure );
 #endif
 }
 
