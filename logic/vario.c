@@ -331,6 +331,22 @@ _pascal_to_vz( s32 pa )
 }
 
 //
+// Common function to turn off various symbols we use in our view modes.
+//
+void
+_display_l2_clean( void ) 
+{
+#if ( VARIO_VZ || VARIO_ALTMAX ) 
+   display_symbol( LCD_SYMB_MAX, SEG_OFF);
+#endif
+
+#if VARIO_F_TIME
+   display_symbol(LCD_SEG_L2_COL1, SEG_OFF);
+   display_symbol(LCD_SEG_L2_COL0, SEG_OFF);
+#endif
+}
+
+//
 // Vario display update function. Theorethically called once per second.
 // In practice, this also gets called on button presses, so careful if
 // you rely on it for a 1Hz frequency.
@@ -352,9 +368,7 @@ display_vario( u8 line, u8 update )
 	display_symbol( LCD_ICON_BEEPER1, SEG_OFF );
 	display_symbol( LCD_ICON_BEEPER2, SEG_OFF );
 	display_symbol( LCD_ICON_RECORD,  SEG_OFF );
-#if ( VARIO_VZ || VARIO_ALTMAX ) 
-	display_symbol( LCD_SYMB_MAX,     SEG_OFF );
-#endif
+	_display_l2_clean();
 	return;
 
       case DISPLAY_LINE_UPDATE_FULL:
@@ -439,19 +453,11 @@ display_vario( u8 line, u8 update )
 #endif
 	  }
 
-
+	_display_l2_clean();
 	// Pulse the vario heartbeat indicator.
 	++_vbeat;
 	display_symbol( LCD_ICON_RECORD, ( _vbeat & 1 ) ? SEG_ON : SEG_OFF );
-
-#if ( VARIO_VZ || VARIO_ALTMAX ) 
-	display_symbol( LCD_SYMB_MAX, SEG_OFF);
-#endif
-
-#if VARIO_F_TIME
-	display_symbol(LCD_SEG_L2_COL1, SEG_OFF);
-	display_symbol(LCD_SEG_L2_COL0, SEG_OFF);
-#endif
+	
 	// Now see what value to display.
 
 	switch( G_vario.view_mode )
@@ -535,6 +541,7 @@ display_vario( u8 line, u8 update )
      } // L1 is in altimeter mode
    else
      {
+	_display_l2_clean();
 	display_chars(LCD_SEG_L2_5_0, (u8*) " NOALT", SEG_ON);
 	_idone = 0; // avoid false peaks when re-enabling the altimeter
      }
