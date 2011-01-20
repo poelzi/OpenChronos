@@ -68,7 +68,12 @@
 //
 // Module internal definitions.
 //
-
+// Vario compile time options, saving space if needed.
+#define VARIO_ALT_PA 0 /*  32 bytes - display vario in Pascal */
+#define VARIO_PA     1 /*  30 bytes - display pressure in hPa */
+#define VARIO_VZ     1 /* 110 bytes - display Vz min/ max     */
+#define VARIO_ALTMAX 1 /*  64 bytes - display max altitude    */
+#define VARIO_F_TIME 1 /* 216 bytes - display flight time     */
 //
 // Global struct with all our variables.
 //
@@ -81,9 +86,20 @@ struct
    u8 beep_mode;  // beeper mode, controlled by "#" key
    struct
      {
+#if VARIO_VZ
 	s16 vzmin; // Vz min in Pascal
 	s16 vzmax; // Vz max in Pascal
-	u16 altmax; // altitude max
+#endif
+#if VARIO_ALTMAX
+	u16 altmax; // altitude max - 32767m should be enough.
+#endif
+#if VARIO_F_TIME
+	struct {
+	   u8 hh;    // 00-99
+	   u8 mm;    // 00-59
+	   u8 ss;    // 00-59
+	   } f_time; // flight time
+#endif
      } stats;
 } G_vario;
 
@@ -105,11 +121,22 @@ enum
 enum 
 {
    VARIO_VIEWMODE_ALT_M = 0,  // Vario in m/s, default view mode
+#if VARIO_ALT_PA
    VARIO_VIEWMODE_ALT_PA,     // Vario in Pascal
+#endif
+#if VARIO_PA
    VARIO_VIEWMODE_PA,         // Display current pressure
+#endif
+#if VARIO_VZ
    VARIO_VIEWMODE_VZMAX,      // Max Vario (positive)
    VARIO_VIEWMODE_VZMIN,      // Max Vario (positive)
+#endif
+#if VARIO_ALTMAX
    VARIO_VIEWMODE_ALT_MAX,    // Max altitude
+#endif
+#if VARIO_F_TIME
+   VARIO_VIEWMODE_F_TIME,     // Flight time (since stats reset)
+#endif
    VARIO_VIEWMODE_MAX
 };
 
@@ -119,9 +146,22 @@ enum
 static inline void
 _clear_stats( void )
 {
+#if 0000 // We save 10 bytes by using memset() if VZ, ALTMAX and F_TIME are enabled. 
+#if VARIO_VZ
    G_vario.stats.vzmin = 0;
    G_vario.stats.vzmax = 0;
+#endif
+#if VARIO_ALTMAX
    G_vario.stats.altmax = 0;
+#endif
+#if VARIO_F_TIME
+   G_vario.stats.f_time.hh = 0;
+   G_vario.stats.f_time.mm = 0;
+   G_vario.stats.f_time.ss = 0;
+#endif
+#else  // initialise individual fields or use memset ?
+   memset( &G_vario.stats, 0, sizeof( G_vario.stats ) );
+#endif // using memset.
 }
 
 // "v" button press changes display mode
@@ -142,18 +182,29 @@ mx_vario(u8 line)
    switch( G_vario.view_mode )
      {
       case VARIO_VIEWMODE_ALT_M:
+#if VARIO_ALT_PA
       case VARIO_VIEWMODE_ALT_PA:
+#endif
 	G_vario.beep_mode++;
 	G_vario.beep_mode %= VARIO_BEEPMODE_MAX;
 	break;
 
-      case VARIO_VIEWMODE_ALT_MAX:
+#if VARIO_VZ
       case VARIO_VIEWMODE_VZMAX:
       case VARIO_VIEWMODE_VZMIN:
+#endif
+# if VARIO_ALTMAX
+      case VARIO_VIEWMODE_ALT_MAX:
+#endif
+#if VARIO_F_TIME
+      case VARIO_VIEWMODE_F_TIME:
+#endif
 	_clear_stats();
 	break;
 
+#if VARIO_PA
       case VARIO_VIEWMODE_PA:  // no settings for pressure display
+#endif
       case VARIO_VIEWMODE_MAX:
 	break;
      }
@@ -301,7 +352,9 @@ display_vario( u8 line, u8 update )
 	display_symbol( LCD_ICON_BEEPER1, SEG_OFF );
 	display_symbol( LCD_ICON_BEEPER2, SEG_OFF );
 	display_symbol( LCD_ICON_RECORD,  SEG_OFF );
+#if ( VARIO_VZ || VARIO_ALTMAX ) 
 	display_symbol( LCD_SYMB_MAX,     SEG_OFF );
+#endif
 	return;
 
       case DISPLAY_LINE_UPDATE_FULL:
@@ -319,7 +372,26 @@ display_vario( u8 line, u8 update )
       case DISPLAY_LINE_UPDATE_PARTIAL:
 	break;
      }
-   
+
+#if VARIO_F_TIME
+   // Update flight time regardless of whether we do have an altitude.
+
+   G_vario.stats.f_time.ss++;
+   if ( G_vario.stats.f_time.ss > 59 )
+     {
+	G_vario.stats.f_time.ss = 0;
+	G_vario.stats.f_time.mm++;
+	if ( G_vario.stats.f_time.mm > 59 )
+	  {
+	     G_vario.stats.f_time.ss = 0;
+	     G_vario.stats.f_time.hh++;
+	  }
+	// Never mind if hours exceeds 24... but reset after 99 !
+	if ( G_vario.stats.f_time.hh > 99 )
+	  G_vario.stats.f_time.hh = 0;
+     }
+#endif
+
    //
    // Partial or full update. Make sure pressure sensor is being sampled, ie,
    // that line 1 is in altimeter mode.
@@ -327,7 +399,6 @@ display_vario( u8 line, u8 update )
 
    if ( is_altitude_measurement() )
      {
-	u8 *str;
 	s16 diff;
 
 	if ( vario_p_read( &pressure ) )
@@ -354,14 +425,18 @@ display_vario( u8 line, u8 update )
 	     // 
 	     diff = G_vario.prev_pa - pressure;
 
+#if VARIO_VZ
 	     // update stats as we may want to see these after the flight.
 
 	     if ( diff > G_vario.stats.vzmax ) G_vario.stats.vzmax = diff;
 	     if ( diff < G_vario.stats.vzmin ) G_vario.stats.vzmin = diff;
+#endif
 
+#if VARIO_ALTMAX
 	     // Peek at current altitude in altimeter data.
 	     if ( G_vario.stats.altmax < sAlt.altitude )
 	       G_vario.stats.altmax = sAlt.altitude;
+#endif
 	  }
 
 
@@ -369,8 +444,14 @@ display_vario( u8 line, u8 update )
 	++_vbeat;
 	display_symbol( LCD_ICON_RECORD, ( _vbeat & 1 ) ? SEG_ON : SEG_OFF );
 
+#if ( VARIO_VZ || VARIO_ALTMAX ) 
 	display_symbol( LCD_SYMB_MAX, SEG_OFF);
+#endif
 
+#if VARIO_F_TIME
+	display_symbol(LCD_SEG_L2_COL1, SEG_OFF);
+	display_symbol(LCD_SEG_L2_COL0, SEG_OFF);
+#endif
 	// Now see what value to display.
 
 	switch( G_vario.view_mode )
@@ -382,20 +463,23 @@ display_vario( u8 line, u8 update )
 	     _display_signed( _pascal_to_vz( diff ), 1 );
 	     break;
 
+#if VARIO_ALT_PA
 	   case VARIO_VIEWMODE_ALT_PA:
 	     //
 	     // display raw difference in Pascal.
 	     //
 	     _display_signed( diff, 0 );
 	     break;
-
+#endif
+#if VARIO_PA
 	   case VARIO_VIEWMODE_PA:
 	     //
 	     // display pressure as hhhh.pp (hPa and Pa)
 	     //
 	     _display_signed( pressure, 1 );
 	     break;
-
+#endif
+#if VARIO_VZ
 	   case VARIO_VIEWMODE_VZMAX:
 	     display_symbol( LCD_SYMB_MAX, SEG_ON);
 	     _display_signed( _pascal_to_vz( G_vario.stats.vzmax ), 1  );
@@ -405,12 +489,23 @@ display_vario( u8 line, u8 update )
 	     display_symbol( LCD_SYMB_MAX, SEG_ON);
 	     _display_signed( _pascal_to_vz( G_vario.stats.vzmin ), 1 );
 	     break;
+#endif
 
+#if VARIO_ALTMAX
 	   case VARIO_VIEWMODE_ALT_MAX:
 	     display_symbol( LCD_SYMB_MAX, SEG_ON);
 	     _display_signed( G_vario.stats.altmax, 0 );
 	     break;
-
+#endif
+#if VARIO_F_TIME
+	   case VARIO_VIEWMODE_F_TIME:
+	     display_chars(LCD_SEG_L2_5_0, itoa(G_vario.stats.f_time.hh,2,0), SEG_ON);
+	     display_chars(LCD_SEG_L2_3_0, itoa(G_vario.stats.f_time.mm,2,0), SEG_ON);
+	     display_chars(LCD_SEG_L2_1_0, itoa(G_vario.stats.f_time.ss,2,0), SEG_ON);
+	     display_symbol(LCD_SEG_L2_COL1, SEG_ON);
+	     display_symbol(LCD_SEG_L2_COL0, SEG_ON);
+	     break;
+#endif
 	   case VARIO_VIEWMODE_MAX:
 	     break;
 
