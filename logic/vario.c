@@ -226,43 +226,15 @@ void chirp( s16 pdiff )
 }
 
 //
-// _display_fraction() - display a fraction on the second line, nnnn.nn
+// _display_signed() - display a signed value on the second line.
+// 
+// If is_fraction is false, display value on the second line, nnnnnn
+// Otherwise display value as fraction on the second line, nnnn.nn
 // 
 // Used to display pressure (in Pascal) as hPa and cm/s as m/s.
 //
 static void
-_display_fraction( s32 value )
-{
-   u8 *str;
-//   u16 m;
-   int i;
-   int is_neg;
-
-   is_neg = ( value < 0 );
-   if ( is_neg )
-	value *= -1;
-
-   str = itoa( value, 6, 3 );
-
-   for ( i = 0; (is_neg && (str[i] == ' ')); i++ )
-     {
-	if (str[i+1] != ' ')
-	  str[i] = '-';
-     }
-
-   display_chars( LCD_SEG_L2_5_0, str, SEG_ON );
-
-   display_symbol( LCD_SEG_L2_DP, SEG_ON );
-
-}
-
-//
-// _display_signed() - display a signed int on the second line, nnnnnn
-// 
-// Used to display pressure (in Pascal) as hPa and cm/s as m/s.
-//
-static void
-_display_signed( int value )
+_display_signed( s32 value, u8 is_fraction )
 {
    u8 *str;
    int i;
@@ -275,7 +247,7 @@ _display_signed( int value )
 	value *= -1;
      }
 
-   str = itoa( value, 6, 5 );
+   str = itoa( value, 6, (is_fraction) ? 3 : 5 );
 
    for ( i = 0; (is_neg && (str[i] == ' ')); i++ )
      {
@@ -285,6 +257,8 @@ _display_signed( int value )
 
    display_chars( LCD_SEG_L2_5_0, str, SEG_ON );
 
+   if ( is_fraction )
+   display_symbol( LCD_SEG_L2_DP, SEG_ON );
 }
 
 //
@@ -396,31 +370,31 @@ display_vario( u8 line, u8 update )
 	     //
 	     // convert the difference in Pa to a vertical velocity.
 	     //
-	     _display_fraction( _pascal_to_vz( diff ) );
+	     _display_signed( _pascal_to_vz( diff ), 1 );
 	     break;
 
 	   case VARIO_VIEWMODE_ALT_PA:
 	     //
 	     // display raw difference in Pascal.
 	     //
-	     _display_signed( diff );
+	     _display_signed( diff, 0 );
 	     break;
 
 	   case VARIO_VIEWMODE_PA:
 	     //
 	     // display pressure as hhhh.pp (hPa and Pa)
 	     //
-	     _display_fraction( pressure );
+	     _display_signed( pressure, 1 );
 	     break;
 
 	   case VARIO_VIEWMODE_VZMAX:
 	     display_symbol( LCD_SYMB_MAX, SEG_ON);
-	     _display_fraction( _pascal_to_vz( G_vario.stats.vzmax )  );
+	     _display_signed( _pascal_to_vz( G_vario.stats.vzmax ), 1  );
 	     break;
 
 	   case VARIO_VIEWMODE_VZMIN:
 	     display_symbol( LCD_SYMB_MAX, SEG_ON);
-	     _display_fraction( _pascal_to_vz( G_vario.stats.vzmin ) );
+	     _display_signed( _pascal_to_vz( G_vario.stats.vzmin ), 1 );
 	     break;
 
 	   case VARIO_VIEWMODE_MAX:
