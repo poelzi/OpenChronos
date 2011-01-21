@@ -389,20 +389,26 @@ display_vario( u8 line, u8 update )
 
 #if VARIO_F_TIME
    // Update flight time regardless of whether we do have an altitude.
-
-   G_vario.stats.f_time.ss++;
-   if ( G_vario.stats.f_time.ss > 59 )
+   //
+   // Be careful to only update the time when a time update is active,
+   // ie, not because this refresh is due to a DOWN button press.
+   //
+   if ( display.flag.update_time )
      {
-	G_vario.stats.f_time.ss = 0;
-	G_vario.stats.f_time.mm++;
-	if ( G_vario.stats.f_time.mm > 59 )
+	G_vario.stats.f_time.ss++;
+	if ( G_vario.stats.f_time.ss > 59 )
 	  {
 	     G_vario.stats.f_time.ss = 0;
-	     G_vario.stats.f_time.hh++;
+	     G_vario.stats.f_time.mm++;
+	     if ( G_vario.stats.f_time.mm > 59 )
+	       {
+		  G_vario.stats.f_time.mm = 0;
+		  G_vario.stats.f_time.hh++;
+	       }
+	     // Reset flight time after 19 hours, more will not fit on lcd !
+	     if ( G_vario.stats.f_time.hh > 19 )
+	       G_vario.stats.f_time.hh = 0;
 	  }
-	// Never mind if hours exceeds 24... but reset after 99 !
-	if ( G_vario.stats.f_time.hh > 99 )
-	  G_vario.stats.f_time.hh = 0;
      }
 #endif
 
