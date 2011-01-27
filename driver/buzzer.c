@@ -129,7 +129,11 @@ void start_buzzer(u8 cycles, u16 on_time, u16 off_time)
 	}
 }
 
-
+void start_buzzer_steps(u8 cycles, u16 on_time, u16 off_time, u8 steps )
+{
+   sBuzzer.steps = steps;
+   start_buzzer( cycles, on_time, off_time );
+}
 
 // *************************************************************************************************
 // @fn          toggle_buzzer

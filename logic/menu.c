@@ -264,14 +264,14 @@ const struct menu menu_L2_Date =
 //Line 2 - Vario
 const struct menu menu_L2_Vario = 
   {
-	FUNCTION(sx_vario),			// direct function
-	FUNCTION(mx_vario),			// sub menu function
+	FUNCTION(sx_vario),		// direct function
+	FUNCTION(mx_vario),		// sub menu function
 	FUNCTION(menu_skip_next),	// next item function
-	FUNCTION(display_vario),		// display function
-	FUNCTION(update_vario),		// new display data
+	FUNCTION(display_vario),	// display function
+	FUNCTION(update_time),		// refresh display data once every second
 };
-
 #endif
+
 // Line2 - Stopwatch
 const struct menu menu_L2_Stopwatch =
 {

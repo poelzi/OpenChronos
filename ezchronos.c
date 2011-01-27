@@ -407,10 +407,6 @@ void init_global_variables(void)
         reset_prout();
 #endif
 
-#ifdef CONFIG_VARIO
-        reset_vario();
-#endif
-
 #ifdef CONFIG_PHASE_CLOCK
 	// default program
 	sPhase.program = 0;

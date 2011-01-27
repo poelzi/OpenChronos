@@ -65,14 +65,6 @@
 #include "acceleration.h"
 #endif
 
-#ifdef CONFIG_PROUT
-#include "prout.h"
-#endif
-
-#ifdef CONFIG_VARIO
-#include "vario.h"
-#endif
-
 //pfs
 #ifndef ELIMINATE_BLUEROBIN
 #include "bluerobin.h"
@@ -386,14 +378,6 @@ __interrupt void TIMER0_A0_ISR(void)
 			stop_alarm();
 		}
 	}
-
-#ifdef CONFIG_PROUT
-        if (is_prout()) prout_tick();
-#endif
-
-#ifdef CONFIG_VARIO
-        if(is_vario()) vario_tick();
-#endif
 
 #ifdef CONFIG_STRENGTH
         // One more second gone by.
