@@ -1,0 +1,42 @@
+== Vario Module ==
+
+- Pressing the "v" (down) button cycles between displays as follows:
+        
+    * vario (in m/s)
+	  Displays a signed fractional value representing the ascent or
+          descent speed in meters per second.
+
+    * vario (in Pascal)
+          Displays a signed integer value representing the ascent or
+          descent speed in Pascal/second.
+
+    * pressure (in hPa)
+          Displays a signed fraction representing the pressure measured at
+          the current altitude.
+
+    * max Vz (in m/s)
+          Displays the maximum vertical speed in meters/second.
+
+    * min Vz (in m/s)
+          Displays the minimum vertical speed in meters/second.
+    
+- A long press on the "#" button performs a context sensitive function:
+    
+    * during vario display, changes the vario sound mode:
+      Off      (default, no symbol displayed)
+      Ascent 0 (start beeping at 0.0m/s, beeper1 and beeper2 symbols
+               displayed)
+      Ascent 1 (start beeping at 0.1m/s, beeper1 symbol displayed)
+      Both     (beep for up or down, beeper1 and beeper2 symbols
+               displayed)
+
+      Tone frequency, number and duration of beeps depend on climb rate.
+
+    * during max/min Vz display, resets both the max and min values.
+    
+- The "record" icon is flashed at one second intervals, indicating that
+  the watch is in vario mode and receiving pressure measurements.
+          
+  Note that the upper line must be in altimeter mode for the vario to
+  work, as it relies on updates from the altimeter. If the altimeter
+  is not active, the vario display shows "noAlt".

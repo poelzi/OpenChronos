@@ -158,12 +158,18 @@ extern volatile s_message_flags message;
 // include firmware image
 #include "../config.h"
 
+// feature dependency calculations
+
 #if defined( CONFIG_PHASE_CLOCK ) || defined( CONFIG_ACCEL) || defined (CONFIG_USE_GPS)
 	#define FEATURE_PROVIDE_ACCEL
 #endif
 
 #if defined (CONFIG_USEPPT) || defined (CONFIG_PHASE_CLOCK) || defined(CONFIG_ACCEL)
   #define SIMPLICITI_TX_ONLY_REQ
+#endif
+
+#if defined (CONFIG_ALTITUDE) || defined (CONFIG_VARIO)
+  #define FEATURE_ALTITUDE
 #endif
 
 

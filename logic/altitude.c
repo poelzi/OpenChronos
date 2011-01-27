@@ -42,7 +42,7 @@
 // system
 #include "project.h"
 
-#ifdef CONFIG_ALTITUDE
+#ifdef FEATURE_ALTITUDE
 
 // driver
 #include "altitude.h"
@@ -368,6 +368,7 @@ void mx_altitude(u8 line)
 //				u8 update		DISPLAY_LINE_UPDATE_FULL, DISPLAY_LINE_UPDATE_PARTIAL, DISPLAY_LINE_CLEAR
 // @return      none
 // *************************************************************************************************
+#ifdef CONFIG_ALTITUDE
 void display_altitude(u8 line, u8 update)
 {
 	u8 * str;
@@ -465,5 +466,6 @@ void display_altitude(u8 line, u8 update)
 		display_symbol(LCD_SYMB_ARROW_DOWN, SEG_OFF);
 	}
 }
-
 #endif // CONFIG_ALTITUDE
+
+#endif // FEATURE_ALTITUDE
