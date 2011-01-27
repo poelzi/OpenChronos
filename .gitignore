@@ -6,3 +6,4 @@
 build
 TAGS
 doc/*.html
+output.map
