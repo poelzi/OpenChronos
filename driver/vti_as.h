@@ -51,6 +51,9 @@ extern void as_stop(void);
 extern u8 as_read_register(u8 bAddress);
 extern u8 as_write_register(u8 bAddress, u8 bData);
 extern void as_get_data(u8 * data);
+extern u8 as_get_x(void);
+extern u8 as_get_y(void);
+extern u8 as_get_z(void);
 #endif
 
 

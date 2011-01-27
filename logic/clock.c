@@ -63,6 +63,10 @@
 
 #include "date.h"
 
+#ifdef CONFIG_USE_SYNC_TOSET_TIME
+#include "rfsimpliciti.h"
+#endif
+
 
 // *************************************************************************************************
 // Prototypes section
@@ -235,6 +239,13 @@ void mx_time(u8 line)
   // Clear display
   clear_display_all();
 
+#ifdef CONFIG_USE_SYNC_TOSET_TIME
+
+  if (sys.flag.low_battery) return;
+  display_sync(LINE2, DISPLAY_LINE_UPDATE_FULL);
+  start_simpliciti_sync();
+
+#else
   // Convert global time to local variables
   // Global time keeps on ticking in background until it is overwritten
   if (sys.flag.am_pm_time)
@@ -342,6 +353,8 @@ void mx_time(u8 line)
 
   // Clear button flags
   button.all_flags = 0;
+
+#endif
 }
 
 

@@ -209,6 +209,27 @@ DATA["CONFIG_TEMP"] = {
         "default": True}
 
 
+###IMPLEMENTED BY LeanChronos. gventosa 09.10.2010
+DATA["CONFIG_USEPPT"] = {
+        "name": "Use PPT",
+        "depends": [],
+        "default": True}
+
+DATA["CONFIG_USE_SYNC_TOSET_TIME"] = {
+	"name": "Sync is the only way to set clocks data/time",
+	"depends": [],
+	"default": True}
+
+DATA["CONFIG_USE_DISCRET_RFBSL"] = {
+	"name": "RFBSL is hidden behind battery",
+	"depends": [],
+	"default": True}
+
+DATA["CONFIG_USE_GPS"] = {
+	"name": "GPS Functions enabled",
+	"depends": [],
+	"default": True}
+
 
 HEADER = """
 #ifndef _CONFIG_H_

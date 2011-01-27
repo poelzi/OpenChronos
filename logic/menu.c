@@ -92,6 +92,11 @@
 #include "strength.h"
 #endif
 
+#ifdef CONFIG_USE_GPS
+#include "gps.h"
+#endif
+
+
 // *************************************************************************************************
 // Defines section
 #define FUNCTION(function)  function
@@ -291,7 +296,11 @@ const struct menu menu_L2_Eggtimer =
 const struct menu menu_L2_Battery =
 {
 	FUNCTION(dummy),					// direct function
+	#ifndef CONFIG_USE_DISCRET_RFBSL
 	FUNCTION(dummy),					// sub menu function
+	#else
+	FUNCTION(sx_rfbsl),					//sub function calls RFBSL
+	#endif
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_battery_V),		// display function
 	FUNCTION(update_battery_voltage),	// new display data
@@ -318,6 +327,8 @@ const struct menu menu_L2_Rf =
 	FUNCTION(update_time),			// new display data
 };
 #endif
+
+#ifdef CONFIG_USEPPT
 // Line2 - PPT (button events via SimpliciTI)
 const struct menu menu_L2_Ppt =
 {
@@ -327,6 +338,9 @@ const struct menu menu_L2_Ppt =
 	FUNCTION(display_ppt),			// display function
 	FUNCTION(update_time),			// new display data
 };
+#endif
+
+#ifndef CONFIG_USE_SYNC_TOSET_TIME
 // Line2 - SXNC (synchronization/data download via SimpliciTI)
 const struct menu menu_L2_Sync =
 {
@@ -336,6 +350,8 @@ const struct menu menu_L2_Sync =
 	FUNCTION(display_sync),			// display function
 	FUNCTION(update_time),			// new display data
 };
+#endif
+
 #ifndef ELIMINATE_BLUEROBIN
 // Line2 - Calories/Distance
 const struct menu menu_L2_CalDist =
@@ -345,9 +361,10 @@ const struct menu menu_L2_CalDist =
 	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_caldist),		// display function
 	FUNCTION(update_time),			// new display data
-	&menu_L2_RFBSL,
+	//&menu_L2_RFBSL,
 };
 #endif
+#ifndef CONFIG_USE_DISCRET_RFBSL
 // Line2 - RFBSL
 const struct menu menu_L2_RFBSL =
 {
@@ -357,6 +374,7 @@ const struct menu menu_L2_RFBSL =
 	FUNCTION(display_rfbsl),		// display function
 	FUNCTION(update_time),			// new display data
 };
+#endif
 
 #ifdef CONFIG_PROUT
 // Line2 - PROUT
@@ -379,6 +397,18 @@ const struct menu menu_L1_Strength =
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_strength_time),		// display function
 	FUNCTION(strength_display_needs_updating),	// new display data
+};
+#endif
+
+#ifdef CONFIG_USE_GPS
+// Line 2 GPS functions menu entry
+const struct menu menu_L2_Gps =
+{
+		FUNCTION(sx_gps),			//direct gps functions
+		FUNCTION(mx_gps),			//sub menu function
+		FUNCTION(menu_skip_next),	//next item function
+		FUNCTION(display_gps),		//Display gps function
+		FUNCTION(update_time),		//new display data
 };
 #endif
 
@@ -425,15 +455,24 @@ const struct menu *menu_L2[]={
 	#ifdef CONFIG_ACCEL
 	&menu_L2_Rf,
 	#endif
+	#ifdef CONFIG_USEPPT
 	&menu_L2_Ppt,
+	#endif
+	#ifndef CONFIG_USE_SYNC_TOSET_TIME
 	&menu_L2_Sync,
+	#endif
 	#ifndef ELIMINATE_BLUEROBIN
 	&menu_L2_CalDist,
 	#endif
+	#ifndef CONFIG_USE_DISCRET_RFBSL
 	&menu_L2_RFBSL,
+	#endif
 	#ifdef CONFIG_PROUT
 	&menu_L2_Prout,
 	#endif	
+	#ifdef CONFIG_USE_GPS
+	&menu_L2_Gps,
+	#endif
 };
 
 const int menu_L2_size=sizeof(menu_L2)/sizeof(struct menu*);

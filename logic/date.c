@@ -174,6 +174,9 @@ void add_day(void)
 // *************************************************************************************************
 void mx_date(line_t line)
 {
+#ifdef CONFIG_USE_SYNC_TOSET_TIME
+	return;
+#else
 	u8 select;
 	s32 day;
 	s32 month;
@@ -247,6 +250,7 @@ void mx_date(line_t line)
 	
 	// Clear button flag
 	button.all_flags = 0;
+#endif
 }
 
 

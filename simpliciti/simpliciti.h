@@ -121,10 +121,10 @@ extern unsigned char rf_frequoffset;
 
 // ---------------------------------------------------------------
 // SimpliciTI RX only
-
+#ifdef SIMPLICITI_TX_ONLY_REQ
 // Entry point into SimpliciTI library
 extern void simpliciti_main_tx_only(void);
-
+#endif
 // Callback function to read data from acceleration sensor or buttons and trigger sending 
 extern void simpliciti_get_ed_data_callback(void);
 

@@ -1,4 +1,11 @@
 // MYsimpliciti
+
+
+#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || (CONFIG_ACCEL)
+#define SIMPLICITI_TX_ONLY_REQ
+#endif
+
+
 /*
 smplStatus_t SMPL_Link(0);
 }

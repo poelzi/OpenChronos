@@ -71,7 +71,9 @@ void as_start(void);
 void as_stop(void);
 u8 as_read_register(u8 bAddress);
 u8 as_write_register(u8 bAddress, u8 bData);
-
+u8 as_get_x(void);
+u8 as_get_y(void);
+u8 as_get_z(void);
 
 // *************************************************************************************************
 // Defines section
@@ -90,7 +92,7 @@ u8 as_write_register(u8 bAddress, u8 bData);
 // Sample rate for acceleration values in Hz
 // Valid sample rates for 2g range are:     100, 400
 // Valid sample rates for 8g range are: 40, 100, 400
-#define AS_SAMPLE_RATE       (100u)
+#define AS_SAMPLE_RATE       (400u)
 
 
 // *************************************************************************************************
@@ -366,5 +368,24 @@ void as_get_data(u8 * data)
 	*(data+1) = as_read_register(0x07);
 	*(data+2) = as_read_register(0x08);
 }
+
+u8 as_get_x(void)
+{
+	if ((AS_PWR_OUT & AS_PWR_PIN) != AS_PWR_PIN) return 0;
+	return as_read_register(0x06);
+}
+
+u8 as_get_y(void)
+{
+	if ((AS_PWR_OUT & AS_PWR_PIN) != AS_PWR_PIN) return 0;
+	return as_read_register(0x07);
+}
+
+u8 as_get_z(void)
+{
+	if ((AS_PWR_OUT & AS_PWR_PIN) != AS_PWR_PIN) return 0;
+	return as_read_register(0x08);
+}
+
 
 #endif

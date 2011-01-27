@@ -36,6 +36,11 @@
 #ifndef RFSIMPLICITI_H_
 #define RFSIMPLICITI_H_
 
+#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL)
+#define SIMPLICITI_TX_ONLY_REQ
+#endif
+
+
 // *************************************************************************************************
 // Include section
 
@@ -112,8 +117,10 @@ extern unsigned char simpliciti_flag;
 
 // *************************************************************************************************
 // Extern section
-
+#ifdef SIMPLICITY_TX_ONLY_REQ
 extern void start_simpliciti_tx_only(simpliciti_mode_t mode);
+#endif
+
 extern int simpliciti_get_rvc_callback(u8 len) __attribute__((noinline));
 
 

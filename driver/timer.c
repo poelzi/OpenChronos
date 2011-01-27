@@ -96,13 +96,15 @@
 // Prototypes section
 void Timer0_Init(void);
 void Timer0_Stop(void);
-void Timer0_A1_Start(void);
+void Timer0_A1_Start(u16 ticks);
 void Timer0_A1_Stop(void);
 void Timer0_A3_Start(u16 ticks);
 void Timer0_A3_Stop(void);
 void Timer0_A4_Delay(u16 ticks);
 void (*fptr_Timer0_A3_function)(void);
- 
+#ifdef CONFIG_USE_GPS
+void (*fptr_Timer0_A1_function)(void);
+#endif
 
 // *************************************************************************************************
 // Defines section
@@ -167,13 +169,31 @@ void Timer0_Stop(void)
 }
 
 
-void Timer0_A1_Start(void)
+void Timer0_A1_Start(u16 ticks)
 {
+	/*old version
 	// Set interrupt frequency to 1Hz
 	TA0CCR1   = TA0R + 32678 ;
 
 	// Enable timer interrupt
-	TA0CCTL1 |= CCIE;
+	TA0CCTL1 |= CCIE; */
+
+	u16 value;
+
+		// Store timer ticks in global variable
+		sTimer.timer0_A1_ticks = ticks;
+
+		// Delay based on current counter value
+		value = TA0R + ticks;
+
+		// Update CCR
+		TA0CCR1 = value;
+
+		// Reset IRQ flag
+		TA0CCTL1 &= ~CCIFG;
+
+		// Enable timer interrupt
+		TA0CCTL1 |= CCIE;
 	
 }
 
@@ -546,7 +566,7 @@ __interrupt void TIMER0_A0_ISR(void)
 // @fn          Timer0_A1_5_ISR
 // @brief       IRQ handler for timer IRQ.
 //				Timer0_A0	1/1sec clock tick (serviced by function TIMER0_A0_ISR)
-//				Timer0_A1	BlueRobin timer 
+//				Timer0_A1	BlueRobin timer / doorlock
 //				Timer0_A2	1/100 sec Stopwatch
 //				Timer0_A3	Configurable periodic IRQ (used by button_repeat and buzzer)
 //				Timer0_A4	One-time delay
@@ -599,6 +619,21 @@ __interrupt void TIMER0_A1_5_ISR(void)
 				// Set clock update flag
 				display.flag.update_sidereal_time = 1;
 				break;
+	#endif
+	#ifdef CONFIG_USE_GPS
+		case 0x02: // Disable IE
+							TA0CCTL1 &= ~CCIE;
+							// Reset IRQ flag
+							TA0CCTL1 &= ~CCIFG;
+							// Store new value in CCR
+							value = TA0R + sTimer.timer0_A1_ticks; //timer0_A1_ticks_g;
+							// Load CCR register with next capture point
+							TA0CCR1 = value;
+							// Enable timer interrupt
+							TA0CCTL1 |= CCIE;
+							// Call function handler
+							fptr_Timer0_A1_function();
+							break;
 	#endif
 		// Timer0_A2	1/1 or 1/100 sec Stopwatch				
 		case 0x04:	// Timer0_A2 handler

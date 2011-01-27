@@ -105,15 +105,30 @@ extern const struct menu menu_L2_Rf;
 #ifdef CONFIG_PHASE_CLOCK
 extern const struct menu menu_L2_Phase;
 #endif
+
+#ifdef CONFIG_USEPPT
 extern const struct menu menu_L2_Ppt;
+#endif
+
+#ifndef CONFIG_USE_SYNC_TOSET_TIME
 extern const struct menu menu_L2_Sync;
+#endif
+
 extern const struct menu menu_L2_CalDist;
+
+#ifndef CONFIG_USE_DISCRET_RFBSL
 extern const struct menu menu_L2_RFBSL;
+#endif
+
 #ifdef CONFIG_PROUT
 extern const struct menu menu_L2_Prout;
 #endif
 #ifdef CONFIG_VARIO
 extern const struct menu menu_L2_Vario;
+#endif
+
+#ifdef CONFIG_USE_GPS
+extern const struct menu menu_L2_Gps;
 #endif
 
 // Pointers to current menu item

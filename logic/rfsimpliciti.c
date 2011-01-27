@@ -76,7 +76,16 @@
 #ifdef CONFIG_SIDEREAL
 #include "sidereal.h"
 #endif
+// *************************************************************************************************
+// Defines section
 
+#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL)
+#define SIMPLICITI_TX_ONLY_REQ
+#endif
+
+
+// Each packet index requires 2 bytes, so we can have 9 packet indizes in 18 bytes usable payload
+#define BM_SYNC_BURST_PACKETS_IN_DATA		(9u)
 
 // *************************************************************************************************
 // Prototypes section
@@ -84,12 +93,6 @@ void simpliciti_get_data_callback(void);
 void start_simpliciti_tx_only(simpliciti_mode_t mode);
 void start_simpliciti_sync(void);
 int simpliciti_get_rvc_callback(u8 len) __attribute__((noinline));
-
-// *************************************************************************************************
-// Defines section
-
-// Each packet index requires 2 bytes, so we can have 9 packet indizes in 18 bytes usable payload
-#define BM_SYNC_BURST_PACKETS_IN_DATA		(9u)
 
 
 // *************************************************************************************************
@@ -169,6 +172,7 @@ void sx_rf(u8 line)
 }
 
 
+#ifdef CONFIG_USEPPT
 // *************************************************************************************************
 // @fn          sx_ppt
 // @brief       Start SimpliciTI. Button DOWN connects/disconnects to access point.
@@ -189,8 +193,9 @@ void sx_ppt(u8 line)
   	// Start SimpliciTI in tx only mode
 	start_simpliciti_tx_only(SIMPLICITI_BUTTONS);
 }
+#endif
 
-
+#ifndef CONFIG_USE_SYNC_TOSET_TIME
 // *************************************************************************************************
 // @fn          sx_sync
 // @brief       Start SimpliciTI. Button DOWN connects/disconnects to access point.
@@ -210,8 +215,9 @@ void sx_sync(u8 line)
   	// Start SimpliciTI in sync mode
 	start_simpliciti_sync();
 }
+#endif
 
-
+#ifdef SIMPLICITY_TX_ONLY_REQ
 // *************************************************************************************************
 // @fn          start_simpliciti_tx_only
 // @brief       Start SimpliciTI (tx only). 
@@ -321,7 +327,7 @@ void start_simpliciti_tx_only(simpliciti_mode_t mode)
 	display.flag.full_update = 1;	
 	
 }
-
+#endif
 
 // *************************************************************************************************
 // @fn          display_rf
@@ -338,7 +344,7 @@ void display_rf(u8 line, u8 update)
 	}
 }
 
-
+#ifdef CONFIG_USE_PPT
 // *************************************************************************************************
 // @fn          display_ppt
 // @brief       SimpliciTI display routine. 
@@ -353,6 +359,7 @@ void display_ppt(u8 line, u8 update)
 		display_chars(LCD_SEG_L2_5_0, (u8 *)"   PPT", SEG_ON);
 	}
 }
+#endif
 
 
 // *************************************************************************************************
@@ -600,8 +607,8 @@ int simpliciti_get_rvc_callback(u8 len)
 void start_simpliciti_sync(void)
 {
   	// Clear LINE1
-	clear_line(LINE1);  	
-	fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
+	//clear_line(LINE1);
+	//fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
 	
 	#ifdef FEATURE_PROVIDE_ACCEL
 	// Stop acceleration sensor
@@ -713,7 +720,9 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										if(sSidereal_time.sync>0)
 											sync_sidereal();
 #endif
-
+#ifdef CONFIG_USE_SYNC_TOSET_TIME
+										simpliciti_flag |= SIMPLICITI_TRIGGER_STOP;
+#endif
 										break;
 												
 		case SYNC_AP_CMD_GET_MEMORY_BLOCKS_MODE_1:	
