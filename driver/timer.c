@@ -279,8 +279,10 @@ void Timer0_A4_Delay(u16 ticks)
 		// Service watchdog
 		WDTCTL = WDTPW + WDTIS__512K + WDTSSEL__ACLK + WDTCNTCL;
 #endif
+#ifdef CONFIG_STOP_WATCH
 		// Redraw stopwatch display
 		if (is_stopwatch_run()) display_stopwatch(LINE2, DISPLAY_LINE_UPDATE_PARTIAL);
+#endif
 
 		// Check stop condition
 		if (sys.flag.delay_over) break;
@@ -354,16 +356,21 @@ __interrupt void TIMER0_A0_ISR(void)
 	// Service modules that require 1/min processing
 	if (sTime.drawFlag >= 2) 
 	{
+		#ifdef CONFIG_BATTERY
 		// Measure battery voltage to keep track of remaining battery life
 		request.flag.voltage_measurement = 1;
+		#endif
 		
+		#ifdef CONFIG_ALARM
 		// Check if alarm needs to be turned on
 		check_alarm();
+		#endif
 	}
 
 	// -------------------------------------------------------------------
 	// Service active modules that require 1/s processing
 	
+	#ifdef CONFIG_ALARM  // N8VI NOTE eventually, eggtimer should use this code too
 	// Generate alarm signal
 	if (sAlarm.state == ALARM_ON) 
 	{
@@ -378,6 +385,7 @@ __interrupt void TIMER0_A0_ISR(void)
 			stop_alarm();
 		}
 	}
+	#endif
 
 #ifdef CONFIG_STRENGTH
         // One more second gone by.
@@ -434,6 +442,7 @@ __interrupt void TIMER0_A0_ISR(void)
 	if (is_bluerobin()) get_bluerobin_data();
 #endif
 	
+	#ifdef CONFIG_BATTERY
 	// If battery is low, decrement display counter
 	if (sys.flag.low_battery)
 	{
@@ -444,6 +453,7 @@ __interrupt void TIMER0_A0_ISR(void)
 			sBatt.lobatt_display = BATTERY_LOW_MESSAGE_CYCLE;
 		}
 	}
+	#endif
 	
 	// If a message has to be displayed, set display flag
 	if (message.all_flags)
@@ -626,14 +636,18 @@ __interrupt void TIMER0_A1_5_ISR(void)
 					// Reset IRQ flag  
 					TA0CCTL2 &= ~CCIFG;  
 					// Load CCR register with next capture point
+#ifdef CONFIG_STOP_WATCH
 					update_stopwatch_timer();
+#endif
 #ifdef CONFIG_EGGTIMER
 					update_eggtimer_timer();
 #endif
 					// Enable timer interrupt    
 					TA0CCTL2 |= CCIE; 	
 					// Increase stopwatch counter
+#ifdef CONFIG_STOP_WATCH
 					stopwatch_tick();
+#endif
 #ifdef CONFIG_EGGTIMER
 					eggtimer_tick();
 #endif

@@ -109,7 +109,9 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 		stepValue=1;
 	}
 	u8 doRound = 0;
+	#ifdef CONFIG_STOP_WATCH
 	u8 stopwatch_state;
+	#endif
 	u32 val;
 	s32 orig_val=*value;
 	
@@ -122,9 +124,11 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 	// For safety only - buzzer on/off and button_repeat share same IRQ
 	stop_buzzer();
 	
+	#ifdef CONFIG_STOP_WATCH
 	// Disable stopwatch display update while function is active
 	stopwatch_state = sStopwatch.state;
 	sStopwatch.state = STOPWATCH_HIDE;
+	#endif
 	
 	// Init step size and repeat counter
 	sButton.repeats = 0;
@@ -312,7 +316,9 @@ void set_value(s32 * value, u8 digits, u8 blanks, s32 limitLow, s32 limitHigh, u
 	// Turn off button repeat function
 	button_repeat_off();
 
+	#ifdef CONFIG_STOP_WATCH
 	// Enable stopwatch display updates again
 	sStopwatch.state = stopwatch_state;
+	#endif
 }
  

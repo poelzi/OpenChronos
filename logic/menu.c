@@ -118,26 +118,32 @@ u8 update_time(void)
 {
 	return (display.flag.update_time);
 }
+#ifdef CONFIG_STOP_WATCH
 u8 update_stopwatch(void)
 {
 	return (display.flag.update_stopwatch);
 }
+#endif
 u8 update_date(void)
 {
 	return (display.flag.update_date);
 }
+#ifdef CONFIG_ALARM
 u8 update_alarm(void)
 {
 	return (display.flag.update_alarm);
 }
+#endif
 u8 update_temperature(void)
 {
 	return (display.flag.update_temperature);
 }
+#ifdef CONFIG_BATTERY
 u8 update_battery_voltage(void)
 {
 	return (display.flag.update_battery_voltage);
 }
+#endif
 u8 update_acceleration(void)
 {
 	return (display.flag.update_acceleration);
@@ -188,6 +194,7 @@ const struct menu menu_L1_Sidereal =
 #endif
 
 // Line1 - Alarm
+#ifdef CONFIG_ALARM
 const struct menu menu_L1_Alarm =
 {
 	FUNCTION(sx_alarm),			// direct function
@@ -196,6 +203,7 @@ const struct menu menu_L1_Alarm =
 	FUNCTION(display_alarm),	// display function
 	FUNCTION(update_alarm),		// new display data
 };
+#endif
 // Line1 - Temperature
 const struct menu menu_L1_Temperature =
 {
@@ -273,6 +281,7 @@ const struct menu menu_L2_Vario =
 #endif
 
 // Line2 - Stopwatch
+#ifdef CONFIG_STOP_WATCH
 const struct menu menu_L2_Stopwatch =
 {
 	FUNCTION(sx_stopwatch),		// direct function
@@ -281,6 +290,7 @@ const struct menu menu_L2_Stopwatch =
 	FUNCTION(display_stopwatch),// display function
 	FUNCTION(update_stopwatch),	// new display data
 };
+#endif
 #ifdef CONFIG_EGGTIMER
 //  Line2 - Eggtimer (Counts down from set time)
 const struct menu menu_L2_Eggtimer =
@@ -293,6 +303,7 @@ const struct menu menu_L2_Eggtimer =
 };
 #endif
 // Line2 - Battery 
+#ifdef CONFIG_BATTERY
 const struct menu menu_L2_Battery =
 {
 	FUNCTION(dummy),					// direct function
@@ -305,6 +316,7 @@ const struct menu menu_L2_Battery =
 	FUNCTION(display_battery_V),		// display function
 	FUNCTION(update_battery_voltage),	// new display data
 };
+#endif
 #ifdef CONFIG_PHASE_CLOCK
 // Line2 - ACC (acceleration data + button events via SimpliciTI)
 const struct menu menu_L2_Phase =
@@ -423,7 +435,9 @@ const struct menu *menu_L1[]={
 	#ifdef CONFIG_SIDEREAL
 	&menu_L1_Sidereal,
 	#endif
+	#ifdef CONFIG_ALARM
 	&menu_L1_Alarm,
+	#endif
 	&menu_L1_Temperature,
 	#ifdef CONFIG_ALTITUDE
 	&menu_L1_Altitude,
@@ -444,11 +458,15 @@ const struct menu *menu_L2[]={
 	#ifdef CONFIG_VARIO
 	&menu_L2_Vario,
 	#endif
+	#ifdef CONFIG_STOP_WATCH
 	&menu_L2_Stopwatch,
+	#endif
 	#ifdef CONFIG_EGGTIMER
 	&menu_L2_Eggtimer,
 	#endif
+	#ifdef CONFIG_BATTERY
 	&menu_L2_Battery,
+	#endif
 	#ifdef CONFIG_PHASE_CLOCK
 	&menu_L2_Phase,
 	#endif

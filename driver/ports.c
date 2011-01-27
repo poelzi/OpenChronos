@@ -229,6 +229,7 @@ __interrupt void PORT2_ISR(void)
 				
 				if( !sys.flag.lock_buttons)
 				{
+					#ifdef CONFIG_STOP_WATCH
 					// Faster reaction for stopwatch split button press
 					if (is_stopwatch_run())
 					{
@@ -236,6 +237,7 @@ __interrupt void PORT2_ISR(void)
 						button.flag.num = 0;
 						
 					}
+					#endif
 				}
 			}
 		}
@@ -266,6 +268,7 @@ __interrupt void PORT2_ISR(void)
 				
 				if( !sys.flag.lock_buttons)
 				{
+					#ifdef CONFIG_STOP_WATCH
 					// Faster reaction for stopwatch stop button press
 					if (is_stopwatch_run())
 					{
@@ -278,6 +281,7 @@ __interrupt void PORT2_ISR(void)
 						start_stopwatch();
 						button.flag.down = 0;
 					}
+					#endif
 				}
 			}
 		}
@@ -305,12 +309,15 @@ __interrupt void PORT2_ISR(void)
 	if (buzzer)
 	{
 		// Any button event stops active alarm
+		#ifdef CONFIG_ALARM
 		if (sAlarm.state == ALARM_ON) 
 		{
 			stop_alarm();
 			button.all_flags = 0;
 		}
-		else if (!sys.flag.up_down_repeat_enabled && !sys.flag.no_beep)
+		else 
+		#endif
+		if (!sys.flag.up_down_repeat_enabled && !sys.flag.no_beep)
 		{
 			start_buzzer(1, CONV_MS_TO_TICKS(20), CONV_MS_TO_TICKS(150));
 		}
