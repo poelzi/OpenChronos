@@ -162,6 +162,11 @@ extern volatile s_message_flags message;
 	#define FEATURE_PROVIDE_ACCEL
 #endif
 
+#if defined (CONFIG_USEPPT) || defined (CONFIG_PHASE_CLOCK) || defined(CONFIG_ACCEL)
+  #define SIMPLICITI_TX_ONLY_REQ
+#endif
+
+
 #if defined(CONFIG_INFOMEM) &&  !defined(CONFIG_SIDEREAL)
 	//undefine feature if it is not used by any option
 	#undef CONFIG_INFOMEM

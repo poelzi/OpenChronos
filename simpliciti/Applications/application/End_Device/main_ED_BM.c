@@ -28,6 +28,8 @@
 
 // *************************************************************************************************
 // Include section
+#include "project.h"
+
 #include "bsp.h"
 #include "mrfi.h"
 #include "nwk_types.h"
@@ -215,6 +217,7 @@ unsigned char simpliciti_link(void)
 
 
 #ifdef SIMPLICITI_TX_ONLY_REQ
+
 // *************************************************************************************************
 // @fn          simpliciti_main_tx_only
 // @brief       Get data through callback. Transfer data when external trigger is set.

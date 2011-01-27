@@ -79,11 +79,6 @@
 // *************************************************************************************************
 // Defines section
 
-#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL)
-#define SIMPLICITI_TX_ONLY_REQ
-#endif
-
-
 // Each packet index requires 2 bytes, so we can have 9 packet indizes in 18 bytes usable payload
 #define BM_SYNC_BURST_PACKETS_IN_DATA		(9u)
 
@@ -164,9 +159,9 @@ void sx_rf(u8 line)
 	//pfs
 	#ifndef ELIMINATE_BLUEROBIN
 	if (is_bluerobin()) return;
-  	#endif
+	#endif
 	#ifdef CONFIG_ACCEL
-  	// Start SimpliciTI in tx only mode
+	// Start SimpliciTI in tx only mode
 	start_simpliciti_tx_only(SIMPLICITI_ACCELERATION);
 	#endif
 }
@@ -190,7 +185,7 @@ void sx_ppt(u8 line)
 	if (is_bluerobin()) return;
 	#endif
   	
-  	// Start SimpliciTI in tx only mode
+  // Start SimpliciTI in tx only mode
 	start_simpliciti_tx_only(SIMPLICITI_BUTTONS);
 }
 #endif
@@ -217,7 +212,7 @@ void sx_sync(u8 line)
 }
 #endif
 
-#ifdef SIMPLICITY_TX_ONLY_REQ
+#ifdef SIMPLICITI_TX_ONLY_REQ
 // *************************************************************************************************
 // @fn          start_simpliciti_tx_only
 // @brief       Start SimpliciTI (tx only). 
@@ -344,7 +339,7 @@ void display_rf(u8 line, u8 update)
 	}
 }
 
-#ifdef CONFIG_USE_PPT
+#ifdef CONFIG_USEPPT
 // *************************************************************************************************
 // @fn          display_ppt
 // @brief       SimpliciTI display routine. 
@@ -579,6 +574,7 @@ WDTCTL = WDTPW + WDTHOLD;
 // @param       u8 lenght
 // @return      none
 // *************************************************************************************************
+#ifdef SIMPLICITI_TX_ONLY_REQ
 int simpliciti_get_rvc_callback(u8 len)
 {
 
@@ -597,6 +593,7 @@ int simpliciti_get_rvc_callback(u8 len)
     }
     return 0;
 }
+#endif
 
 // *************************************************************************************************
 // @fn          start_simpliciti_sync

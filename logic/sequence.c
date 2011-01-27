@@ -10,8 +10,9 @@
 // Include section
 
 // system
-#include <string.h>
 #include "project.h"
+#ifdef CONFIG_USE_GPS
+#include <string.h>
 
 // driver
 #include "ports.h"
@@ -307,3 +308,5 @@ u8 sequence_compare(u8* sequence_a, u8* sequence_b)
 		return DOORLOCK_ERROR_FAILURE;
 
 }
+
+#endif // CONFIG_USE_GPS

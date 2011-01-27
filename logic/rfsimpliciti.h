@@ -36,11 +36,6 @@
 #ifndef RFSIMPLICITI_H_
 #define RFSIMPLICITI_H_
 
-#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL)
-#define SIMPLICITI_TX_ONLY_REQ
-#endif
-
-
 // *************************************************************************************************
 // Include section
 

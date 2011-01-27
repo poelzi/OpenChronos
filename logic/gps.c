@@ -15,6 +15,9 @@
 
 // system
 #include "project.h"
+
+#ifdef CONFIG_USE_GPS
+
 #include <string.h>
 
 // driver
@@ -303,3 +306,4 @@ u8 verify_code()
 	return DOORLOCK_ERROR_FAILURE;
 
 }
+#endif // CONFIG_USE_GPS

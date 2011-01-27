@@ -168,7 +168,7 @@ DATA["CONFIG_ACCEL"] = {
         "name": "Acceleration",
         "depends": [],
         "default": True,
-        "help": "Disable acceleration applications (display and transmission). When no other application uses the acceleration sensor, it is disabled completely"
+        "help": "Acceleration applications (display and transmission). When no other application uses the acceleration sensor, it is disabled completely"
         }
 
 DATA["CONFIG_STRENGTH"] = {
@@ -218,17 +218,17 @@ DATA["CONFIG_USEPPT"] = {
 DATA["CONFIG_USE_SYNC_TOSET_TIME"] = {
 	"name": "Sync is the only way to set clocks data/time",
 	"depends": [],
-	"default": True}
+	"default": False}
 
 DATA["CONFIG_USE_DISCRET_RFBSL"] = {
 	"name": "RFBSL is hidden behind battery",
 	"depends": [],
-	"default": True}
+	"default": False}
 
 DATA["CONFIG_USE_GPS"] = {
-	"name": "GPS Functions enabled",
+	"name": "GPS Functions enabled (doorlock)",
 	"depends": [],
-	"default": True}
+	"default": False}
 
 
 HEADER = """
