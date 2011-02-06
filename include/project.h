@@ -174,6 +174,9 @@ extern volatile s_message_flags message;
   #define FEATURE_ALTITUDE
 #endif
 
+#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL) || defined(CONFIG_USE_GPS)
+  #define SIMPLICITI_TX_ONLY_REQ
+#endif
 
 #if defined(CONFIG_INFOMEM) &&  !defined(CONFIG_SIDEREAL)
 	//undefine feature if it is not used by any option

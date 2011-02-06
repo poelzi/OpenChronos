@@ -45,11 +45,6 @@
 // Defines section
 
 
-#if defined (CONFIG_USEPPT) || defined (CONFIG_EGGTIMER) || defined(CONFIG_ACCEL) || defined(CONFIG_USE_GPS)
-#define SIMPLICITI_TX_ONLY_REQ
-#endif
-
-
 #define TIMEOUT					(10u)
 
 // Conversion from msec to ACLK timer ticks
