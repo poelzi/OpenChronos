@@ -651,14 +651,24 @@ void display_update(void)
 		else if (message.flag.type_no_beep_on)  memcpy(string, " SILNC", 6);
 		else if (message.flag.type_no_beep_off) memcpy(string, "  BEEP", 6);
 		#ifdef CONFIG_ALARM 
-		else if (message.flag.type_alarm_on)	
+		else if (message.flag.type_alarm_off_chime_off)	
+		{
+			memcpy(string, " OFF", 4);
+			line = LINE1;
+		}
+		else if (message.flag.type_alarm_off_chime_on)	
+		{
+			memcpy(string, "OFFH", 4);
+			line = LINE1;
+		}
+		else if (message.flag.type_alarm_on_chime_off)
 		{
 			memcpy(string, "  ON", 4);
 			line = LINE1;
 		}
-		else if (message.flag.type_alarm_off)
+		else if (message.flag.type_alarm_on_chime_on)
 		{
-			memcpy(string, " OFF", 4);
+			memcpy(string, " ONH", 4);
 			line = LINE1;
 		}
 		#endif

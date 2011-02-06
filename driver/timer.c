@@ -362,6 +362,12 @@ __interrupt void TIMER0_A0_ISR(void)
 		#endif
 		
 		#ifdef CONFIG_ALARM
+		// If the chime is enabled, we beep here
+		if (sTime.minute == 0) {
+			if (sAlarm.hourly == ALARM_ENABLED) {
+				request.flag.buzzer = 1;
+			}
+		}
 		// Check if alarm needs to be turned on
 		check_alarm();
 		#endif
