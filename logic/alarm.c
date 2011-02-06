@@ -86,6 +86,7 @@ void reset_alarm(void)
 	// Alarm is initially off	
 	sAlarm.duration = ALARM_ON_DURATION;
 	sAlarm.state 	= ALARM_DISABLED;
+	sAlarm.hourly 	= ALARM_DISABLED;
 }
 
 
@@ -106,7 +107,7 @@ void check_alarm(void)
 	{
 		if (sTime.hour == sAlarm.hour)
 		{
-			// Indicate that alarm is on
+			// Indicate that alarm is beeping
 			sAlarm.state = ALARM_ON;
 		}
 	}
@@ -137,25 +138,36 @@ void stop_alarm(void)
 // *************************************************************************************************
 void sx_alarm(u8 line)
 {
-	// UP: Alarm on, off
+	// UP: Cycle through alarm modes
 	if(button.flag.up)
 	{
 		// Toggle alarm state
-		if (sAlarm.state == ALARM_DISABLED)		
-		{
-			sAlarm.state = ALARM_ENABLED;
-			
-			// Show "  on" message 
-			message.flag.prepare = 1;
-			message.flag.type_alarm_on = 1;
-		}
-		else if (sAlarm.state == ALARM_ENABLED)	
-		{
-			sAlarm.state = ALARM_DISABLED;
-
-			// Show "  off" message 
-			message.flag.prepare = 1;
-			message.flag.type_alarm_off = 1;
+		if (sAlarm.state == ALARM_DISABLED) {
+			if (sAlarm.hourly == ALARM_DISABLED) {
+				sAlarm.hourly = ALARM_ENABLED;
+				// Show "offh" message 
+				message.flag.prepare = 1;
+				message.flag.type_alarm_off_chime_on = 1;
+			} else if (sAlarm.hourly == ALARM_ENABLED) {
+				sAlarm.state = ALARM_ENABLED;
+				sAlarm.hourly = ALARM_DISABLED;
+				// Show " on" message 
+				message.flag.prepare = 1;
+				message.flag.type_alarm_on_chime_off = 1;
+			}
+		} else if (sAlarm.state == ALARM_ENABLED) {
+			if (sAlarm.hourly == ALARM_DISABLED) {
+				sAlarm.hourly = ALARM_ENABLED;
+				// Show " onh" message 
+				message.flag.prepare = 1;
+				message.flag.type_alarm_on_chime_on = 1;
+			} else if (sAlarm.hourly == ALARM_ENABLED) {
+				sAlarm.state = ALARM_DISABLED;
+				sAlarm.hourly = ALARM_DISABLED;
+				// Show " off" message 
+				message.flag.prepare = 1;
+				message.flag.type_alarm_off_chime_off = 1;
+			}
 		}
 	}
 }
