@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # $Id: elf.py,v 1.1 2006/04/11 18:35:23 cliechti Exp $
 
 import struct

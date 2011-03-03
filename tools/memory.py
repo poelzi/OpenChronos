@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # $Id: memory.py,v 1.4.2.1 2009/05/19 09:07:21 rlim Exp $
 import sys
 import elf

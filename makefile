@@ -3,7 +3,7 @@
 CPU	= MSP430
 CC  = msp430-gcc
 LD  = msp430-ld
-PYTHON = python
+PYTHON = python2
 
 PROJ_DIR	=.
 BUILD_DIR = build
@@ -108,11 +108,11 @@ build:
 	mkdir -p build
 
 config.h:
-	python tools/config.py
+	$(PYTHON) tools/config.py
 	git update-index --assume-unchanged config.h 2> /dev/null || true
 
 config:
-	python tools/config.py
+	$(PYTHON) tools/config.py
 	git update-index --assume-unchanged config.h 2> /dev/null || true
 
 help:
