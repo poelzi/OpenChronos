@@ -444,7 +444,7 @@ void wakeup_event(void)
 	if (button.all_flags && sys.flag.lock_buttons)
 	{
 		// Show "buttons are locked" message synchronously with next second tick
-		if (!(BUTTON_NUM_IS_PRESSED && BUTTON_DOWN_IS_PRESSED))
+		if (!((BUTTON_NUM_IS_PRESSED && BUTTON_DOWN_IS_PRESSED) || BUTTON_BACKLIGHT_IS_PRESSED))
 		{
 			message.flag.prepare     = 1;
 			message.flag.type_locked = 1;
