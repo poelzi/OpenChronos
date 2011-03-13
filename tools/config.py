@@ -122,7 +122,7 @@ DATA["CONFIG_PHASE_CLOCK"] = {
         "name": "Phase Clock (918 bytes)",
         "depends": [],
         "default": False,
-        "help": "Messures sleep phase by recording body movement and sending the data to the accesspoint.\n"
+        "help": "Measures sleep phase by recording body movement and sending the data to the accesspoint.\n"
                 "Designed to be used with uberclock",
 }
 
