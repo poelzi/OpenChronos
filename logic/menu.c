@@ -166,7 +166,7 @@ u8 update_sidereal(void)
 // *************************************************************************************************
 // User navigation ( [____] = default menu item after reset )
 //
-//	LINE1: 	[Time] -> Alarm -> Temperature -> Altitude -> Heart rate -> Speed -> Acceleration
+//	LINE1: 	[Time] -> Alarm -> Temperature -> Altitude -> AltitudeAccumulator -> Heart rate -> Speed -> Acceleration
 //
 //	LINE2: 	[Date] -> Stopwatch -> Battery  -> ACC -> PPT -> SYNC -> Calories/Distance --> RFBSL
 // *************************************************************************************************
@@ -223,6 +223,18 @@ const struct menu menu_L1_Altitude =
 	FUNCTION(menu_skip_next),			// next item function
 	FUNCTION(display_altitude),			// display function
 	FUNCTION(update_time),				// new display data
+};
+#endif
+
+#ifdef CONFIG_ALTI_ACCUMULATOR
+// Line1 - Altitude Accumulator
+const struct menu menu_L1_AltAccum =
+{
+	FUNCTION(sx_alt_accumulator),		// direct function
+	FUNCTION(mx_alt_accumulator),		// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
+	FUNCTION(display_alt_accumulator),	// display function
+	FUNCTION(update_time),			// new display data
 };
 #endif
 
@@ -441,6 +453,9 @@ const struct menu *menu_L1[]={
 	&menu_L1_Temperature,
 	#ifdef CONFIG_ALTITUDE
 	&menu_L1_Altitude,
+	#endif
+	#ifdef CONFIG_ALTI_ACCUMULATOR
+	&menu_L1_AltAccum,
 	#endif
 	#ifndef ELIMINATE_BLUEROBIN
 	&menu_L1_Heartrate,

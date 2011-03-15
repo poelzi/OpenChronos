@@ -117,6 +117,9 @@ typedef union
     u16 temperature_measurement 	: 1;    // 1 = Measure temperature
     u16 voltage_measurement    		: 1;    // 1 = Measure voltage
     u16 altitude_measurement    	: 1;    // 1 = Measure air pressure
+#ifdef CONFIG_ALTI_ACCUMULATOR
+    u16 altitude_accumulator            : 1;	// 1 = Measure altitude & accumulate it
+#endif
     u16	acceleration_measurement	: 1; 	// 1 = Measure acceleration
     u16 buzzer   			: 1;    // 1 = Output buzzer for alarm
 #ifdef CONFIG_STRENGTH
@@ -170,7 +173,7 @@ extern volatile s_message_flags message;
   #define SIMPLICITI_TX_ONLY_REQ
 #endif
 
-#if defined (CONFIG_ALTITUDE) || defined (CONFIG_VARIO)
+#if defined (CONFIG_ALTITUDE) || defined (CONFIG_VARIO) || defined (CONFIG_ALTI_ACCUMULATOR)
   #define FEATURE_ALTITUDE
 #endif
 

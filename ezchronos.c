@@ -138,7 +138,9 @@ void (*fptr_lcd_function_line2)(u8 line, u8 update);
 
 // *************************************************************************************************
 // Extern section
-
+#ifdef CONFIG_ALTI_ACCUMULATOR
+extern u8 alt_accum_enable;	// used by altitude accumulator function
+#endif
 extern void start_simpliciti_sync(void);
 
 extern u16 ps_read_register(u8 address, u8 mode);
@@ -352,6 +354,10 @@ void init_global_variables(void)
 	
 	// Read calibration values from info memory
 	read_calibration_values();
+#ifdef CONFIG_ALTI_ACCUMULATOR
+	// By default, don't have the altitude accumulator running
+	alt_accum_enable = 0;
+#endif
 	
 	
 	#ifdef CONFIG_INFOMEM
@@ -569,6 +575,9 @@ void process_requests(void)
 	// Do pressure measurement
 #ifdef CONFIG_ALTITUDE
   	if (request.flag.altitude_measurement) do_altitude_measurement(FILTER_ON);
+#endif
+#ifdef CONFIG_ALTI_ACCUMULATOR
+	if (request.flag.altitude_accumulator) altitude_accumulator_periodic();
 #endif
 	
 	#ifdef FEATURE_PROVIDE_ACCEL

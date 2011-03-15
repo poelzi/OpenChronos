@@ -111,6 +111,9 @@ struct timer sTimer;
 extern void BRRX_TimerTask_v(void);
 extern void to_lpm(void);
 
+#ifdef CONFIG_ALTI_ACCUMULATOR
+extern u8 alt_accum_enable; // 1 means the altitude accumulator is enabled
+#endif
 
 // *************************************************************************************************
 // @fn          Timer0_Init
@@ -370,6 +373,11 @@ __interrupt void TIMER0_A0_ISR(void)
 		}
 		// Check if alarm needs to be turned on
 		check_alarm();
+		#endif
+		#ifdef CONFIG_ALTI_ACCUMULATOR
+		// Check if we need to do an altitude accumulation
+		if (alt_accum_enable)
+			request.flag.altitude_accumulator = 1;
 		#endif
 	}
 
