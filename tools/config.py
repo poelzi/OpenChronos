@@ -230,6 +230,11 @@ DATA["CONFIG_USE_GPS"] = {
 	"depends": [],
 	"default": False}
 
+DATA["CONFIG_CW_TIME"] = {
+        "name": "CW Time",
+        "depends": [],
+        "default": False,
+	"help": "Send time in morse code"}
 
 HEADER = """
 #ifndef _CONFIG_H_

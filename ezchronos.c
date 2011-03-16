@@ -732,6 +732,159 @@ void to_lpm(void)
 // *************************************************************************************************
 void idle_loop(void)
 {
+	#ifdef CONFIG_CW_TIME
+
+	// what I'd like to do here is set a morsepos variable
+
+	// if non-zero it is how many digits we have left to go
+
+	// on sending the time. 
+
+	// we also would have a morse var that would only get set 
+
+	// the first send and reset when not in view so we'd only
+
+	// send the time once
+
+#define CW_DIT_LEN CONV_MS_TO_TICKS(50)    // basic element size (100mS)
+
+  static int morse=0;       // should send morse == 1
+
+  static int morsepos=0; // position in morse time (10 hour =1, hour=2, etc.)
+
+  static int morsehr; // cached hour for morse code
+
+  static int morsemin;  // cached minute for morse code
+
+  static int morsedig=-1; // current digit
+
+  static int morseel; // current element in digit (always 5 elements max)
+
+  static unsigned int morseinitdelay; // start up delay
+
+  // We only send the time in morse code if the seconds display is active, and then only
+
+  // once per activation
+
+	if (sTime.line1ViewStyle == DISPLAY_ALTERNATIVE_VIEW)
+
+	  {
+
+	    if (!morse)   // this means its the first time (we reset this to zero in the else)
+
+	      {
+
+		morse=1;  // mark that we are sending
+
+		morsepos=1;  // initialize pointer
+
+// Jim pointed out it is remotely possible that a button
+
+// int could wake up this routine and then the hour could
+
+// flip over after reading so I added this "do" loop
+
+                do {
+
+		   morsehr=sTime.hour;  // and cache
+
+		   morsemin=sTime.minute;
+
+		} while (morsehr!=sTime.hour);
+
+                 morsedig=-1;  // not currently sending digit
+
+		morseinitdelay=45000;  // delay for a bit before starting so the key beep can quiet down
+
+	      }
+
+	    if (morseinitdelay)   // this handles the initial delay
+
+	      {
+
+		morseinitdelay--;
+
+		return;  // do not sleep yet or no event will get scheduled and we'll hang for a very long time
+
+	      }
+
+	    if (!is_buzzer() && morsedig==-1)  // if not sending anything
+
+	      {
+
+		morseel=0;                     // start a new character
+
+		switch (morsepos++)            // get the right digit
+
+		  {
+
+		  case 1:
+
+		    morsedig=morsehr/10;
+
+		    break;
+
+		  case 2:
+
+		    morsedig=morsehr%10;
+
+		    break;
+
+		  case 3:
+
+		    morsedig=morsemin/10;
+
+		    break;
+
+		  case 4:
+
+		    morsedig=morsemin%10;
+
+		    break;
+
+		  default: morsepos=5;  // done for now
+
+		  }
+
+		if (morsedig==0) morsedig=10;  // treat zero as 10 for code algorithm
+
+		}
+
+	    // now we have a digit and we need to send element
+
+	    if (!is_buzzer()&&morsedig!=-1)
+
+	      {
+
+		int digit=morsedig;
+
+// assume we are sending dit for 1-5 or dah for 6-10 (zero is 10)
+
+		int ditdah=(morsedig>5)?1:0;  
+
+		int dit=CW_DIT_LEN;
+
+		if (digit>=6) digit-=5;   // fold digits 6-10 to 1-5
+
+		if (digit>=++morseel) ditdah=ditdah?0:1;  // flip dits and dahs at the right point
+
+		// send the code
+
+		start_buzzer(1,ditdah?dit:(3*dit),(morseel>=5)?10*dit:dit);
+
+		// all digits have 5 elements
+
+		if (morseel==5) morsedig=-1;
+
+	      } 
+
+	  }
+
+	else
+
+	  morse=0;  // no morse code right now
+
+#endif
 	// To low power mode
 	to_lpm();
 
