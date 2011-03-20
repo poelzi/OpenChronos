@@ -32,20 +32,6 @@
 //	  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // *************************************************************************************************
-//
-// Eggtimer is currently just a copy of stopwatch.
-// I'm going to be turning it into a count down timer.
-//
-// TO DO:
-//    Make sure it doesn't interfere with stopwatch 
-//      (timer.c causing weird things especially relating to alt mode)
-//      (do NOT run both eggtimer and stopwatch at the same time)
-//      (this is because Stopwatch and Eggtimer both use the same Capture & Compare Register)
-//    Figure out why I have to use the stopwatch display update flag.
-//    Set it so stopwatch and eggtimer blink their respective icons when selected
-//      this prevents confusion as to which is currently selected.
-//    Change beeping so user can stop it at will, instead of having to wait.
-// *************************************************************************************************
 
 #ifndef eggtimer_H_
 #define eggtimer_H_
@@ -54,66 +40,53 @@
 // Include section
 #include <project.h>
 
-#ifdef CONFIG_EGGTIMER
-
 // *************************************************************************************************
 // Prototypes section
+extern void init_eggtimer(void);
 extern void start_eggtimer(void);
 extern void stop_eggtimer(void);
-extern void reset_eggtimer(void);
-extern u8 is_eggtimer(void);
+extern void stop_eggtimer_alarm(void);
+extern void set_eggtimer_to_defaults(void);
+extern void set_eggtimer(void);
 extern void eggtimer_tick(void);
-extern void update_eggtimer_timer(void);
 extern void mx_eggtimer(u8 line);
 extern void sx_eggtimer(u8 line);
 extern void display_eggtimer(u8 line, u8 update);
-extern void set_eggtimer(void);
+extern u8 eggtimer_visible(void);
 
 
 // *************************************************************************************************
 // Defines section
-#define EGGTIMER_1HZ_TICK			(32768/1)
-#define EGGTIMER_100HZ_TICK		(32768/100)
 #define EGGTIMER_STOP				(0u)
 #define EGGTIMER_RUN				(1u)
-#define EGGTIMER_HIDE				(2u)
+#define EGGTIMER_ALARM				(2u)
 
+#define EGGTIMER_ALARM_DURATION			(10u)
 
 // *************************************************************************************************
 // Global Variable section
 struct eggtimer
 {
         //NOTE: u8 means unsigned char
-	u8 		state;
-	u8		drawFlag;
-	u8		swtIs1Hz;
-	u8		swtIs10Hz;
+	u8	state;
+	u8	drawFlag;
 	
-	//	time[0] 	hour H
-	//	time[1] 	hour L
-	//	time[2] 	minute H
-	//	time[3] 	minute L
-	//	time[4] 	second H
-	//	time[5] 	second L
-	//	time[6] 	1/10 sec 
-	//	time[7] 	1/100 sec
-	u8		time[8];
+	// Values that are decremented each second
+	u8	hours;
+	u8	minutes;
+	u8	seconds;
 	
-	// Display style
-	u8 	viewStyle;
-        
-        //Default Eggtimer time
-        u8      defaultTime[8];
-        
-        //eggtimer update flag
-        u16 update_eggtimer     	: 1;    // 1 = Eggtimer was updated
+	// Values to default to, after timer runs out and is cleared
+	u8	default_hours;
+	u8	default_minutes;
+	u8	default_seconds;
+	
+	u8	duration; //Number of times to request buzzer double-beep when time is up
 };
-extern struct eggtimer seggtimer;
+extern struct eggtimer sEggtimer;
 
 
 // *************************************************************************************************
 // Extern section
-
-#endif // CONFIG_EGGTIMER
 
 #endif /*eggtimer_H_*/

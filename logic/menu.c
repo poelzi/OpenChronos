@@ -151,7 +151,7 @@ u8 update_acceleration(void)
 #ifdef CONFIG_EGGTIMER
 u8 update_eggtimer(void)
 {
-	return (display.flag.update_stopwatch);
+	return (display.flag.update_eggtimer);
 }
 #endif
 

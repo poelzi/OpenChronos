@@ -118,7 +118,10 @@ typedef union
     u16 voltage_measurement    		: 1;    // 1 = Measure voltage
     u16 altitude_measurement    	: 1;    // 1 = Measure air pressure
     u16	acceleration_measurement	: 1; 	// 1 = Measure acceleration
-    u16 buzzer   			: 1;    // 1 = Output buzzer for alarm
+    u16 alarm_buzzer			: 1;	// 1 = Output buzzer for alarm
+#ifdef CONFIG_EGGTIMER
+    u16 eggtimer_buzzer : 1; // 1 = Output buzzer for eggtimer
+#endif
 #ifdef CONFIG_STRENGTH
     u16 strength_buzzer 		: 1;    // 1 = Output buzzer from strength_data
 #endif

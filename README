@@ -1,54 +1,25 @@
 
-This fork adds a variometer, an instrument indicating vertical speed,
-essentially for use in free flight (paragliding, hang gliding, ...).
+Updates the eggtimer to be fully working, with a slightly reduced code-size.
 
-Initially based on the vario source coded by dkm, I ended up rewriting
-that module completely.
-
-- Pressing the "v" (down) button cycles between displays as follows:
-        
-    * vario (in m/s)
-	  Displays a signed fractional value representing the ascent or
-          descent speed in meters per second.
-
-    * vario (in Pascal)
-          Displays a signed integer value representing the ascent or
-          descent speed in Pascal/second.
-
-    * pressure (in hPa)
-          Displays a signed fraction representing the pressure measured at
-          the current altitude.
-
-    * max Vz (in m/s)
-          Displays the maximum vertical speed in meters/second.
-
-    * min Vz (in m/s)
-          Displays the minimum vertical speed in meters/second.
-    
-- A long press on the "#" button performs a context sensitive function:
-    
-    * during vario display, changes the vario sound mode:
-      Off      (default, no symbol displayed)
-      Ascent 0 (start beeping at 0.0m/s, beeper1 and beeper2 symbols
-               displayed)
-      Ascent 1 (start beeping at 0.1m/s, beeper1 symbol displayed)
-      Both     (beep for up or down, beeper1 and beeper2 symbols
-               displayed)
-
-      Tone frequency, number and duration of beeps depend on climb rate.
-
-    * during max/min Vz display, resets both the max and min values.
-    
-- The "record" icon is flashed at one second intervals, indicating that
-  the watch is in vario mode and receiving pressure measurements.
-          
-  Note that the upper line must be in altimeter mode for the vario to
-  work, as it relies on updates from the altimeter. If the altimeter
-  is not active, the vario display shows "noAlt".
 
 == Status ==
 
-Works, but in development :-)
+Should be fully functional. Can be run concurrently with the stopwatch
+without harm.  Can also be run in the background (i.e. you can navigate
+away from its menu and it will still run and go off at the correct time.)
+
+The icon used for it ("R" with a circle around it) is on solid for when
+its menu entry is active, and blinks when running, even if on a separate
+menu (menu entry not active).
+
+Resolution is in seconds, maximum hours is 19, max minutes is 99, and max
+seconds is 99. (Note that a time of 2:90:00 == 3:30:00, since the minutes
+will rollover to 59 after 90 minutes, not back up to 90 --> 2:90:00...
+2:89:59...2:89:58......2:00:01...2:00:00...1:59:59...)
+
+These updates reduce the (.elf) delta compiled codesize by about 40 bytes,
+from 1524 to 1480.
+
 
 == Requirements ==
 

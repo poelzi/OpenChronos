@@ -401,9 +401,7 @@ void init_global_variables(void)
 	#endif
 
 #ifdef CONFIG_EGGTIMER
-	//Set Eggtimer to a 5 minute default
-	memcpy(seggtimer.defaultTime, "00010000", sizeof(seggtimer.time));
-	reset_eggtimer();
+	init_eggtimer(); // Initialize eggtimer
 #endif
 
 #ifdef CONFIG_PROUT
@@ -581,10 +579,16 @@ void process_requests(void)
 	if (request.flag.voltage_measurement) battery_measurement();
 	#endif
 	
-	#ifdef CONFIG_ALARM  // N8VI NOTE eggtimer may want in on this
+	#ifdef CONFIG_ALARM
 	// Generate alarm (two signals every second)
-	if (request.flag.buzzer) start_buzzer(2, BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
+	if (request.flag.alarm_buzzer) start_buzzer(2, BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
 	#endif
+	
+#ifdef CONFIG_EGGTIMER
+	// Generate alarm (two signals every second)
+	if (request.flag.eggtimer_buzzer) start_buzzer(2, BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
+#endif
+	
 	
 #ifdef CONFIG_STRENGTH
 	if (request.flag.strength_buzzer && strength_data.num_beeps != 0) 

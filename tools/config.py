@@ -112,10 +112,10 @@ DATA["TEXT_MODULES"] = {
 #### MODULES ####
 
 DATA["CONFIG_EGGTIMER"] = {
-        "name": "Eggtimer (1524 bytes)",
+        "name": "Eggtimer (1480 bytes)",
         "depends": [],
         "default": False,
-        "help": "Countdown timer to count down from 1 minute - 20 hours to 0 and start an alarm",
+        "help": "Countdown timer for intervals from seconds up to 20+ hours.",
 }
 
 DATA["CONFIG_PHASE_CLOCK"] = {
