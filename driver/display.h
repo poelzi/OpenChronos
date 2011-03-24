@@ -92,6 +92,9 @@ typedef union
 	u16 update_sidereal_time	: 1;	// 1 = Sidereal Time was updated
 #endif
     u16 update_stopwatch     	: 1;    // 1 = Stopwatch was updated
+#ifdef CONFIG_EGGTIMER
+    u16 update_eggtimer : 1;
+#endif
     u16 update_temperature   	: 1;    // 1 = Temperature was updated
     u16 update_battery_voltage 	: 1;    // 1 = Battery voltage was updated
     u16 update_date      		: 1;    // 1 = Date was updated

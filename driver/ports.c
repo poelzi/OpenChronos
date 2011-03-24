@@ -60,6 +60,10 @@
 #include "altitude.h"
 #include "stopwatch.h"
 
+#ifdef CONFIG_EGGTIMER
+#include "eggtimer.h"
+#endif
+
 
 // *************************************************************************************************
 // Prototypes section
@@ -317,6 +321,15 @@ __interrupt void PORT2_ISR(void)
 		}
 		else 
 		#endif
+		
+		#ifdef CONFIG_EGGTIMER
+		if (sEggtimer.state == EGGTIMER_ALARM) {
+			stop_eggtimer_alarm();
+			button.all_flags = 0;
+		}
+		else
+		#endif
+		
 		if (!sys.flag.up_down_repeat_enabled && !sys.flag.no_beep)
 		{
 			start_buzzer(1, CONV_MS_TO_TICKS(20), CONV_MS_TO_TICKS(150));

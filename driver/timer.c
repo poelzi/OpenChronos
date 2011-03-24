@@ -368,7 +368,7 @@ __interrupt void TIMER0_A0_ISR(void)
 		// If the chime is enabled, we beep here
 		if (sTime.minute == 0) {
 			if (sAlarm.hourly == ALARM_ENABLED) {
-				request.flag.buzzer = 1;
+				request.flag.alarm_buzzer = 1;
 			}
 		}
 		// Check if alarm needs to be turned on
@@ -383,15 +383,31 @@ __interrupt void TIMER0_A0_ISR(void)
 
 	// -------------------------------------------------------------------
 	// Service active modules that require 1/s processing
-	
-	#ifdef CONFIG_ALARM  // N8VI NOTE eventually, eggtimer should use this code too
+#ifdef CONFIG_EGGTIMER
+	if (sEggtimer.state == EGGTIMER_RUN) {
+		eggtimer_tick(); // Subtract 1 second from eggtimer's count
+	}
+
+	if (sEggtimer.state == EGGTIMER_ALARM) { // no "else if" intentional
+		// Decrement alarm duration counter
+		if (sEggtimer.duration-- > 0)
+		{
+			request.flag.eggtimer_buzzer = 1;
+		}
+		else
+		{
+			stop_eggtimer_alarm(); // Set state to Stop and reset duration
+		}
+	}
+#endif
+	#ifdef CONFIG_ALARM
 	// Generate alarm signal
 	if (sAlarm.state == ALARM_ON) 
 	{
 		// Decrement alarm duration counter
 		if (sAlarm.duration-- > 0)
 		{
-			request.flag.buzzer = 1;
+			request.flag.alarm_buzzer = 1;
 		}
 		else
 		{
@@ -653,17 +669,11 @@ __interrupt void TIMER0_A1_5_ISR(void)
 #ifdef CONFIG_STOP_WATCH
 					update_stopwatch_timer();
 #endif
-#ifdef CONFIG_EGGTIMER
-					update_eggtimer_timer();
-#endif
 					// Enable timer interrupt    
 					TA0CCTL2 |= CCIE; 	
 					// Increase stopwatch counter
 #ifdef CONFIG_STOP_WATCH
 					stopwatch_tick();
-#endif
-#ifdef CONFIG_EGGTIMER
-					eggtimer_tick();
 #endif
 					break;
 					
