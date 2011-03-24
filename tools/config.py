@@ -139,6 +139,13 @@ DATA["CONFIG_VARIO"] = {
         "depends": [],
         "default": False}
 
+DATA["CONFIG_ALTI_ACCUMULATOR"] = {
+	"name": "Altitude accumulator (1068 bytes)",
+	"depends": [],
+	"default": False,
+	"help": "If active take altitude measurement once per minute and accumulate all ascending vertical meters."
+	}
+
 DATA["CONFIG_PROUT"] = {
         "name": "Simple example that displays a text (238 bytes)",
         "depends": [],

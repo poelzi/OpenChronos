@@ -48,12 +48,20 @@ extern u8 is_altitude_measurement(void);
 extern void start_altitude_measurement(void);
 extern void stop_altitude_measurement(void);
 extern void do_altitude_measurement(u8 filter);
+#ifdef CONFIG_ALTI_ACCUMULATOR
+extern void display_selection_altunits(u8 segments, u32 index, u8 digits, u8 blanks);
+extern void altitude_accumulator_periodic (void);
+#endif
 
 // menu functions
 extern void sx_altitude(u8 line);
 extern void mx_altitude(u8 line);
 extern void display_altitude(u8 line, u8 update);
-
+#ifdef CONFIG_ALTI_ACCUMULATOR
+extern void sx_alt_accumulator(u8 line);
+extern void mx_alt_accumulator(u8 line);
+extern void display_alt_accumulator (u8 line, u8 update);
+#endif
 
 // *************************************************************************************************
 // Defines section
