@@ -3,7 +3,7 @@
 CPU	= MSP430
 CC  = msp430-gcc
 LD  = msp430-ld
-PYTHON = python2
+PYTHON := $(shell which python2 || which python)
 
 PROJ_DIR	=.
 BUILD_DIR = build
