@@ -510,6 +510,23 @@ __interrupt void TIMER0_A0_ISR(void)
 	}
 	
 	// -------------------------------------------------------------------
+	// Turn the Backlight off after timeout
+	if (sButton.backlight_status == 1)
+	{
+		if (sButton.backlight_timeout > BACKLIGHT_TIME_ON)
+		{
+			//turn off Backlight
+			P2OUT &= ~BUTTON_BACKLIGHT_PIN;
+			P2DIR &= ~BUTTON_BACKLIGHT_PIN;
+			sButton.backlight_timeout = 0;
+			sButton.backlight_status = 0;
+		}
+		else
+		{
+			sButton.backlight_timeout++;
+		}
+	}
+	// -------------------------------------------------------------------
 	// Detect continuous button high states
 
 	if (BUTTON_STAR_IS_PRESSED && BUTTON_UP_IS_PRESSED)
