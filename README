@@ -1,24 +1,23 @@
 
-Updates the eggtimer to be fully working, with a slightly reduced code-size.
+Updates the hidden menu RFBSL to work better.
 
 
 == Status ==
 
-Should be fully functional. Can be run concurrently with the stopwatch
-without harm.  Can also be run in the background (i.e. you can navigate
-away from its menu and it will still run and go off at the correct time.)
+Should be fully functional.  The hidden menu RFBSL places the wireless
+update (RFBSL) menu entry as a sub-menu with the battery voltage monitor.
 
-The icon used for it ("R" with a circle around it) is on solid for when
-its menu entry is active, and blinks when running, even if on a separate
-menu (menu entry not active).
+This update makes toggling between the battery and rfbsl behave like a
+normal submenu (uses the down arrow), as well as fixes some pre-processor
+issues.  Specifically, disabling the battery voltage monitor AND enabling
+the hidden rfbsl menu would result in no rfbsl menu, forcing the user to
+use the (SLOW!) USB programmer for the next firmware upload.
 
-Resolution is in seconds, maximum hours is 19, max minutes is 99, and max
-seconds is 99. (Note that a time of 2:90:00 == 3:30:00, since the minutes
-will rollover to 59 after 90 minutes, not back up to 90 --> 2:90:00...
-2:89:59...2:89:58......2:00:01...2:00:00...1:59:59...)
-
-These updates reduce the (.elf) delta compiled codesize by about 40 bytes,
-from 1524 to 1480.
+To-do idea (from gibbons): merge the battery, rfbsl, and sync functions
+all into one menu (a "hardware" or "tools" menu, for example). Ideally,
+also make it easier to pick and choose from these three options without
+needing ridiculous preprocessor commands, e.g.
+#if !defined(CONFIG_BATTERY) && defined(CONFIG_DISCRET_RFBSL) && ...
 
 
 == Requirements ==

@@ -116,7 +116,7 @@ extern const struct menu menu_L2_Sync;
 
 extern const struct menu menu_L2_CalDist;
 
-#ifndef CONFIG_USE_DISCRET_RFBSL
+#if !defined(CONFIG_BATTERY) || !defined(CONFIG_USE_DISCRET_RFBSL)
 extern const struct menu menu_L2_RFBSL;
 #endif
 

@@ -318,15 +318,18 @@ const struct menu menu_L2_Eggtimer =
 #ifdef CONFIG_BATTERY
 const struct menu menu_L2_Battery =
 {
-	FUNCTION(dummy),					// direct function
-	#ifndef CONFIG_USE_DISCRET_RFBSL
-	FUNCTION(dummy),					// sub menu function
+	#ifdef CONFIG_USE_DISCRET_RFBSL
+	FUNCTION(sx_rfbsl), // sub menu function
+	FUNCTION(mx_rfbsl), // direct function
+	FUNCTION(nx_rfbsl), // next item function
+	FUNCTION(display_discret_rfbsl),
 	#else
-	FUNCTION(sx_rfbsl),					//sub function calls RFBSL
+	FUNCTION(dummy), // sub menu function
+	FUNCTION(dummy), // direct function
+	FUNCTION(menu_skip_next), // next item function
+	FUNCTION(display_battery_V), // display function
 	#endif
-	FUNCTION(menu_skip_next),			// next item function
-	FUNCTION(display_battery_V),		// display function
-	FUNCTION(update_battery_voltage),	// new display data
+	FUNCTION(update_battery_voltage), // new display data
 };
 #endif
 #ifdef CONFIG_PHASE_CLOCK
@@ -388,7 +391,10 @@ const struct menu menu_L2_CalDist =
 	//&menu_L2_RFBSL,
 };
 #endif
-#ifndef CONFIG_USE_DISCRET_RFBSL
+
+// Include independent RFBSL menu if battery menu disabled, or if user didn't
+// want the hidden RFBSL menu
+#if !defined(CONFIG_BATTERY) || !defined(CONFIG_USE_DISCRET_RFBSL)
 // Line2 - RFBSL
 const struct menu menu_L2_RFBSL =
 {
@@ -497,7 +503,7 @@ const struct menu *menu_L2[]={
 	#ifndef ELIMINATE_BLUEROBIN
 	&menu_L2_CalDist,
 	#endif
-	#ifndef CONFIG_USE_DISCRET_RFBSL
+	#if !defined(CONFIG_USE_DISCRET_RFBSL) || !defined(CONFIG_BATTERY)
 	&menu_L2_RFBSL,
 	#endif
 	#ifdef CONFIG_PROUT
