@@ -65,6 +65,11 @@
 #include "acceleration.h"
 #endif
 
+//prout
+#ifdef CONFIG_PROUT
+#include "prout.h"
+#endif
+
 //pfs
 #ifndef ELIMINATE_BLUEROBIN
 #include "bluerobin.h"
@@ -416,7 +421,11 @@ __interrupt void TIMER0_A0_ISR(void)
 		}
 	}
 	#endif
-
+	
+#ifdef CONFIG_PROUT
+        if (is_prout()) prout_tick();
+#endif
+		
 #ifdef CONFIG_STRENGTH
         // One more second gone by.
         if(is_strength())
@@ -722,4 +731,3 @@ __interrupt void TIMER0_A1_5_ISR(void)
 	// Exit from LPM3 on RETI
 	_BIC_SR_IRQ(LPM3_bits);               
 }
-
