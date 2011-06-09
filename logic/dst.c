@@ -108,8 +108,20 @@ void dst_calculate_dates(void)
 
 u8 dst_isDateInDST(u8 month, u8 day)
 {
-    return ((DSTNUM(month,day)>=DSTNUM(dst_dates[0].month,dst_dates[0].day)) &&
-            (DSTNUM(month,day)<DSTNUM(dst_dates[1].month,dst_dates[1].day)));
+    if (dst_dates[0] < dst_dates[1])
+    {
+        // Northern hemisphere
+        return
+            ((DSTNUM(month,day)>=DSTNUM(dst_dates[0].month,dst_dates[0].day)) &&
+             (DSTNUM(month,day)<DSTNUM(dst_dates[1].month,dst_dates[1].day)));
+    }
+    else
+    {
+        // Southern hemisphere
+        return (!(
+            ((DSTNUM(month,day)>=DSTNUM(dst_dates[1].month,dst_dates[1].day)) &&
+             (DSTNUM(month,day)<DSTNUM(dst_dates[0].month,dst_dates[0].day)))));
+    }
 }
 
 u8 dst_day_of_week(u16 year, u8 month, u8 day)
