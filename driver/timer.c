@@ -80,7 +80,7 @@
 #include "sidereal.h"
 #endif
 
-#ifdef CONFIG_DST
+#if (CONFIG_DST > 0)
 #include "dst.h"
 #include "date.h"
 #endif
@@ -375,7 +375,7 @@ __interrupt void TIMER0_A0_ISR(void)
 			if (sAlarm.hourly == ALARM_ENABLED) {
 				request.flag.alarm_buzzer = 1;
 			}
-            #ifdef CONFIG_DST
+            #if (CONFIG_DST > 0)
             if ((sTime.hour == 1) &&
                 (dst_state == 0) &&
                 dst_isDateInDST(sDate.month, sDate.day))

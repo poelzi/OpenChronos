@@ -94,7 +94,7 @@ void reset_date(void)
 	// Show default display
 	sDate.view = 0;
 
-    #ifdef CONFIG_DST
+    #if (CONFIG_DST > 0)
     dst_calculate_dates();
     #endif
 }
@@ -164,7 +164,7 @@ void add_day(void)
 			sDate.month = 1;	
 			sDate.year++;
 
-            #ifdef CONFIG_DST
+            #if (CONFIG_DST > 0)
             dst_calculate_dates();
             #endif
 		}	
@@ -230,7 +230,7 @@ void mx_date(line_t line)
 			if(sSidereal_time.sync>0)
 				sync_sidereal();
 			#endif
-            #ifdef CONFIG_DST
+            #if (CONFIG_DST > 0)
             dst_calculate_dates();
             #endif
 			

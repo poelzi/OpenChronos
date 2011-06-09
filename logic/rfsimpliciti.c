@@ -77,7 +77,7 @@
 #include "sidereal.h"
 #endif
 
-#ifdef CONFIG_DST
+#if (CONFIG_DST > 0)
 #include "dst.h"
 #endif
 
@@ -711,7 +711,7 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										sAlarm.minute		= simpliciti_data[9];
 										#endif
 
-                                        #ifdef CONFIG_DST
+                                        #if (CONFIG_DST > 0)
                                         dst_calculate_dates();
                                         #endif
 										// Set temperature and temperature offset

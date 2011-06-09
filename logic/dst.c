@@ -18,7 +18,7 @@
 
 #include "project.h"
 
-#ifdef CONFIG_DST
+#if (CONFIG_DST > 0)
 
 // driver
 #include "altitude.h"
@@ -47,25 +47,56 @@ void dst_init(void)
     dst_calculate_dates();
 }
 
+#define N_SUN_OF_MON(n,mon) (((n)*7)-dst_day_of_week(sDate.year,(mon),((n)*7)))
+#define LAST_SUN_OF_MON(mon,days) ((days)-dst_day_of_week(sDate.year,(mon),(days)))
+
 void dst_calculate_dates(void)
 {
     // This should be run whenever sDate.year gets changed.
 
-    // DST in US: 2nd Sun in Mar to 1st Sun in Nov.
 
-    dst_dates[0].month = 3;
-    dst_dates[0].day = 15 - dst_day_of_week(sDate.year, 3, 1);
-    if (dst_dates[0].day == 15)
-    {
-        dst_dates[0].day = 8;
-    }
-
-    dst_dates[1].month = 3;
-    dst_dates[1].day = 8 - dst_day_of_week(sDate.year, 11, 1);
-    if (dst_dates[1].day == 8)
-    {
-        dst_dates[1].day = 1;
-    }
+    #if (CONFIG_DST == 1)
+    // DST in US/Canada: 2nd Sun in Mar to 1st Sun in Nov.
+        dst_dates[0].month = 3;
+        dst_dates[0].day = N_SUN_OF_MON(2, 3);
+        dst_dates[1].month = 11;
+        dst_dates[1].day = N_SUN_OF_MON(1, 11);
+    #endif
+    #if (CONFIG_DST == 2)
+    // DST in Mexico: first Sun in Apr to last Sun in Oct.
+        dst_dates[0].month = 4;
+        dst_dates[0].day = N_SUN_OF_MON(1, 4);
+        dst_dates[1].month = 10;
+        dst_dates[1].day = LAST_SUN_OF_MON(10, 31);
+    #endif
+    #if (CONFIG_DST == 3)
+    // DST in Brazil: third Sun in Oct to third Sun in Feb.
+        dst_dates[0].month = 10;
+        dst_dates[0].day = N_SUN_OF_MON(3, 10);
+        dst_dates[1].month = 2;
+        dst_dates[1].day = N_SUN_OF_MON(3, 2);
+    #endif
+    #if (CONFIG_DST == 4)
+        // DST in EU/UK: last Sun in Mar to last Sun in Oct.
+        dst_dates[0].month = 3;
+        dst_dates[0].day = LAST_SUN_OF_MON(3, 31);
+        dst_dates[1].month = 10;
+        dst_dates[1].day = LAST_SUN_OF_MON(10, 31);
+    #endif
+    #if (CONFIG_DST == 5)
+        // DST in Australia: first Sun in Oct to first Sun in Apr.
+        dst_dates[0].month = 10;
+        dst_dates[0].day = N_SUN_OF_MON(1, 10);
+        dst_dates[1].month = 4;
+        dst_dates[1].day = N_SUN_OF_MON(1, 4);
+    #endif
+    #if (CONFIG_DST == 6)
+        // DST in New Zealand: last Sun in Sep to first Sun in Apr.
+        dst_dates[0].month = 9;
+        dst_dates[0].day = LAST_SUN_OF_MON(9, 30);
+        dst_dates[1].month = 4;
+        dst_dates[1].day = N_SUN_OF_MON(1, 4);
+    #endif
 
     // This test may be wrong if you set your watch
     // on the time-change day.
@@ -126,5 +157,5 @@ u8 dst_day_of_week(u16 year, u8 month, u8 day)
     return (u8)((tmp + 6) % 7);
 }
 
-#endif /* CONFIG_DST */
+#endif /* (CONFIG_DST > 0) */
 
