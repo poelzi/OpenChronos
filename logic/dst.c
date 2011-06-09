@@ -108,7 +108,7 @@ void dst_calculate_dates(void)
 
 u8 dst_isDateInDST(u8 month, u8 day)
 {
-    if (dst_dates[0] < dst_dates[1])
+    if (dst_dates[0].month < dst_dates[1].month)
     {
         // Northern hemisphere
         return
