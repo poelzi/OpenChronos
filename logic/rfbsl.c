@@ -47,6 +47,7 @@
 #include "ports.h"
 
 // logic
+#include "battery.h"
 #include "rfbsl.h"
 //pfs
 #ifndef ELIMINATE_BLUEROBIN
@@ -64,7 +65,7 @@ u8 locked = 1;
 // Extern section
 extern void menu_skip_next(line_t line); //ezchronos.c
 
-#ifndef CONFIG_USE_DISCRET_RFBSL
+
 // *************************************************************************************************
 // @fn          mx_rfbsl
 // @brief       This functions starts the RFBSL
@@ -103,59 +104,44 @@ void mx_rfbsl(u8 line)
 
 
 }
-#endif
+
+
 // *************************************************************************************************
 // @fn          sx_rfbsl
-// @brief       This functions locks/unlocks the RFBSL
+// @brief       This functions locks/unlocks the RFBSL (or toggles between battery and rfbsl)
 // @param       line		LINE1, LINE2
 // @return      none
 // *************************************************************************************************
 void sx_rfbsl(u8 line)
 {
-#ifdef CONFIG_USE_DISCRET_RFBSL
-	clear_line(LINE2);
-	display_rfbsl(LINE2, DISPLAY_LINE_UPDATE_FULL);
+#if defined(CONFIG_USE_DISCRET_RFBSL) && defined(CONFIG_BATTERY)
+	if (locked) { // Was in battery mode, toggle to rfbsl mode
+		locked = 0;
 
-	// Loop values until all are set or user breaks	set
-	 while(1)
-	  {
-	    // Idle timeout: exit without saving
-	    if (sys.flag.idle_timeout || button.flag.num)
-	    {
-	      // Exit
-	      break;
-	    }
-	    if (button.flag.down)
-	      {
-	    	// Exit if SimpliciTI stack is active
-	    	if (is_rf()) return;
-
-	    	// Before entering RFBSL clear the LINE1 Symbols
-	    	display_symbol(LCD_SYMB_AM, SEG_OFF);
-
-	    	clear_line(LINE1);
-
-	    	// Write RAM to indicate we will be downloading the RAM Updater first
-	    	display_chars(LCD_SEG_L1_3_0, (u8 *)" RAM", SEG_ON);
-
-	    	// Call RFBSL
-	    	CALL_RFSBL();
-	      }
-	  }
-
+		// The next bit is a little crude, but it works
+		clear_line(LINE2);
+		display_battery_V(LINE2, DISPLAY_LINE_CLEAR);
+		display_rfbsl(LINE2, DISPLAY_LINE_UPDATE_FULL);
+	}
+	else { // Was in rfbsl mode, toggle to battery mode
+		locked = 1;
+		clear_line(LINE2);
+		display_rfbsl(LINE2, DISPLAY_LINE_CLEAR); // Currently doesn't do anything
+		display_battery_V(LINE2, DISPLAY_LINE_UPDATE_FULL);
+	}
 #else
-    message.flag.prepare = 1;
-    if(locked) {
-        message.flag.type_unlocked = 1;
-        locked = 0;
-    } else {
-        message.flag.type_locked = 1;
-        locked = 1;
-    }
+	message.flag.prepare = 1;
+	if(locked) {
+		message.flag.type_unlocked = 1;
+		locked = 0;
+	} else {
+		message.flag.type_locked = 1;
+		locked = 1;
+	}
 #endif
 }
 
-#ifndef CONFIG_USE_DISCRET_RFBSL
+
 // *************************************************************************************************
 // @fn          nx_rfbsl
 // @brief       This function locks the RFBSL and switches to next menu item
@@ -167,7 +153,7 @@ void nx_rfbsl(u8 line)
 	locked = 1;
 	menu_skip_next(line);
 }
-#endif
+
 
 // *************************************************************************************************
 // @fn          display_rfbsl
@@ -183,3 +169,23 @@ void display_rfbsl(u8 line, u8 update)
 		display_chars(LCD_SEG_L2_5_0, (u8 *)" RFBSL", SEG_ON);
 	}
 }
+
+
+// *************************************************************************************************
+// @fn          display_discret_rfbsl
+// @brief       Discrete RFBSL display routine: auto selects battery or rfbsl, based on current menu
+// @param       u8 line			LINE2
+//		u8 update		DISPLAY_LINE_UPDATE_FULL
+// @return      none
+// *************************************************************************************************
+#if defined(CONFIG_USE_DISCRET_RFBSL) && defined(CONFIG_BATTERY)
+void display_discret_rfbsl(u8 line, u8 update)
+{
+	if (locked) { // battery mode
+		display_battery_V(line, update);
+	}
+	else { // rfbsl mode
+		display_rfbsl(line, update);
+	}
+}
+#endif

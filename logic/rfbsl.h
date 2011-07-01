@@ -42,6 +42,9 @@ extern void sx_rfbsl(u8 line);
 extern void mx_rfbsl(u8 line);
 extern void nx_rfbsl(u8 line);
 extern void display_rfbsl(u8 line, u8 update);
+#if defined(CONFIG_USE_DISCRET_RFBSL) && defined(CONFIG_BATTERY)
+extern void display_discret_rfbsl(u8 line, u8 update);
+#endif
 
 
 // *************************************************************************************************
