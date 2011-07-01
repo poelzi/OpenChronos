@@ -161,6 +161,15 @@ DATA["CONFIG_SIDEREAL"] = {
                 "This does NOT replace the normal clock which is still available and working."
         }
 
+DATA["CONFIG_DST"] = {
+        "name": "Daylight Saving Time",
+        "depends": [],
+        "default": 0,
+        "type": "choices",
+        "values": [(0, "No DST"), (1, "US/Canada"), (2, "Mexico"), (3, "Brazil"), (4, "EU/UK/Eastern Europe"), (5, "Australia"), (6, "New Zealand")],
+        "help": "Automatically adjust Clock for Daylight Saving Time"
+        }
+
 
 DATA["CONFIG_INFOMEM"] = {
         "name": "Information Memory Driver (2934 bytes, requires sidereal clock)",

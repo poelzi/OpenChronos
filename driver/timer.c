@@ -85,6 +85,11 @@
 #include "sidereal.h"
 #endif
 
+#if (CONFIG_DST > 0)
+#include "dst.h"
+#include "date.h"
+#endif
+
 #ifdef CONFIG_STRENGTH
 #include "strength.h"
 #endif
@@ -375,6 +380,24 @@ __interrupt void TIMER0_A0_ISR(void)
 			if (sAlarm.hourly == ALARM_ENABLED) {
 				request.flag.alarm_buzzer = 1;
 			}
+            #if (CONFIG_DST > 0)
+            if ((sTime.hour == 1) &&
+                (dst_state == 0) &&
+                dst_isDateInDST(sDate.month, sDate.day))
+            {
+                // spring forward
+                sTime.hour++;
+                dst_state = 1;
+            }
+            if ((sTime.hour == 2) &&
+                (dst_state != 0) &&
+                (!dst_isDateInDST(sDate.month, sDate.day)))
+            {
+                // fall back
+                sTime.hour--;
+                dst_state = 0;
+            }
+            #endif
 		}
 		// Check if alarm needs to be turned on
 		check_alarm();
