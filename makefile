@@ -97,7 +97,7 @@ etags: $(ALL_C)
 
 even_in_range:
 	@echo "Assembling $@ in one step for $(CPU)..."
-	msp430-gcc -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o even_in_range.o
+	$(CC) -D_GNU_ASSEMBLER_ -x assembler-with-cpp -c even_in_range.s -o even_in_range.o
 
 clean: 
 	@echo "Removing files..."
